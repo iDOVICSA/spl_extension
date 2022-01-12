@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:spl-extension.helloWorld"
+        "onCommand:spl-extension.adaptCode"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "spl-extension.helloWorld",
-				"title": "Hello World"
+				"command": "spl-extension.adaptCode",
+				"title": "Adapt Code"
 			}
 		]
 	},
