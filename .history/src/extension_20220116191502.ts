@@ -22,6 +22,11 @@ export function activate(context: vscode.ExtensionContext) {
 
       let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!);
       VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant);
+      if (VisualizationPanel.currentPanel) {
+        VisualizationPanel.currentPanel.blocksByVariant = blocksByVariant;
+
+        VisualizationPanel.currentPanel.showVariants(blocksByVariant);
+      }
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;
       if (document) {

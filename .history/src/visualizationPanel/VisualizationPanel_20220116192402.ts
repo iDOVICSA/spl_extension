@@ -37,10 +37,10 @@ export class VisualizationPanel {
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this.blocksByVariant = blocksByVariant;

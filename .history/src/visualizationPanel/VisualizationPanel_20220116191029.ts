@@ -14,7 +14,7 @@ export class VisualizationPanel {
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
 	public blocksByVariant: Map<number, number[]> | undefined;
-	public static createOrShow(extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>) {
+	public static createOrShow(extensionUri: vscode.Uri) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -32,18 +32,18 @@ export class VisualizationPanel {
 			column || vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri),
 		);
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, blocksByVariant);
 
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri);
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
-		this.blocksByVariant = blocksByVariant;
+
 		// Set the webview's initial html content
 		this._update();
 
@@ -76,12 +76,13 @@ export class VisualizationPanel {
 		);
 	}
 
-	public showVariants() {
+	public showVariants(blocksByVariant: Map<number, number[]> | undefined) {
 		// Send a message to the webview webview.
 		// You can send any JSON serializable data.
-		if (!this.blocksByVariant) { return; }
+		if (!blocksByVariant) { return; }
+		this.blocksByVariant = blocksByVariant;
 		const jsonObject: any = {};
-		this.blocksByVariant.forEach((value, key) => {
+		blocksByVariant.forEach((value, key) => {
 			jsonObject[key] = value;
 		});
 		const data = JSON.stringify(jsonObject);
@@ -107,8 +108,6 @@ export class VisualizationPanel {
 	private _update() {
 		const webview = this._panel.webview;
 		this._panel.webview.html = this._getHtmlForWebview(webview);
-		this.showVariants();
-
 	}
 
 
