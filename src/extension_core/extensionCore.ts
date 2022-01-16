@@ -146,7 +146,7 @@ export class ExtensionCore {
     return result;
   }
 
-  getVariantsBlocks(blocks: Map<number, string[]>): Map<number, number[]> {
+  getBlocksByVariant(blocks: Map<number, string[]>): Map<number, number[]> {
     let blocksByVariant = new Map<number, number[]>();
     let blockNumber = 0;
     let blockArray = Array.from(blocks.keys()!);
@@ -160,15 +160,6 @@ export class ExtensionCore {
           blocksByVariant.set(variantId, [blockNumber]);
         }
       }
-      /*let variantsOfElement = Array.from(this.R?.get(firstElement)?.keys()!);
-      for (let index = 0; index < variantsOfElement.length; index++) {
-        const variantId = variantsOfElement[index];
-        if (blocksByVariant.get(variantId)) {
-          blocksByVariant.get(variantId)?.push(blockNumber);
-        } else {
-          blocksByVariant.set(variantId, [blockNumber]);
-        }
-      }*/
       blockNumber++;
     }
     return blocksByVariant;

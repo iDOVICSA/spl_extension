@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
       const newValue = JSON.parse(str, json_serializer.reviver);
       console.log(originalValue, newValue);
 
-      let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!);
+      let blocksByVariant = extensionCore.getBlocksByVariant(identifiedBlocks!);
       VisualizationPanel.createOrShow(context.extensionUri);
       if (VisualizationPanel.currentPanel) {
         VisualizationPanel.currentPanel.showVariants(blocksByVariant);
