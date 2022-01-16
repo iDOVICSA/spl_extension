@@ -1,30 +1,25 @@
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}
 
 import * as vscode from "vscode";
 import { ExtensionCore } from "./extension_core/extensionCore";
-import * as json_serializer from "./json_serializer/json_serializer";
-import { VisualizationPanel } from "./visualizationPanel/VisualizationPanel";
+import * as json_serializer from "./json_serializer/json_serializer" ;
 
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     () => {
-
       let extensionCore = new ExtensionCore();
       extensionCore.getRMap(vscode.workspace.textDocuments);
-
+		
       let identifiedBlocks = extensionCore.identifyBlocks();
       const originalValue = identifiedBlocks;
       const str = JSON.stringify(originalValue, json_serializer.replacer);
       const newValue = JSON.parse(str, json_serializer.reviver);
       console.log(originalValue, newValue);
 
-      let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!);
-      VisualizationPanel.createOrShow(context.extensionUri);
-      if (VisualizationPanel.currentPanel) {
-        VisualizationPanel.currentPanel.showVariants(blocksByVariant);
-      }
+      let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!) ;
+
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;
       if (document) {

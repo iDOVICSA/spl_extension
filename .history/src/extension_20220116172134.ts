@@ -4,13 +4,12 @@ export function deactivate() { }
 import * as vscode from "vscode";
 import { ExtensionCore } from "./extension_core/extensionCore";
 import * as json_serializer from "./json_serializer/json_serializer";
-import { VisualizationPanel } from "./visualizationPanel/VisualizationPanel";
+import { VisualizationPanel } from "../src/visualizationPanel/VisualizationPanel";
 
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     () => {
-
       let extensionCore = new ExtensionCore();
       extensionCore.getRMap(vscode.workspace.textDocuments);
 
@@ -21,10 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
       console.log(originalValue, newValue);
 
       let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!);
-      VisualizationPanel.createOrShow(context.extensionUri);
-      if (VisualizationPanel.currentPanel) {
-        VisualizationPanel.currentPanel.showVariants(blocksByVariant);
-      }
+
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;
       if (document) {

@@ -10,7 +10,10 @@ export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     () => {
-
+      VisualizationPanel.createOrShow(context.extensionUri);
+      if (VisualizationPanel.currentPanel) {
+        VisualizationPanel.currentPanel.showVariants(blocksByVariant);
+      }
       let extensionCore = new ExtensionCore();
       extensionCore.getRMap(vscode.workspace.textDocuments);
 
@@ -21,10 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
       console.log(originalValue, newValue);
 
       let blocksByVariant = extensionCore.getVariantsBlocks(identifiedBlocks!);
-      VisualizationPanel.createOrShow(context.extensionUri);
-      if (VisualizationPanel.currentPanel) {
-        VisualizationPanel.currentPanel.showVariants(blocksByVariant);
-      }
+
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;
       if (document) {

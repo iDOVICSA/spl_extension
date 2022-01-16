@@ -1,16 +1,14 @@
 // this method is called when your extension is deactivated
-export function deactivate() { }
 
 import * as vscode from "vscode";
 import { ExtensionCore } from "./extension_core/extensionCore";
 import * as json_serializer from "./json_serializer/json_serializer";
-import { VisualizationPanel } from "./visualizationPanel/VisualizationPanel";
+import { VisualizationPanel } from "../src/visualizationPanel/VisualizationPanel";
 
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     () => {
-
       let extensionCore = new ExtensionCore();
       extensionCore.getRMap(vscode.workspace.textDocuments);
 
