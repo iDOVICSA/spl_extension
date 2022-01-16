@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
-
+import * as json_serializer from "./../json_serializer/json_serializer";
 export class ExtensionCore {
   // R map <Element , Map<idArtefact,ElementPosition>>;
   //  R: Map<string, Map<number, vscode.Range[]>> | undefined;
 
   R: Map<string, Map<number, vscode.Range>> | undefined;
- 
+
   //blocks <idBlock , listElements>
 
   blocks: Map<number, string[]> | undefined;
@@ -38,7 +38,26 @@ export class ExtensionCore {
         let element: string = document.lineAt(cpt).text;
 
         if (this.R?.get(element)) {
-          this.R.get(element)?.set(idVariant, rangeElement);
+          /// check if element exists
+          let counter: number = 0; // counter for element duplication in the same variant
+
+          while (this.R.get(element)?.get(idVariant)) {
+            counter++;
+            element = element.split("$&")[0];
+            element = element.concat("$&", counter.toString());
+          }
+          if (counter === 0) {
+            this.R.get(element)?.set(idVariant, rangeElement);
+          } else {
+            if (this.R.get(element)) {
+              this.R.get(element)?.set(idVariant, rangeElement);
+            } else {
+              let rvalue = new Map<number, vscode.Range>([
+                [idVariant, rangeElement],
+              ]);
+              this.R.set(element, rvalue);
+            }
+          }
         } else {
           let rvalue = new Map<number, vscode.Range>([
             [idVariant, rangeElement],
@@ -49,8 +68,10 @@ export class ExtensionCore {
     }
   }
 
-  identifyBlocks() {
-    let copyOfR = this.R;
+  identifyBlocks(): Map<number, string[]> | undefined {
+    const originalValue = this.R;
+    const str = JSON.stringify(originalValue, json_serializer.replacer);
+
     if (this.R) {
       let blockNumber: number = 0;
       while (this.R?.size) {
@@ -63,20 +84,31 @@ export class ExtensionCore {
         );
         let intersection: string[] =
           this.findElementsContainedInArtefactIndexes(artefactIndexes);
-
         // Create Block
-
         console.log("block number:  " + blockNumber);
-        blockNumber++;
+
         intersection.forEach((element) => {
-          console.log(element);
+          if (this.blocks?.get(blockNumber)) {
+            //check if block exists
+            this.blocks?.get(blockNumber)?.push(element);
+          } else {
+            // create a new block
+            if (blockNumber === 0) {
+              this.blocks = new Map<number, string[]>();
+            }
+            this.blocks?.set(blockNumber, [element]);
+          }
+          console.log(element.split("$&")[0]);
           this.R?.delete(element);
         });
         console.log("******************");
+        blockNumber++;
       }
     } else {
       console.log("cant identify blocks from an empty list");
     }
+    this.R = JSON.parse(str, json_serializer.reviver);
+    return this.blocks;
   }
 
   findMostFrequentElement() {
@@ -112,6 +144,34 @@ export class ExtensionCore {
       });
     }
     return result;
+  }
+
+  getVariantsBlocks(blocks: Map<number, string[]>): Map<number, number[]> {
+    let blocksByVariant = new Map<number, number[]>();
+    let blockNumber = 0;
+    let blockArray = Array.from(blocks.keys()!);
+    for (let index = 0; index < blockArray.length; index++) {
+      const element = blockArray[index];
+      let firstElement = blocks.get(blockNumber)![0];
+      for (let variantId of this.R?.get(firstElement)?.keys()!) {
+        if (blocksByVariant.get(variantId)) {
+          blocksByVariant.get(variantId)?.push(blockNumber);
+        } else {
+          blocksByVariant.set(variantId, [blockNumber]);
+        }
+      }
+      /*let variantsOfElement = Array.from(this.R?.get(firstElement)?.keys()!);
+      for (let index = 0; index < variantsOfElement.length; index++) {
+        const variantId = variantsOfElement[index];
+        if (blocksByVariant.get(variantId)) {
+          blocksByVariant.get(variantId)?.push(blockNumber);
+        } else {
+          blocksByVariant.set(variantId, [blockNumber]);
+        }
+      }*/
+      blockNumber++;
+    }
+    return blocksByVariant;
   }
 
   checkEqualityTwoArrays(a: any[], b: any[]) {
