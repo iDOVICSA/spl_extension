@@ -1,8 +1,7 @@
-let wordCloudIterable = new Map();
-
 (function () {
     // Handle the message inside the webview
     let iterable = new Map() ;
+    let wordCloudIterable = new Map();
     window.addEventListener('message', event => {
 
         const message = event.data; // The JSON data our extension sent

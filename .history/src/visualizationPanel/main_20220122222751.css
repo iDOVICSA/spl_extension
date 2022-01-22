@@ -24,7 +24,6 @@ body {
 
 .bloc {
   height: 80px;
-  cursor: pointer;
 }
 
 .bloc:hover {

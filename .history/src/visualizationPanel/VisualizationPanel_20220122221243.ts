@@ -90,13 +90,11 @@ export class VisualizationPanel {
 		});
 		const data = JSON.stringify(jsonObject);
 		this.blocksresultsFeatureNamingByVariant?.forEach((value, key) => {
-			console.log("***********************");
-			console.log(value);
-			jsonObjectWordCloud[key] = value;
+			jsonObject[key] = value;
 		});
-		const dataWordCloud = JSON.stringify(jsonObjectWordCloud);
+		const dataWordCloud = JSON.stringify(jsonObject);
 		this._panel.webview.postMessage({
-			command: 'showvariants', data: data, dataWordCloud: dataWordCloud
+			command: 'showvariants', data: data
 		});
 	}
 
@@ -125,13 +123,9 @@ export class VisualizationPanel {
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Local path to main script run in the webview
 		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'script.js');
-		const scriptPathOnDisk2 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-base.min.js');
-		const scriptPathOnDisk3 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-tag-cloud.min.js');
 
 		// And the uri we use to load this script in the webview
 		const scriptUri = (scriptPathOnDisk).with({ 'scheme': 'vscode-resource' });
-		const scriptUri2 = (scriptPathOnDisk2).with({ 'scheme': 'vscode-resource' });
-		const scriptUri3 = (scriptPathOnDisk3).with({ 'scheme': 'vscode-resource' });
 
 		// Local path to css styles
 		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'main.css');
@@ -153,14 +147,9 @@ export class VisualizationPanel {
 		<body>
 			<div id="table">
 			</div>
-			<div class="center">
-			<div id="container"></div>
-		</div>
 		</body>
 		<script type="text/javascript" src="${scriptUri}"></script>
-		<script type="text/javascript" src="${scriptUri2}"></script>
-		<script type="text/javascript" src="${scriptUri3}"></script>
-
+		
 		</html>`;
 	}
 }

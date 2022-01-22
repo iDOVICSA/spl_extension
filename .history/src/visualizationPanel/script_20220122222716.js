@@ -1,8 +1,7 @@
-let wordCloudIterable = new Map();
-
 (function () {
     // Handle the message inside the webview
     let iterable = new Map() ;
+    let wordCloudIterable = new Map();
     window.addEventListener('message', event => {
 
         const message = event.data; // The JSON data our extension sent
@@ -18,6 +17,8 @@ let wordCloudIterable = new Map();
                  for (var value in jsonObjectWordCloud) {  
                     wordCloudIterable.set(value,jsonObjectWordCloud[value]) ;
                      } 
+                   console.log(wordCloudIterable.);
+
             const table = document.getElementById("table");
             const Colors =['#f94144', '#f3722c', '#90be6d', '#43aa8b','#577590','#001f54','#7d4f50','#f7aef8','#f7aef8','#f7aef8','#f7aef8'];
             
@@ -32,7 +33,6 @@ let wordCloudIterable = new Map();
                 variant.appendChild(title);
                 valeur.forEach(element => {
                     var bloc = document.createElement("div");
-                    bloc.setAttribute("onclick","show(this.id)");
                     bloc.setAttribute("class", "bloc");
                     bloc.setAttribute("title", "Bloc " + element);
                     bloc.setAttribute("id", element);

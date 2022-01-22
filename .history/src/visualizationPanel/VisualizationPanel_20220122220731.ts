@@ -16,7 +16,7 @@ export class VisualizationPanel {
 	public blocksByVariant: Map<number, number[]> | undefined;
 	public blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined;
 
-	public static createOrShow(extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>, blocksresultsFeatureNamingByVariant: Map<number, any[]>) {
+	public static createOrShow(extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>, resultsFeatureNaming: Map<number, any[]>) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -34,19 +34,18 @@ export class VisualizationPanel {
 			column || vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri),
 		);
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, blocksByVariant, blocksresultsFeatureNamingByVariant);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, blocksByVariant);
 
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant, this.currentPanel?.blocksresultsFeatureNamingByVariant);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined, blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this.blocksByVariant = blocksByVariant;
-		this.blocksresultsFeatureNamingByVariant = blocksresultsFeatureNamingByVariant;
 		// Set the webview's initial html content
 		this._update();
 
@@ -84,19 +83,12 @@ export class VisualizationPanel {
 		// You can send any JSON serializable data.
 		if (!this.blocksByVariant) { return; }
 		const jsonObject: any = {};
-		const jsonObjectWordCloud: any = {};
 		this.blocksByVariant.forEach((value, key) => {
 			jsonObject[key] = value;
 		});
 		const data = JSON.stringify(jsonObject);
-		this.blocksresultsFeatureNamingByVariant?.forEach((value, key) => {
-			console.log("***********************");
-			console.log(value);
-			jsonObjectWordCloud[key] = value;
-		});
-		const dataWordCloud = JSON.stringify(jsonObjectWordCloud);
 		this._panel.webview.postMessage({
-			command: 'showvariants', data: data, dataWordCloud: dataWordCloud
+			command: 'showvariants', data: data
 		});
 	}
 
@@ -125,13 +117,9 @@ export class VisualizationPanel {
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Local path to main script run in the webview
 		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'script.js');
-		const scriptPathOnDisk2 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-base.min.js');
-		const scriptPathOnDisk3 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-tag-cloud.min.js');
 
 		// And the uri we use to load this script in the webview
 		const scriptUri = (scriptPathOnDisk).with({ 'scheme': 'vscode-resource' });
-		const scriptUri2 = (scriptPathOnDisk2).with({ 'scheme': 'vscode-resource' });
-		const scriptUri3 = (scriptPathOnDisk3).with({ 'scheme': 'vscode-resource' });
 
 		// Local path to css styles
 		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'main.css');
@@ -153,14 +141,9 @@ export class VisualizationPanel {
 		<body>
 			<div id="table">
 			</div>
-			<div class="center">
-			<div id="container"></div>
-		</div>
 		</body>
 		<script type="text/javascript" src="${scriptUri}"></script>
-		<script type="text/javascript" src="${scriptUri2}"></script>
-		<script type="text/javascript" src="${scriptUri3}"></script>
-
+		
 		</html>`;
 	}
 }

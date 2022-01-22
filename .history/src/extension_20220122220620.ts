@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
       let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
 
       let blocksByVariant = extensionCore.getBlocksByVariant(identifiedBlocks!);
-      VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming);
+      VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, blocksByVariant);
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;
       if (document) {
