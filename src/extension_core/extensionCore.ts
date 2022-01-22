@@ -67,7 +67,7 @@ export class ExtensionCore {
       }
     }
   }
-
+  // Map <blockNumber, BlockContent(Array of elements)>
   identifyBlocks(): Map<number, string[]> | undefined {
     const originalValue = this.R;
     const str = JSON.stringify(originalValue, json_serializer.replacer);

@@ -22,7 +22,7 @@
                 variant.setAttribute("class", "variants");
                 var title = document.createElement("div");
                 title.setAttribute("class", "title");
-                title.innerText = clef
+                title.innerText = "Variant :"+clef
                 table.appendChild(variant);
                 variant.appendChild(title);
                 valeur.forEach(element => {

@@ -21,6 +21,7 @@ export class VisualizationPanel {
 
 		// If we already have a panel, show it.
 		if (VisualizationPanel.currentPanel) {
+			VisualizationPanel.currentPanel.blocksByVariant = blocksByVariant;
 			VisualizationPanel.currentPanel._panel.reveal(column);
 			return;
 		}
@@ -32,15 +33,17 @@ export class VisualizationPanel {
 			column || vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri),
 		);
+		VisualizationPanel.currentPanel.blocksByVariant = blocksByVariant;
+
 		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, blocksByVariant);
 
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this.blocksByVariant = blocksByVariant;
