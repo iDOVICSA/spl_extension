@@ -36,33 +36,37 @@ export class ExtensionCore {
       for (let cpt = 0; cpt < document.lineCount; cpt++) {
         let rangeElement: vscode.Range = document.lineAt(cpt).range;
         let element: string = document.lineAt(cpt).text;
-
-        if (this.R?.get(element)) {
-          /// check if element exists
-          let counter: number = 0; // counter for element duplication in the same variant
-
-          while (this.R.get(element)?.get(idVariant)) {
-            counter++;
-            element = element.split("$&")[0];
-            element = element.concat("$&", counter.toString());
-          }
-          if (counter === 0) {
-            this.R.get(element)?.set(idVariant, rangeElement);
-          } else {
-            if (this.R.get(element)) {
+        // the two next instructions to eliminates multiple spaces
+        element = element.split(/\s+/).join(" ");
+        element = element.trim();
+        if (element) {
+          // eliminates \n on the source code file
+          if (this.R?.get(element)) {
+            /// check if element exists
+            let counter: number = 0; // counter for element duplication in the same variant
+            while (this.R.get(element)?.get(idVariant)) {
+              counter++;
+              element = element.split("@$")[0];
+              element = element.concat("@$", counter.toString());
+            }
+            if (counter === 0) {
               this.R.get(element)?.set(idVariant, rangeElement);
             } else {
-              let rvalue = new Map<number, vscode.Range>([
-                [idVariant, rangeElement],
-              ]);
-              this.R.set(element, rvalue);
+              if (this.R.get(element)) {
+                this.R.get(element)?.set(idVariant, rangeElement);
+              } else {
+                let rvalue = new Map<number, vscode.Range>([
+                  [idVariant, rangeElement],
+                ]);
+                this.R.set(element, rvalue);
+              }
             }
+          } else {
+            let rvalue = new Map<number, vscode.Range>([
+              [idVariant, rangeElement],
+            ]);
+            this.R?.set(element, rvalue);
           }
-        } else {
-          let rvalue = new Map<number, vscode.Range>([
-            [idVariant, rangeElement],
-          ]);
-          this.R?.set(element, rvalue);
         }
       }
     }
@@ -98,7 +102,7 @@ export class ExtensionCore {
             }
             this.blocks?.set(blockNumber, [element]);
           }
-          console.log(element.split("$&")[0]);
+          console.log(element.split("@nft")[0]);
           this.R?.delete(element);
         });
         console.log("******************");

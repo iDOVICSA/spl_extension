@@ -12,31 +12,6 @@ export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     () => {
-      /*  let str0 =
-        "Test document number three is a bit different and is also a tiny bit longer";
-      const TfIdf = natural.TfIdf;
-      const tfidf = new TfIdf();
-
-      tfidf.addDocument(
-        "This is test document number 1. It is quite a short document."
-      );
-      tfidf.addDocument(
-        "This is test document 2. It is also quite short, and is a test."
-      );
-      tfidf.addDocument(
-        "Test document number three is a bit different and is also a tiny bit longer."
-      );
-      
-      tfidf.listTerms(2).forEach(function (item: any) {
-        console.log(item.term + ": " + item.tfidf);
-      });
-
-      str0.split(" ").forEach((element) => {
-        console.log("******************" + element + "****************");
-        tfidf.tfidfs(element, function (i: any, measure: any) {
-          console.log("document #" + i + " is " + measure);
-        });
-      });*/
 
       let extensionCore = new ExtensionCore();
       extensionCore.getRMap(vscode.workspace.textDocuments);

@@ -31,7 +31,6 @@ export class FeatureNamingTfIdf {
       tfidf.listTerms(blockNumber).forEach(function (item: any) {
         var frequentWord = { x: item.term, value: item.tfidf };
         sortedElementsOfBlockByTfIdf.push(frequentWord) ;
-        console.log(item.term);
       });
       results.set(blockNumber,sortedElementsOfBlockByTfIdf!);
     });

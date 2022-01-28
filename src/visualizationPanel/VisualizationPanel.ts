@@ -151,8 +151,11 @@ export class VisualizationPanel {
 		</head>
 		
 		<body>
+		<h1>Blocks by variant</h1>
 			<div id="table">
 			</div>
+		<h1>Block words cloud </h1>
+
 			<div class="center">
 			<div id="container"></div>
 		</div>
