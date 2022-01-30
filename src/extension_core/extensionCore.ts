@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import * as json_serializer from "./../json_serializer/json_serializer";
+var fs = require("fs");
+
 export class ExtensionCore {
   // R map <Element , Map<idArtefact,ElementPosition>>;
   //  R: Map<string, Map<number, vscode.Range[]>> | undefined;
@@ -20,8 +22,6 @@ export class ExtensionCore {
           this.adapt(variant, idVariant);
         }
       });
-      let m: Map<string, Map<number, vscode.Range>> | undefined = this.R;
-      console.log(m);
     }
   }
 
@@ -75,6 +75,19 @@ export class ExtensionCore {
   identifyBlocks(): Map<number, string[]> | undefined {
     const originalValue = this.R;
     const str = JSON.stringify(originalValue, json_serializer.replacer);
+    fs.writeFile("input.json", str, function (err: any) {
+      if (err) {
+        throw err;
+      }
+      console.log("complete");
+    });
+    var arrA = ["red", "blue", "green"];
+    var arrB = ["red", "yellow", "blue"];
+    let intersection = arrA.filter((x) => arrB.includes(x));
+    console.log(intersection);
+    let difference = arrA.filter((x) => !arrB.includes(x));
+    console.log(difference);
+    let union = [...new Set([...arrA, ...arrB])];
 
     if (this.R) {
       let blockNumber: number = 0;
@@ -151,6 +164,7 @@ export class ExtensionCore {
   }
 
   getBlocksByVariant(blocks: Map<number, string[]>): Map<number, number[]> {
+    // Map <variant,blocks[]>
     let blocksByVariant = new Map<number, number[]>();
     let blockNumber = 0;
     let blockArray = Array.from(blocks.keys()!);

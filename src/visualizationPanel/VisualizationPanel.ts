@@ -90,8 +90,8 @@ export class VisualizationPanel {
 		});
 		const data = JSON.stringify(jsonObject);
 		this.blocksresultsFeatureNamingByVariant?.forEach((value, key) => {
-			console.log("***********************");
-			console.log(value);
+			//console.log("***********************");
+			//console.log(value);
 			jsonObjectWordCloud[key] = value;
 		});
 		const dataWordCloud = JSON.stringify(jsonObjectWordCloud);
