@@ -45,6 +45,7 @@
 	},
 	"dependencies": {
 		"natural": "^5.1.13",
+		"node-fpgrowth": "^1.2.1",
 		"tiny-tfidf": "^0.9.1"
 	}
 }
