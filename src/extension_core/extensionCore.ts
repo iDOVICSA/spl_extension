@@ -1,3 +1,4 @@
+import { start } from "repl";
 import * as vscode from "vscode";
 import * as json_serializer from "./../json_serializer/json_serializer";
 var fs = require("fs");
@@ -6,7 +7,7 @@ export class ExtensionCore {
   // R map <Element , Map<idArtefact,ElementPosition>>;
   //  R: Map<string, Map<number, vscode.Range[]>> | undefined;
 
-  R: Map<string, Map<number, vscode.Range>> | undefined;
+  R: Map<string, Map<number, vscode.Range|null>> | undefined;
 
   //blocks <idBlock , listElements>
 
@@ -23,6 +24,64 @@ export class ExtensionCore {
         }
       });
     }
+    console.log("got R");
+  }
+
+  async identifyUsingSemantics(variantsDocs: readonly vscode.TextDocument[]) {
+    this.R = new Map<string, Map<number, vscode.Range>>();
+    let docsElements: Map<number, string[]> = new Map<
+      number,
+      string[]
+    >();
+    let idVariant = 0;
+    
+    for (const document of variantsDocs) {
+      // this loop to get Symbols of each Variant
+      const symbols = await vscode.commands.executeCommand<
+        vscode.DocumentSymbol[]
+      >("vscode.executeDocumentSymbolProvider", document.uri);
+      let result: string[] = [];
+      this.traverseChildren(document, symbols, "root", "777", 0, document.lineCount, result);
+      docsElements.set(idVariant, result);
+      for (let cpt = 0; cpt < result.length; cpt++) {
+        let rangeElement = null;
+        let element: string =result[cpt] ;
+        // the two next instructions to eliminates multiple spaces
+        element = element.split(/\s+/).join(" ").trim();
+        //element = element.trim();
+        if (element.split("###")[0]) {
+          // eliminates \n on the source code file
+          if (this.R?.get(element)) {
+            /// check if element exists
+            let counter: number = 0; // counter for element duplication in the same variant
+            while (this.R.get(element)?.get(idVariant)) {
+              counter++;
+              element = element.split("@$")[0];
+              element = element.concat("@$", counter.toString());
+            }
+            if (counter === 0) {
+              this.R.get(element)?.set(idVariant, rangeElement);
+            } else {
+              if (this.R.get(element)) {
+                this.R.get(element)?.set(idVariant, rangeElement);
+              } else {
+                let rvalue = new Map<number, vscode.Range|null>([
+                  [idVariant, rangeElement],
+                ]);
+                this.R.set(element, rvalue);
+              }
+            }
+          } else {
+            let rvalue = new Map<number, vscode.Range|null>([
+              [idVariant, rangeElement],
+            ]);
+            this.R?.set(element, rvalue);
+          }
+        }
+      }
+      idVariant++;
+    }
+    
   }
 
   adapt(variant: vscode.TextDocument, idVariant: number) {
@@ -37,8 +96,8 @@ export class ExtensionCore {
         let rangeElement: vscode.Range = document.lineAt(cpt).range;
         let element: string = document.lineAt(cpt).text;
         // the two next instructions to eliminates multiple spaces
-        element = element.split(/\s+/).join(" ");
-        element = element.trim();
+        element = element.split(/\s+/).join(" ").trim();
+        //element = element.trim();
         if (element) {
           // eliminates \n on the source code file
           if (this.R?.get(element)) {
@@ -81,13 +140,6 @@ export class ExtensionCore {
       }
       console.log("complete");
     });
-    var arrA = ["red", "blue", "green"];
-    var arrB = ["red", "yellow", "blue"];
-    let intersection = arrA.filter((x) => arrB.includes(x));
-    console.log(intersection);
-    let difference = arrA.filter((x) => !arrB.includes(x));
-    console.log(difference);
-    let union = [...new Set([...arrA, ...arrB])];
 
     if (this.R) {
       let blockNumber: number = 0;
@@ -115,7 +167,7 @@ export class ExtensionCore {
             }
             this.blocks?.set(blockNumber, [element]);
           }
-          console.log(element.split("@nft")[0]);
+          console.log(element.split("###")[0]);
           this.R?.delete(element);
         });
         console.log("******************");
@@ -192,5 +244,58 @@ export class ExtensionCore {
       a.length === b.length &&
       a.every((val, index) => val === b[index])
     );
+  }
+
+  traverseChildren(
+    document: vscode.TextDocument,
+    children: vscode.DocumentSymbol[],
+    pathToRoot: string,
+    pathToRootTypes: string,
+    startingLine: number,
+    endingLine: number,
+    result: string[]
+
+  ) {
+    for (const child of children) {
+      if (child.kind !== 3) {
+        // if child not a package cause packages have no children according to the API
+        if (child.children.length > 0) {
+          for (let index = startingLine; index < child.range.start.line; index++) {
+            if (document.lineAt(index).text) {
+              result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
+            }
+          }
+          startingLine = child.range.end.line + 1;
+          this.traverseChildren(
+            document,
+            child.children,
+            pathToRoot + "." + document.lineAt(child.range.start.line).text.replace(/\s/g, ""),
+            pathToRootTypes + "." + child.kind,
+            child.range.start.line,
+            child.range.end.line + 1,
+            result
+          );
+        } else {
+          if (child.kind === 5) {
+            for (let index = startingLine; index < child.range.start.line; index++) {
+              if (document.lineAt(index).text) {
+                result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
+              }
+            }
+            for (let index = child.range.start.line; index <= child.range.end.line; index++) {
+              if (document.lineAt(index).text) {
+                result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, "") + "###" + pathToRootTypes + "." + child.kind);
+              }
+            }
+            startingLine = child.range.end.line + 1;
+          }
+        }
+      }
+    }
+    for (let index = startingLine; index < endingLine; index++) {
+      if (document.lineAt(index).text) {
+        result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
+      }
+    }
   }
 }

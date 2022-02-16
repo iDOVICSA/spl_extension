@@ -15,41 +15,45 @@ export function activate(context: vscode.ExtensionContext) {
     "spl-extension.adaptCode",
     async () => {
 
+
+
       let extensionCore = new ExtensionCore();
-      extensionCore.getRMap(vscode.workspace.textDocuments);
+      await extensionCore.identifyUsingSemantics(vscode.workspace.textDocuments);
 
-      let identifiedBlocks = extensionCore.identifyBlocks();
-      const originalValue = identifiedBlocks;
-      const str = JSON.stringify(originalValue, json_serializer.replacer);
-      const newValue = JSON.parse(str, json_serializer.reviver);
-      console.log(originalValue, newValue);
-      let featureNaming = new FeatureNamingTfIdf();
-      let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
-
-
-      let blocksByVariant = extensionCore.getBlocksByVariant(identifiedBlocks!);
-
-      let fcaConstraintsDiscovery = new FCAConstraintsDiscovery();
-      let result = fcaConstraintsDiscovery.getRequireConstraints(blocksByVariant);
-      console.log("***************************");
-      let result2 = fcaConstraintsDiscovery.getMutualExculsionConstraints(blocksByVariant);
-      let fpGrowthConstraintsDiscovery = new FpGrowthConstraintsDiscovery();
-      let resullt3 = await fpGrowthConstraintsDiscovery.getRequireConstraints(blocksByVariant);
-
-      VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming, result, result2, resullt3);
-      let document: vscode.TextDocument | undefined =
-        vscode.window.activeTextEditor?.document;
-      if (document) {
-        let fullText: string = document.getText();
-        const fullRange = new vscode.Range(
-          document.positionAt(0),
-          document.positionAt(fullText.length - 1)
-        );
-      } else {
-        vscode.window.showWarningMessage(
-          "cant execute command : no opened files"
-        );
-      }
+       //await  extensionCore.getRMap(vscode.workspace.textDocuments);
+  
+        let identifiedBlocks = extensionCore.identifyBlocks();
+        const originalValue = identifiedBlocks;
+        const str = JSON.stringify(originalValue, json_serializer.replacer);
+        const newValue = JSON.parse(str, json_serializer.reviver);
+        console.log(originalValue, newValue);
+        let featureNaming = new FeatureNamingTfIdf();
+        let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
+  
+  
+        let blocksByVariant = extensionCore.getBlocksByVariant(identifiedBlocks!);
+  
+        let fcaConstraintsDiscovery = new FCAConstraintsDiscovery();
+        let result = fcaConstraintsDiscovery.getRequireConstraints(blocksByVariant);
+        console.log("***************************");
+        let result2 = fcaConstraintsDiscovery.getMutualExculsionConstraints(blocksByVariant);
+        let fpGrowthConstraintsDiscovery = new FpGrowthConstraintsDiscovery();
+        let resullt3 = await fpGrowthConstraintsDiscovery.getRequireConstraints(blocksByVariant);
+  
+        VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming, result, result2, resullt3);
+        let document: vscode.TextDocument | undefined =
+          vscode.window.activeTextEditor?.document;
+        if (document) {
+          let fullText: string = document.getText();
+          const fullRange = new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(fullText.length - 1)
+          );
+        } else {
+          vscode.window.showWarningMessage(
+            "cant execute command : no opened files"
+          );
+        }
     }
   );
 

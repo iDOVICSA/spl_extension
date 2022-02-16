@@ -3,7 +3,6 @@ import { FPGrowth, Itemset } from 'node-fpgrowth';
 
 export class FpGrowthConstraintsDiscovery {
 
-
     async getRequireConstraints(blocksByVariant: Map<number, number[]>): Promise<Constrainte[]> {
         let allRequireConstraintes: Constrainte[] = [];
         const transactions = Array.from(blocksByVariant.values());

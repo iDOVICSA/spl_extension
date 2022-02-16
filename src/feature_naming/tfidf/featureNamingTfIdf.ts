@@ -13,7 +13,13 @@ export class FeatureNamingTfIdf {
     let allBlockArray = Array.from(allBlocks.keys()!);
     allBlockArray.forEach((blockNumber) => {
       let blockElements = allBlocks.get(blockNumber)!;
-      let blockContent = blockElements.join(" ");
+      //this update is due to adding pathRoot+pathRootType to elements {
+        let blockContent : string = "" ;
+      blockElements.forEach(element => {
+        blockContent = blockContent+" "+element.split("###")[0];
+      });
+      
+    //  let blockContent = blockElements.join(" ");
       blockContent =  blockContent.split(symbolsSeperators).join(" "); // eliminates symbols {}();<>=+-!
       blockContent =  blockContent.replace(/([a-z])([A-Z])/g, "$1 $2"); // splits upperCamelCase
       wordsSeparators.forEach((seperator) => {
