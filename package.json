@@ -10,16 +10,45 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:spl-extension.adaptCode"
+		"onCommand:spl-extension.adaptCode",
+		"onLanguage:java"
 	],
 	"main": "./out/extension.js",
+	"capabilities" : {
+        "documentSymbolProvider" : "true"
+    },
 	"contributes": {
 		"commands": [
 			{
 				"command": "spl-extension.adaptCode",
 				"title": "Adapt Code"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "spl-viewContainer",
+					"title": "Maloma SPL",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"spl-viewContainer": [
+				{
+					"id": "blockIdentification",
+					"name": "Block Identification",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Package Explorer"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+			  "view": "blockIdentification",
+			  "contents": "Launch block identification.\n[Adapt Code](command:spl-extension.adaptCode)"
+			}
+		  ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

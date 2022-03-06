@@ -4,10 +4,12 @@ import * as json_serializer from "./../json_serializer/json_serializer";
 var fs = require("fs");
 
 export class ExtensionCore {
-  // R map <Element , Map<idArtefact,ElementPosition>>;
-  //  R: Map<string, Map<number, vscode.Range[]>> | undefined;
+  /**
+   * @attribute R :map <Element , Map<idArtefact,ElementPosition>>;
+   * @attribute blocks : map <idBlock, listElements>
+   */
 
-  R: Map<string, Map<number, vscode.Range|null>> | undefined;
+  R: Map<string, Map<number, vscode.Range | null>> | undefined;
 
   //blocks <idBlock , listElements>
 
@@ -34,18 +36,39 @@ export class ExtensionCore {
       string[]
     >();
     let idVariant = 0;
-    
+
     for (const document of variantsDocs) {
       // this loop to get Symbols of each Variant
-      const symbols = await vscode.commands.executeCommand<
-        vscode.DocumentSymbol[]
-      >("vscode.executeDocumentSymbolProvider", document.uri);
+      /* const symbols = await vscode.commands.executeCommand<
+       vscode.DocumentSymbol[]
+     >("vscode.executeDocumentSymbolProvider", document.uri);*/
+      let symbols: vscode.DocumentSymbol[] | undefined;
+      while (!symbols) {
+        await vscode.commands.executeCommand<
+          vscode.DocumentSymbol[]
+        >("vscode.executeDocumentSymbolProvider", document.uri).then(async (mySymbols) => {
+          
+          symbols = mySymbols ; 
+          console.log("sucess  " + mySymbols);
+
+        }, (reason) => {
+          console.log("error  " + reason);
+        });
+      }
+
+
       let result: string[] = [];
-      this.traverseChildren(document, symbols, "root", "777", 0, document.lineCount, result);
+      try {
+        this.traverseChildren(document, symbols!, "root", "777", 0, document.lineCount, result);// ! need to be handeled
+        symbols = undefined ; 
+      }
+      catch (err) {
+        console.log("the error is : " + err);
+      }
       docsElements.set(idVariant, result);
       for (let cpt = 0; cpt < result.length; cpt++) {
         let rangeElement = null;
-        let element: string =result[cpt] ;
+        let element: string = result[cpt];
         // the two next instructions to eliminates multiple spaces
         element = element.split(/\s+/).join(" ").trim();
         //element = element.trim();
@@ -65,14 +88,14 @@ export class ExtensionCore {
               if (this.R.get(element)) {
                 this.R.get(element)?.set(idVariant, rangeElement);
               } else {
-                let rvalue = new Map<number, vscode.Range|null>([
+                let rvalue = new Map<number, vscode.Range | null>([
                   [idVariant, rangeElement],
                 ]);
                 this.R.set(element, rvalue);
               }
             }
           } else {
-            let rvalue = new Map<number, vscode.Range|null>([
+            let rvalue = new Map<number, vscode.Range | null>([
               [idVariant, rangeElement],
             ]);
             this.R?.set(element, rvalue);
@@ -81,7 +104,7 @@ export class ExtensionCore {
       }
       idVariant++;
     }
-    
+
   }
 
   adapt(variant: vscode.TextDocument, idVariant: number) {
@@ -153,8 +176,13 @@ export class ExtensionCore {
         );
         let intersection: string[] =
           this.findElementsContainedInArtefactIndexes(artefactIndexes);
+          let blockID : string = '' ;
+          let cpt =1 ; 
+        for (const e of artefactIndexes) {
+          blockID = blockID+e.toString();
+        }
         // Create Block
-        console.log("block number:  " + blockNumber);
+        console.log("block ID:  " + blockID);
 
         intersection.forEach((element) => {
           if (this.blocks?.get(blockNumber)) {
@@ -179,7 +207,10 @@ export class ExtensionCore {
     this.R = JSON.parse(str, json_serializer.reviver);
     return this.blocks;
   }
-
+/**
+ * 
+ * @returns Most frequent element that appears in maximum of variants 
+ */
   findMostFrequentElement() {
     let keyOfMostFrequent: string = "";
     let sizeOfMostFrequent: number = -1;
@@ -253,8 +284,7 @@ export class ExtensionCore {
     pathToRootTypes: string,
     startingLine: number,
     endingLine: number,
-    result: string[]
-
+    result: string[] // list of elements (instruction+pathRoot+pathRootTypes)
   ) {
     for (const child of children) {
       if (child.kind !== 3) {
@@ -265,11 +295,12 @@ export class ExtensionCore {
               result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
             }
           }
-          startingLine = child.range.end.line + 1;
+          console.log("break1") ;
+          startingLine = child.range.end.line +1;
           this.traverseChildren(
             document,
             child.children,
-            pathToRoot + "." + document.lineAt(child.range.start.line).text.replace(/\s/g, ""),
+            pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),//
             pathToRootTypes + "." + child.kind,
             child.range.start.line,
             child.range.end.line + 1,
@@ -292,10 +323,161 @@ export class ExtensionCore {
         }
       }
     }
-    for (let index = startingLine; index < endingLine; index++) {
+    for (let index = startingLine; index <endingLine; index++) {
       if (document.lineAt(index).text) {
         result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
       }
     }
   }
+  initialR: Map<number, Map<string, vscode.Range[]>> | undefined;
+  elementAlreadySelected: Map<number, Array<vscode.Range>> = new Map<number, Array<vscode.Range>>();
+  listOfblocks: Map<number, Map<number, Array<vscode.Range>>> = new Map<number, Map<number, vscode.Range[]>>();
+  blocksContent: Map<number, string[]> = new Map<number, string[]>();
+ 
+  getinitialR(variantsDocs: readonly vscode.TextDocument[]) {
+    console.log("Le nombre de variante  " + variantsDocs.length);
+    if (variantsDocs) {
+      this.initialR = new Map<number, Map<string, vscode.Range[]>>(); // initialize R
+      let idVariant: number = 0;
+      variantsDocs.forEach(async (variant) => {
+        if (variant.uri.fsPath) {
+          idVariant++;
+          this.adaptInitialR(variant, idVariant);
+        }
+      });
+    }
+  }
+  adaptInitialR(variant: vscode.TextDocument, idVariant: number) {
+    let document: vscode.TextDocument | undefined = variant;
+    let rvalue: Map<string, Array<vscode.Range>> = new Map<string, vscode.Range[]>();
+    if (document) {
+      let fullText: string = document.getText();
+      const fullRange = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(fullText.length - 1)
+      );
+      for (let cpt = 0; cpt < document.lineCount; cpt++) {
+        let rangeElement: vscode.Range = document.lineAt(cpt).range;
+        let element: string = document.lineAt(cpt).text;
+        // the two next instructions to eliminates multiple spaces
+        element = element.split(/\s+/).join(" ");
+        element = element.trim();
+        if (element) {
+          if (rvalue.get(element)) {
+            rvalue.get(element)?.push(rangeElement);
+          } else {
+            rvalue.set(element, [rangeElement]);
+          }
+        }
+      }
+      this.initialR?.set(idVariant, rvalue);
+    }
+  }
+  // Map <blockNumber, BlockContent(Array of elements)>
+  identifyInitialBlocks() {
+    this.initialR?.forEach((value: Map<string, vscode.Range[]>, variant: number) => {
+      value.forEach((value: vscode.Range[], token: string) => {
+        value.forEach(element => {
+          if (!this.selectedAlready(variant, element)) {
+            this.getVariantWhere(token);
+
+          }
+        });
+      });
+    });
+  }
+  getVariantWhere(token: string) {
+    let intersectionList: Map<number, vscode.Range[]> = new Map<number, vscode.Range[]>();
+    this.initialR?.forEach((value: Map<string, vscode.Range[]>, variant: number) => {
+      if (value.has(token)) {
+        let rangesOfElement = value.get(token);
+        let stop = false;
+        let i = 0;
+        let selectedRange;
+        while (i < rangesOfElement!.length && !stop) {
+          if (!this.selectedAlready(variant, rangesOfElement![i])) {
+            stop = true;
+            selectedRange = rangesOfElement![i];
+          }
+          i++;
+        }
+        if (stop === true && selectedRange) {
+          if (this.elementAlreadySelected.get(variant)) {
+            this.elementAlreadySelected.get(variant)?.push(selectedRange);
+          } else {
+            this.elementAlreadySelected.set(variant, [selectedRange]);
+          }
+          if (intersectionList.get(variant)) {
+            intersectionList.get(variant)?.push(selectedRange);
+          } else {
+            intersectionList.set(variant, [selectedRange]);
+          }
+
+        }
+      }
+    });
+    this.makeBlock(intersectionList, token);
+  }
+  selectedAlready(variant: number, range: vscode.Range): boolean {
+    if (this.elementAlreadySelected.get(variant)?.find(element => element === range)) {
+      return true;
+    }
+    return false;
+  }
+  makeBlock(partOfBlock: Map<number, vscode.Range[]>, content: string) {
+    let found = false;
+    let stop = false;
+    let keyOfBloc = -1;
+    let index = 0;
+    while (index < this.listOfblocks.size) {
+      if (this.listOfblocks.get(index)?.size === partOfBlock.size) {
+        found = true;
+        keyOfBloc = index;
+        partOfBlock.forEach((value: vscode.Range[], variant: number) => {
+          if (!this.listOfblocks.get(index)?.has(variant)) {
+            found = false;
+          }
+        });
+      }
+      index++;
+    }
+    if (found) {
+      partOfBlock.forEach((value: Array<vscode.Range>, variant: number) => {
+        value.forEach(element => {
+          this.listOfblocks.get(keyOfBloc)?.get(variant)?.push(element);
+        });
+      });
+      this.blocksContent.get(keyOfBloc)?.push(content);
+    } else {
+      this.blocksContent.set(this.listOfblocks.size, [content]);
+      this.listOfblocks.set(this.listOfblocks.size, partOfBlock);
+    }
+  }
+  showBlocksContants() {
+    this.blocksContent.forEach((value: string[], blockId: number) => {
+      console.log("_________________________________________________________________")
+      console.log("Bloc : " + blockId);
+      value.forEach(element => {
+        console.log(element);
+
+      });
+    });
+  }
+
+
+
+
+  getIdBlocks() {
+    this.listOfblocks.forEach((value: Map<number, Array<vscode.Range>>, blockId: number) => {
+      console.log("BLOCK ID " + blockId);
+      console.log("MY ELEMENT ARE");
+      value.forEach((key: Array<vscode.Range>, elements: number) => {
+        console.log(elements);
+      });
+    });
+  }
+
+
+
+
 }
