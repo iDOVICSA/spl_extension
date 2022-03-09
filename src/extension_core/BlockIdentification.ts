@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { CodeFilesExtensions } from "../Utils/FilesExtensions";
+import { ElementRangesMapDecorator } from "../Utils/MapDecorator/ElementRangesMapDecorator";
 import { Utils } from "../Utils/Utilis";
+import { Block } from "./Block";
 import { Element } from "./Element";
 import { ElementRange } from "./ElementRange";
 
@@ -11,7 +13,7 @@ import { ExtensionCore } from "./extensionCore";
 import { Variant } from "./Variant";
 
 export class BlockIdentification {
-    async identifyBlocks(filesVariants: Map<string, string[]>) { // <File, listOfVariants Where the file appears>
+    async identifyBlocks(filesVariants: Map<string, string[]>) : Promise<Block[]>{ // <File, listOfVariants Where the file appears>
         let allFiles = Array.from(filesVariants.keys());
         for (const file of allFiles) {
             let variantsOfTheFile = filesVariants.get(file)!;
@@ -31,13 +33,10 @@ export class BlockIdentification {
             if (documentsByVariant.size > 0) {
                 await this.fillRMap(documentsByVariant);
                 this.identifyInitialBlocks();
-                console.log(this.rMap);
                 documentsByVariant.clear;
-                /* await this.checkCodeFilesSimilarity(documents);
-                 documents = [];
-                 documents.length = 0*/
             }
         }
+        return this.blocks ; 
     }
     async checkCodeFilesSimilarity(documents: readonly vscode.TextDocument[]) {
 
@@ -58,7 +57,7 @@ export class BlockIdentification {
     //<variantId , Map<Element,vscode.Range[]>>
     rMap?: Map<string, Map<Element, vscode.Range[]>>;
     elementAlreadySelected: Map<string, Array<vscode.Range>> = new Map<string, Array<vscode.Range>>();
-
+    blocks: Block[] = [];
 
     async fillRMap(comparableFilesByVariant: Map<string, vscode.TextDocument>) {
         this.rMap = new Map<string, Map<Element, vscode.Range[]>>();
@@ -72,7 +71,6 @@ export class BlockIdentification {
                 console.log(err);
             }
         }
-
     }
     /**
      * 
@@ -82,8 +80,7 @@ export class BlockIdentification {
      */
     async adaptSourceFile(document: vscode.TextDocument, variantId: string) {
 
-        let rvalue: Map<Element, vscode.Range[]> = new Map<Element, vscode.Range[]>();
-
+        let rValue: ElementRangesMapDecorator = new ElementRangesMapDecorator(new Map<Element, vscode.Range[]>());
         let fileSymbols: vscode.DocumentSymbol[] | undefined;
 
         while (!fileSymbols) {
@@ -108,14 +105,10 @@ export class BlockIdentification {
             let rangeElement: vscode.Range = result[cpt].elementRange;
             let element: Element = result[cpt].element;
             if (element) {
-                if (rvalue.get(element)) {
-                    rvalue.get(element)?.push(rangeElement);
-                } else {
-                    rvalue.set(element, [rangeElement]);
-                }
+                rValue.add(element, rangeElement);
             }
         }
-        this.rMap?.set(variantId, rvalue);
+        this.rMap?.set(variantId, rValue.getMapObject());
     }
 
     traverseSymbolsChildren(
@@ -133,7 +126,7 @@ export class BlockIdentification {
                 if (child.children.length > 0) {
                     for (let index = startingLine; index < child.range.start.line; index++) {
                         if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                            let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes);
+                            let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
                             let r = document.lineAt(index).range;
                             let er = new ElementRange(e, r);
                             result.push(er);
@@ -153,7 +146,7 @@ export class BlockIdentification {
                     if (child.kind === 5) {
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes);
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
                                 let r = document.lineAt(index).range;
                                 let er = new ElementRange(e, r);
                                 result.push(er);
@@ -161,7 +154,7 @@ export class BlockIdentification {
                         }
                         for (let index = child.range.start.line; index <= child.range.end.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind);
+                                let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
                                 let r = document.lineAt(index).range;
                                 let er = new ElementRange(e, r);
                                 result.push(er);
@@ -175,7 +168,7 @@ export class BlockIdentification {
         for (let index = startingLine; index < endingLine; index++) {
             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                 //let e = new Element(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim(), pathToRoot, pathToRootTypes);
-                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes);
+                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
                 let r = document.lineAt(index).range;
                 let er = new ElementRange(e, r);
                 result.push(er);
@@ -193,6 +186,10 @@ export class BlockIdentification {
                 });
             });
         });
+        console.log("_______________Blocks___________________");
+        console.log(this.blocks);
+        console.log("________________________________________");
+
     }
     //verify if the element is already selected
     selectedAlready(variantId: string, range: vscode.Range): boolean {
@@ -203,20 +200,20 @@ export class BlockIdentification {
     }
     //return list of similair element of diffrent variant
     getVariantWhere(element: Element) {
-        console.log("___________");
-        console.log(element.instruction);
-        let intersectionList: Map<string, vscode.Range[]> = new Map<string, vscode.Range[]>();
+        let intersectionList: Map<string, ElementRange[]> = new Map<string, ElementRange[]>();
         this.rMap?.forEach((value: Map<Element, vscode.Range[]>, variantId: string) => {
-            let elementSelected = this.elementInVariant(element,variantId);
+            let elementSelected = this.elementInVariant(element, variantId);
             if (elementSelected) {
                 let rangesOfElement = value.get(elementSelected);
                 let stop = false;
                 let i = 0;
                 let selectedRange;
+                let er: ElementRange;
                 while (i < rangesOfElement!.length && !stop) {
                     if (!this.selectedAlready(variantId, rangesOfElement![i])) {
                         stop = true;
                         selectedRange = rangesOfElement![i];
+                        er = new ElementRange(elementSelected, selectedRange);
                     }
                     i++;
                 }
@@ -227,18 +224,15 @@ export class BlockIdentification {
                         this.elementAlreadySelected.set(variantId, [selectedRange]);
                     }
                     if (intersectionList.get(variantId)) {
-                        intersectionList.get(variantId)?.push(selectedRange);
+                        intersectionList.get(variantId)?.push(er!);
                     } else {
-                        intersectionList.set(variantId, [selectedRange]);
+                        intersectionList.set(variantId, [er!]);
                     }
 
                 }
             }
         });
-        console.log("INTERSECTION LIST");
-        console.log(intersectionList);
-
-        // this.makeBlock(intersectionList, token);
+         this.makeBlock(intersectionList);
     }
 
     //return element if exist in a variant
@@ -249,7 +243,7 @@ export class BlockIdentification {
         let selectedElementIndice = 0;
         let i = 0;
         while (!stop && i < elements.length) {
-            if (elements[i].isEqual(element)===true) {
+            if (elements[i].isEqual(element) === true) {
                 stop = true;
                 selectedElementIndice = i;
             };
@@ -260,6 +254,37 @@ export class BlockIdentification {
         }
         return undefined;
     }
+
+    makeBlock(partOfBlock: Map<string, ElementRange[]>) {
+        let found = false;
+        let stop = false;
+        let keyOfBloc = -1;
+        let index = 0;
+        while (index < this.blocks.length) {
+            if (this.blocks[index].havingSameBlockId(partOfBlock)) {
+                found = true;
+                keyOfBloc = index;
+            }
+            index++;
+        }
+        if (found) {
+            this.blocks[keyOfBloc].addElementRangeToBlock(partOfBlock);
+
+        } else {
+            let idBlock = this.createBlockId(partOfBlock);
+            let b = new Block(this.blocks.length, "", partOfBlock);
+            this.blocks.push(b);
+
+        }
+    }
+    createBlockId(intersection: Map<string, ElementRange[]>): string {
+        let resullt = "";
+        let allVariants = Array.from(intersection.keys());
+        allVariants.sort((a, b) => a.localeCompare(b));
+        resullt = allVariants.toString();
+        return resullt;
+    }
+
 }
 
 

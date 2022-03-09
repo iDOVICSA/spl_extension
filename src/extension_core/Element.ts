@@ -29,24 +29,25 @@
       Operator = 24,
       TypeParameter = 25
   }*/
-export class Element extends Map {
+export class Element {
     instruction : string ; // instruction or implimentation if element is function or method
     pathToRoot : string;  //to check ancesstors similarity
     pathToRootTypes : string ; // vscode.SymbolKind enum 
+    fileName : string ; // 
     
-    constructor(instruction: string,elementParent:string,elementParentType:string) {
-        super();
+
+    constructor(instruction: string,elementParent:string,elementParentType:string,fileName : string) {
         this.instruction = instruction ;
         this.pathToRoot = elementParent ;
         this.pathToRootTypes = elementParentType ; 
+        this.fileName = fileName ; 
       }
 
       isEqual(anotherElement: Element): Boolean {
-        return this.instruction.normalize() === anotherElement.instruction.normalize() 
+        return this.instruction.replace(/\s+/g,'').normalize() === anotherElement.instruction.replace(/\s+/g,'').normalize() 
         && this.pathToRoot.normalize() === anotherElement.pathToRoot.normalize()
         && this.pathToRootTypes.normalize() === anotherElement.pathToRootTypes.normalize() ;
     }
-
     
 }
 

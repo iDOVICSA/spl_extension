@@ -295,7 +295,6 @@ export class ExtensionCore {
               result.push(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim() + "###" + pathToRoot + "###" + pathToRootTypes);
             }
           }
-          console.log("break1") ;
           startingLine = child.range.end.line +1;
           this.traverseChildren(
             document,

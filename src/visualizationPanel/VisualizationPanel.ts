@@ -1,6 +1,6 @@
-
 import * as vscode from 'vscode';
 import { Constrainte } from '../constraints_discovery/constrainte';
+import { Variant } from '../extension_core/Variant';
 /**
  * Manages Visualization webview panel
  */
@@ -14,13 +14,13 @@ export class VisualizationPanel {
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
-	public blocksByVariant: Map<number, number[]> | undefined;
+	public variants: Variant[] | undefined;
 	public blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined;
 	public requireConstraintsFca: Constrainte[] | undefined;
 	public exclusionConstraintsFca: Constrainte[] | undefined;
 	public requireConstraintsFpGrowth: Constrainte[] | undefined;
 
-	public static createOrShow(extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]>, blocksresultsFeatureNamingByVariant: Map<number, any[]>, requireConstraintsFca: Constrainte[], exclusionConstraintsFca: Constrainte[], requireConstraintsFpGrowth: Constrainte[]) {
+	public static createOrShow(extensionUri: vscode.Uri, variants: Variant[], blocksresultsFeatureNamingByVariant: Map<number, any[]>, requireConstraintsFca: Constrainte[], exclusionConstraintsFca: Constrainte[], requireConstraintsFpGrowth: Constrainte[]) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -38,18 +38,18 @@ export class VisualizationPanel {
 			column || vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri),
 		);
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, blocksByVariant, blocksresultsFeatureNamingByVariant, requireConstraintsFca, exclusionConstraintsFca, requireConstraintsFpGrowth);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, variants, blocksresultsFeatureNamingByVariant, requireConstraintsFca, exclusionConstraintsFca, requireConstraintsFpGrowth);
 
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.blocksByVariant, this.currentPanel?.blocksresultsFeatureNamingByVariant, this.currentPanel?.requireConstraintsFca, this.currentPanel?.exclusionConstraintsFca, this.currentPanel?.requireConstraintsFpGrowth);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.variants, this.currentPanel?.blocksresultsFeatureNamingByVariant, this.currentPanel?.requireConstraintsFca, this.currentPanel?.exclusionConstraintsFca, this.currentPanel?.requireConstraintsFpGrowth);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, blocksByVariant: Map<number, number[]> | undefined, blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined, requireConstraintsFca: Constrainte[] | undefined, exclusionConstraintsFca: Constrainte[] | undefined, requireConstraintsFpGrowth: Constrainte[] | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, variants: Variant[] | undefined, blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined, requireConstraintsFca: Constrainte[] | undefined, exclusionConstraintsFca: Constrainte[] | undefined, requireConstraintsFpGrowth: Constrainte[] | undefined) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
-		this.blocksByVariant = blocksByVariant;
+		this.variants = variants;
 		this.blocksresultsFeatureNamingByVariant = blocksresultsFeatureNamingByVariant;
 		this.requireConstraintsFca = requireConstraintsFca;
 		this.exclusionConstraintsFca = exclusionConstraintsFca;
@@ -90,17 +90,23 @@ export class VisualizationPanel {
 		// Send a message to the webview webview.
 		// You can send any JSON serializable data.
 
-		if (!this.blocksByVariant) { return; }
+		if (!this.variants) { return; }
 		const jsonObject: any = {};
 		const jsonObjectWordCloud: any = {};
 		const jsonObjectRerequireConstraintsFca: any = {};
 		const jsonObjectExclusionConstraintsFca: any = {};
-		this.blocksByVariant.forEach((value, key) => {
-			jsonObject[key] = value;
-		});
+		for (let index = 0; index < this.variants.length; index++) {
+			let idBlocks = [];
+			const element = this.variants[index].blocksList;
+			for (let index2 = 0; index2 < element.length; 	index2++) {
+				const bloc = element[index2];
+				idBlocks.push(bloc.blockId );
+			}
+			jsonObject[this.variants[index].variantName]=idBlocks;
+		}
 		const data = JSON.stringify(jsonObject);
 		this.blocksresultsFeatureNamingByVariant?.forEach((value, key) => {
-			//console.log("***********************");
+			//console.log("*********************");
 			//console.log(value);
 			jsonObjectWordCloud[key] = value;
 		});
@@ -196,8 +202,7 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 		// Enable javascript in the webview
 		enableScripts: true,
 
-		// And restrict the webview to only loading content from our extension's `media` directory.
+		// And restrict the webview to only loading content from our extension's media directory.
 		//localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
 	};
 }
-
