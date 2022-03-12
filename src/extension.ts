@@ -12,31 +12,35 @@ import { FoldersAdapter } from "./extension_core/FoldersAdapter";
 import { BlockIdentification } from "./extension_core/BlockIdentification";
 import { Utils } from "./Utils/Utilis";
 import { Block } from "./extension_core/Block";
+import { create } from "domain";
+import * as fs from 'fs' ;
+
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     async () => {
 
       let s = vscode.workspace.workspaceFolders;
-      let p = Utils.loadVariants(s!);
+      let allVariants = Utils.loadVariants(s!);
       
       let m = new FoldersAdapter();
       let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks: Block[];
-
-
+let fmJson : string ; 
       try {
         identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
-
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameAllBlocks(identifiedBlocks!);
         console.log(resultsFeatureNaming);
-        Utils.attributeBlocksToVariants(p,identifiedBlocks) ;
+        Utils.attributeBlocksToVariants(allVariants,identifiedBlocks) ;
+        let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints (allVariants,identifiedBlocks) ;
+        let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants,identifiedBlocks) ;
+        fmJson = Utils.exportFMForgeJson(identifiedBlocks,reqConstraints,mutexConstraints);
         console.log("test") ;
 
-      VisualizationPanel.createOrShow(context.extensionUri, p, resultsFeatureNaming, [], [], []);
+      VisualizationPanel.createOrShow(context.extensionUri, allVariants, resultsFeatureNaming, reqConstraints, mutexConstraints, []);
         let document: vscode.TextDocument | undefined =
           vscode.window.activeTextEditor?.document;
         if (document) {
@@ -54,7 +58,22 @@ export function activate(context: vscode.ExtensionContext) {
       catch (err) {
         console.log("error from main   " + err);
       }
-
+      try {
+        let resulltPath =  s![0].uri.fsPath.split(s![0].uri.fsPath.split("/").pop()!)[0]+"Result";
+        vscode.workspace.fs.createDirectory(vscode.Uri.parse(resulltPath)) ; 
+        vscode.workspace.updateWorkspaceFolders(s?s.length : 0, null, { uri: vscode.Uri.parse(resulltPath)});
+        fs.writeFile(resulltPath+"/Result.json", fmJson!, 'utf8', function (err) {
+          if (err) {
+              console.log("An error occured while writing JSON Object to File.");
+              return console.log(err);
+          }
+       
+          console.log("JSON file has been saved.");
+      });
+      }
+      catch (err) {
+        console.log ("result folder "+err) ;
+      }
      /* VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming, result, result2, resullt3);
       let document: vscode.TextDocument | undefined =
         vscode.window.activeTextEditor?.document;

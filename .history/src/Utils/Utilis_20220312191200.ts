@@ -1,9 +1,8 @@
-
 import * as vscode from "vscode";
 import { Constrainte } from "../constraints_discovery/constrainte";
 import { Block } from "../extension_core/Block";
 import { Variant } from "../extension_core/Variant";
-import * as json_serializer from"./../json_serializer/json_serializer";
+import * as json_serializer from "./../json_serializer/json_serializer";
 export class Utils {
 
     /**
