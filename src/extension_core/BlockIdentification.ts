@@ -13,7 +13,7 @@ import { ExtensionCore } from "./extensionCore";
 import { Variant } from "./Variant";
 
 export class BlockIdentification {
-    async identifyBlocks(filesVariants: Map<string, string[]>) : Promise<Block[]>{ // <File, listOfVariants Where the file appears>
+    async identifyBlocks(filesVariants: Map<string, string[]>): Promise<Block[]> { // <File, listOfVariants Where the file appears>
         let allFiles = Array.from(filesVariants.keys());
         for (const file of allFiles) {
             let variantsOfTheFile = filesVariants.get(file)!;
@@ -36,7 +36,7 @@ export class BlockIdentification {
                 documentsByVariant.clear;
             }
         }
-        return this.blocks ; 
+        return this.blocks;
     }
     async checkCodeFilesSimilarity(documents: readonly vscode.TextDocument[]) {
 
@@ -124,26 +124,7 @@ export class BlockIdentification {
             if (child.kind !== 3) {
                 // if child not a package cause packages have no children according to the API
                 if (child.children.length > 0) {
-                    for (let index = startingLine; index < child.range.start.line; index++) {
-                        if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                            let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
-                            let r = document.lineAt(index).range;
-                            let er = new ElementRange(e, r);
-                            result.push(er);
-                        }
-                    }
-                    startingLine = child.range.end.line + 1;
-                    this.traverseSymbolsChildren(
-                        document,
-                        child.children,
-                        pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),//
-                        pathToRootTypes + "." + child.kind,
-                        child.range.start.line,
-                        child.range.end.line + 1,
-                        result
-                    );
-                } else {
-                    if (child.kind === 5) {
+                    if ((child.kind !== 5) && (child.kind !== 11)) { // some methods and functions have childrens like callbacks and method font in actions.java of notepad which have class child !!
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                                 let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
@@ -152,14 +133,41 @@ export class BlockIdentification {
                                 result.push(er);
                             }
                         }
-                        for (let index = child.range.start.line; index <= child.range.end.line; index++) {
+                        startingLine = child.range.end.line + 1;
+                        this.traverseSymbolsChildren(
+                            document,
+                            child.children,
+                            pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),//
+                            pathToRootTypes + "." + child.kind,
+                            child.range.start.line,
+                            child.range.end.line + 1,
+                            result
+                        );
+                    }
+                    else {}
+                } else {
+                    if ((child.kind === 5) || ((child.kind === 11))) {
+                        for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
                                 let r = document.lineAt(index).range;
                                 let er = new ElementRange(e, r);
                                 result.push(er);
                             }
                         }
+                        /*  for (let index = child.range.start.line; index <= child.range.end.line; index++) {
+                              if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
+                                  //let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                                  let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                                  let r = document.lineAt(index).range;
+                                  let er = new ElementRange(e, r);
+                                  result.push(er);
+                              }
+                          }*/
+                        let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                        let r = child.range;
+                        let er = new ElementRange(e, r);
+                        result.push(er);
                         startingLine = child.range.end.line + 1;
                     }
                 }
@@ -232,7 +240,7 @@ export class BlockIdentification {
                 }
             }
         });
-         this.makeBlock(intersectionList);
+        this.makeBlock(intersectionList);
     }
 
     //return element if exist in a variant
@@ -243,7 +251,8 @@ export class BlockIdentification {
         let selectedElementIndice = 0;
         let i = 0;
         while (!stop && i < elements.length) {
-            if (elements[i].isEqual(element) === true) {
+            
+            if (elements[i].isEqual(element) === true ) {
                 stop = true;
                 selectedElementIndice = i;
             };
@@ -272,7 +281,7 @@ export class BlockIdentification {
 
         } else {
             let idBlock = this.createBlockId(partOfBlock);
-            let b = new Block(this.blocks.length, "", partOfBlock);
+            let b = new Block(this.blocks.length, "Block "+this.blocks.length, partOfBlock);
             this.blocks.push(b);
 
         }

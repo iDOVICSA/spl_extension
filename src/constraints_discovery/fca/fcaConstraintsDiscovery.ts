@@ -1,20 +1,17 @@
+import { Block } from "../../extension_core/Block";
+import { Variant } from "../../extension_core/Variant";
 import { Constrainte } from "./../constrainte";
 
 export class FCAConstraintsDiscovery {
-  getRequireConstraints(blocksByVariant: Map<number, number[]>): Constrainte[] {
-    let allRequireConstraintes: Constrainte[] = [];
-    let variantsByBlock = this.inverseBlocksByVariant(blocksByVariant);
-    let allTheBlocks = Array.from(variantsByBlock.keys());
 
-    allTheBlocks.forEach((block) => {
-      let variantsOfTheBlock = variantsByBlock.get(block)!;
-      let intersectionResult: number[] = blocksByVariant.get(
-        variantsOfTheBlock[0]
-      )!;
+
+  static getRequireIConstraints(variants: Variant[], blocks: Block[]): Constrainte[] {
+    let allRequireConstraintes: Constrainte[] = [];
+    blocks.forEach((block) => {
+      let variantsOfTheBlock = variants.filter((x) => x.blocksList.includes(block));
+      let intersectionResult = variantsOfTheBlock[0].blocksList;
       for (let index = 1; index < variantsOfTheBlock.length; index++) {
-        let blockOfCurrentVariant = blocksByVariant.get(
-          variantsOfTheBlock[index]
-        )!;
+        let blockOfCurrentVariant = variantsOfTheBlock[index].blocksList;
         intersectionResult = intersectionResult.filter((x) =>
           blockOfCurrentVariant.includes(x)
         );
@@ -25,12 +22,40 @@ export class FCAConstraintsDiscovery {
         intersectionResult.forEach((element) => {
           if (block !== element) {
             console.log("block : " + block + " requires block " + element);
-            allRequireConstraintes.push(new Constrainte(block, element, 1));
+            allRequireConstraintes.push(new Constrainte(block.blockId, element.blockId, 1));
           }
         });
       }
     });
     return allRequireConstraintes;
+  }
+
+
+
+
+  static getMutualExculsionIConstraints(variants: Variant[], blocks: Block[]): Constrainte[] {
+    let allMutexConstraints: Constrainte[] = [];
+    blocks.forEach((block) => {
+      let variantsOfTheBlock = variants.filter((x) => x.blocksList.includes(block));
+      let unionResult = variantsOfTheBlock[0].blocksList;;// for init then start from 1
+      for (let index = 1; index < variantsOfTheBlock.length; index++) {
+        let blockOfCurrentVariant = variantsOfTheBlock[index].blocksList;
+        unionResult = [...new Set([...unionResult, ...blockOfCurrentVariant])];
+      }
+      let differnceResult = blocks.filter(x => !unionResult.includes(x));
+      if (differnceResult.length === 0) {
+        console.log("block : " + block + " doesn't mutex any other block");
+      } else {
+        differnceResult.forEach((element) => {
+          if ((block !== element)&&(block.blockId<element.blockId)) {
+            console.log("block : " + block + " mutex block " + element);
+            allMutexConstraints.push(new Constrainte(block.blockId, element.blockId, 2));
+          }
+        });
+      }
+    });
+
+    return allMutexConstraints;
   }
 
   getMutualExculsionConstraints(
@@ -41,7 +66,7 @@ export class FCAConstraintsDiscovery {
     let allTheBlocks = Array.from(variantsByBlock.keys());
     allTheBlocks.forEach((block) => {
       let variantsOfTheBlock = variantsByBlock.get(block)!;
-      let unionResult: number[] = blocksByVariant.get(variantsOfTheBlock[0])!;
+      let unionResult: number[] = blocksByVariant.get(variantsOfTheBlock[0])!;// for init then start from 1
       for (let index = 1; index < variantsOfTheBlock.length; index++) {
         let blockOfCurrentVariant = blocksByVariant.get(
           variantsOfTheBlock[index]

@@ -5,6 +5,8 @@ let exclusionConstraintsFcaIterable  =[];
 (function () {
     // Handle the message inside the webview
     let iterable = new Map() ;
+    let listOfBlocks = new Map() ;
+
     window.addEventListener('message', event => {
 
         const message = event.data; // The JSON data our extension sent
@@ -14,7 +16,15 @@ let exclusionConstraintsFcaIterable  =[];
                let jsonObject= JSON.parse(message.data); 
                   for (var value in jsonObject) {  
                 iterable.set(value,jsonObject[value]) ;
-                 } 
+                 }
+                 
+                 let dataListOfBlocks= JSON.parse(message.dataListOfBlocks); 
+                  for (var value in dataListOfBlocks) {  
+                    listOfBlocks.set(value,dataListOfBlocks[value]) ;
+                 }
+                 
+                 console.log(listOfBlocks);
+                 
                  let jsonObjectWordCloud= JSON.parse(message.dataWordCloud); 
 
                  for (var value in jsonObjectWordCloud) {  

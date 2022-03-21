@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { IgnoredFolders } from "../Utils/IgnoredFolders";
 
 export class FoldersAdapter {
 
@@ -47,7 +48,7 @@ export class FoldersAdapter {
 
             //if fileType == Folder
             // second condition ignores hidden folders 
-            if ((v[1] === 2) && (v[0].split(".")[0])) {
+            if ((v[1] === 2) && (v[0].split(".")[0]) && !(v[0] in IgnoredFolders)) {
 
                 await this.browseFolders(filePath, relativePathToInitialFolder + "/" + v[0], result);
             }

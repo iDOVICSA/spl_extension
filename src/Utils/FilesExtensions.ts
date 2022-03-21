@@ -7,8 +7,6 @@ export enum CodeFilesExtensions{
     cpp = 'cpp',
     c = 'c',
     py = 'py',  
-    
-
 }
 
 export enum MediaFilesExtsensions{
