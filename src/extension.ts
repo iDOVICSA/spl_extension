@@ -31,15 +31,15 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
         let featureNaming = new FeatureNamingTfIdf();
-        let resultsFeatureNaming = featureNaming.nameAllBlocks(identifiedBlocks!);
+        let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         console.log(resultsFeatureNaming);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
         fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
-       // await Utils.exportFullForgeProject (identifiedBlocks,allVariants.length,s!) ;
+        await Utils.exportFullForgeProject (identifiedBlocks,allVariants.length,s!) ;
         let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-       VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks,resultsFeatureNaming, reqConstraints, mutexConstraints, []);
+        VisualizationPanel.createOrShow(context.extensionUri, allVariants,identifiedBlocks ,resultsFeatureNaming, reqConstraints, mutexConstraints, []);
         
         
         

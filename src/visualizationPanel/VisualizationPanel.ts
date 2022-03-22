@@ -160,14 +160,16 @@ export class VisualizationPanel {
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Local path to main script run in the webview
-		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'script.js');
-		const scriptPathOnDisk2 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-base.min.js');
-		const scriptPathOnDisk3 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'anychart-tag-cloud.min.js');
+		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel/jsFile', 'script.js');
+		const scriptPathOnDisk2 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel/jsFile', 'anychart-base.min.js');
+		const scriptPathOnDisk3 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel/jsFile', 'anychart-tag-cloud.min.js');
+		const scriptPathOnDisk4 = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel/jsFile', 'modalScript.js');
 
 		// And the uri we use to load this script in the webview
 		const scriptUri = (scriptPathOnDisk).with({ 'scheme': 'vscode-resource' });
 		const scriptUri2 = (scriptPathOnDisk2).with({ 'scheme': 'vscode-resource' });
 		const scriptUri3 = (scriptPathOnDisk3).with({ 'scheme': 'vscode-resource' });
+		const scriptUri4 = (scriptPathOnDisk4).with({ 'scheme': 'vscode-resource' });
 
 		// Local path to css styles
 		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, './src/visualizationPanel', 'main.css');
@@ -187,19 +189,64 @@ export class VisualizationPanel {
 		</head>
 		
 		<body>
-		<h1>Blocks by variant</h1>
-			<div id="table">
+		<h1>Visualization</h1>
+		<div id="table">
+			<div id="vardy"></div>
+	
+			<div class="visualiserMenu">
+				<div class="titleVisualiserMenu">Visualiser Menu</div>
+				<div id="blocMenu">
+					<p id="variatnsTitle">variants</p>
+	
+	
+				</div>
 			</div>
-		<h1>Block words cloud </h1>
-
-			<div class="center">
-			<div id="container"></div>
+	
 		</div>
-		<div id="table2"> 		
+	
+		<!-- Modal -->
+		<div id="myModal" class="modal">
+	
+			<div class="modal-content">
+	
+				<div class="modal-header">
+					<button type="button" class="closeBtn close"></button>
+					<h2>Block Description</h2>
+				</div>
+	
+				<div class="modal-body">
+					<label>Block Name</label>
+					<input type="text" id="blockName" placeholder="Enter bloc name">
+					<h2>Word Cloud</h2>
+					<div class="center">
+						<div id="container"></div>
+					</div>
+				</div>
+	
+				<div class="modal-footer">
+					<button class="bet_time closeButton close" id="closeButton">Close</button>
+					<button class="bet_time saveChangesButton" onclick="saveChangesButton()">Save changes</button>
+	
+				</div>
+	
+			</div>
+		</div>
+
+		<h1>Constraint</h1>
+
+		<div id="table2"> 
+		<div id="fca" class="constraint">
+		<div class="titleConstraint">FCA Constraints Discovery</div>
+		</div>
+		<div id="fpGrowth" class="constraint">
+		<div class="titleConstraint">FpGrowth Constraints Discovery</div>
+		</div>		
+		
 			</div>
 		<div id="rerequireParagraph"></div>
 		</body>
 		<script type="text/javascript" src="${scriptUri}"></script>
+		<script type="text/javascript" src="${scriptUri4}"></script>
 		<script type="text/javascript" src="${scriptUri2}"></script>
 		<script type="text/javascript" src="${scriptUri3}"></script>
 
