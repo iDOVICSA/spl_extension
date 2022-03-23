@@ -144,7 +144,30 @@ export class BlockIdentification {
                             result
                         );
                     }
-                    else {}
+                    else {
+                        for (let index = startingLine; index < child.range.start.line; index++) {
+                            if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
+                                let r = document.lineAt(index).range;
+                                let er = new ElementRange(e, r);
+                                result.push(er);
+                            }
+                        }
+                        /*  for (let index = child.range.start.line; index <= child.range.end.line; index++) {
+                              if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
+                                  //let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                                  let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                                  let r = document.lineAt(index).range;
+                                  let er = new ElementRange(e, r);
+                                  result.push(er);
+                              }
+                          }*/
+                        let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                        let r = child.range;
+                        let er = new ElementRange(e, r);
+                        result.push(er);
+                        startingLine = child.range.end.line + 1;
+                    }
                 } else {
                     if ((child.kind === 5) || ((child.kind === 11))) {
                         for (let index = startingLine; index < child.range.start.line; index++) {
@@ -251,8 +274,8 @@ export class BlockIdentification {
         let selectedElementIndice = 0;
         let i = 0;
         while (!stop && i < elements.length) {
-            
-            if (elements[i].isEqual(element) === true ) {
+
+            if (elements[i].isEqual(element) === true) {
                 stop = true;
                 selectedElementIndice = i;
             };
@@ -281,7 +304,7 @@ export class BlockIdentification {
 
         } else {
             let idBlock = this.createBlockId(partOfBlock);
-            let b = new Block(this.blocks.length, "Block "+this.blocks.length, partOfBlock);
+            let b = new Block(this.blocks.length, "Block " + this.blocks.length, partOfBlock);
             this.blocks.push(b);
 
         }

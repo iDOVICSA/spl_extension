@@ -20,18 +20,24 @@ span2.onclick = function() {
 
 function saveChangesButton() {
     console.log("Information saved succesfully");
-    /*var blockNameInput = document.getElementById("blockName");
+    var blockNameInput = document.getElementById("blockName");
     var id = blockNameInput.name;
     var nameOfBlock = listOfBlocks.get(id);
-    listOfBlocks.set(id,"yacine");
+    listOfBlocks.set(id,blockNameInput.value);
     var x= document.getElementsByClassName("#"+id);
-    console.log(x);
 
     Array.prototype.forEach.call(x, function(el) {
         // Do stuff here
-        el.innerText = blockNameInput.value;
-    });*/
-  
+        el.childNodes[0].nodeValue = blockNameInput.value;
+    });
+
+    var p= document.getElementsByClassName(id);
+ 
+    Array.prototype.forEach.call(p, function(el) {
+        // Do stuff here
+        el.title =blockNameInput.value;
+    });
+    createConstraint();
 }
 
 // When the user clicks anywhere outside of the modal, close it

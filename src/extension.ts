@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
         fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
         await Utils.exportFullForgeProject (identifiedBlocks,allVariants.length,s!) ;
-        let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
+       // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         VisualizationPanel.createOrShow(context.extensionUri, allVariants,identifiedBlocks ,resultsFeatureNaming, reqConstraints, mutexConstraints, []);
         
         

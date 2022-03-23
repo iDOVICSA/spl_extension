@@ -102,7 +102,7 @@ const blocks = [];
             for (let [clef, valeur] of listOfBlocks) {
                     var label = document.createElement("label");
                     label.innerText = valeur ;
-                    label.setAttribute("class","containerCheckBox");
+                    label.setAttribute("class","containerCheckBox #"+clef);
                     var input = document.createElement("input");
                     input.setAttribute("type","checkbox");
                     input.setAttribute("checked","checked");
@@ -116,60 +116,39 @@ const blocks = [];
                     bloc.appendChild(label);
             }
 
+            createConstraint();
 
-
-
-
-
-
-
-           
-
-
-            requireConstraintsFcaIterable.forEach(element => {
-                var rerequireParagraph = document.createElement("div");
-                rerequireParagraph.setAttribute("class","constraintDiscovery");
-                rerequireParagraph.innerHTML = "Block "+ element.firstBlock + " require Block " +element.secondBlock;
-                fca.appendChild(rerequireParagraph);
-            });
-            exclusionConstraintsFcaIterable.forEach(element => {
-                var rerequireParagraph = document.createElement("div");
-                rerequireParagraph.setAttribute("class","constraintDiscovery");
-                rerequireParagraph.innerHTML = "Block "+ element.firstBlock + " mutex Block " +element.secondBlock;
-                fca.appendChild(rerequireParagraph);
-            });
-            requireConstraintsFcaIterable.forEach(element => {
-                var rerequireParagraph = document.createElement("div");
-                rerequireParagraph.setAttribute("class","constraintDiscovery");
-                rerequireParagraph.innerHTML = "Block "+ element.firstBlock + " require Block " +element.secondBlock;
-                fpGrowth.appendChild(rerequireParagraph);
-            });
                 break;
         }
     });
  
     })();
     
-    /*function show(clicked_id){
-       anychart.onDocumentReady(function () {
-          var data = wordCloudIterable.get(clicked_id);
-           // create a chart and set the data
-           var chart = anychart.tagCloud();
-       // set the parsing mode and configure parsing settings
-       chart.data(data, {
-           mode: "byWord"
-       });
-           // set the chart title
-           const container = document.getElementById("container");
-           container.innerHTML="";
-                   // set the container id
-           chart.container("container");
-       
-           // initiate drawing the chart
-           chart.draw();
-   
-       });
-   }*/
+    function createConstraint(){
+
+        const elements = document.getElementsByClassName("constraintDiscovery");
+
+        while (elements.length > 0) elements[0].remove();
+    
+        requireConstraintsFcaIterable.forEach(element => {
+            var rerequireParagraph = document.createElement("div");
+            rerequireParagraph.setAttribute("class","constraintDiscovery");
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " require " +listOfBlocks.get(element.secondBlock.toString()) ;
+            fca.appendChild(rerequireParagraph);
+        });
+        exclusionConstraintsFcaIterable.forEach(element => {
+            var rerequireParagraph = document.createElement("div");
+            rerequireParagraph.setAttribute("class","constraintDiscovery");
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " mutex " +listOfBlocks.get(element.secondBlock.toString()) ;
+            fca.appendChild(rerequireParagraph);
+        });
+        requireConstraintsFcaIterable.forEach(element => {
+            var rerequireParagraph = document.createElement("div");
+            rerequireParagraph.setAttribute("class","constraintDiscovery");
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " require " +listOfBlocks.get(element.secondBlock.toString()) ;
+            fpGrowth.appendChild(rerequireParagraph);
+        });
+   }
 
    
  function show(clicked_id){
@@ -232,24 +211,14 @@ function toggleCheckbox(element)
     var id = element.id;
     
     if(element.checked){
-        console.log(id);
-
         var x= document.getElementsByClassName(id);
             
         Array.prototype.forEach.call(x, function(el) {
             // Do stuff here
             el.style.display ="block";
         });
-      
-
-        var x= document.getElementById("bloc"+id);
-        console.log(x);
-        x.style.display = "block";
 
      }else{
-        console.log("hey");
-        console.log(id);
-
             var x= document.getElementsByClassName(id);
             
             Array.prototype.forEach.call(x, function(el) {

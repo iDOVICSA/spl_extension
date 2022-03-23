@@ -177,55 +177,57 @@ export class Utils {
         for (const block of blocks) {
             let variantsOfBlock = Array.from(block.blockContent.keys());
             try {
-                //if (variantsOfBlock.length > 1) {
-                for (let index = 0; index < block.blockContent.get(variantsOfBlock[0])?.length!; index++) {
-                    const element = block.blockContent.get(variantsOfBlock[0])![index];
-                    let filePath = resulltPath + "/" + element.element.fileName.replace(variantsOfBlock[0], "");
-                    if (!treatedFiles.includes(filePath)) {
-                        let fileinit: string = "";
-                        for (let index = 0; index < 1000; index++) {
-                            fileinit = fileinit + "\n";
-                        }
-                        fs.appendFile(filePath, fileinit, function (err) {
-                            if (err) { throw err; };
-                        });
-                        treatedFiles.push(filePath);
-                    }
-
-                    await vscode.workspace.openTextDocument(vscode.Uri.parse(filePath)).then(async (a: vscode.TextDocument) => {
-
-                        await vscode.window.showTextDocument(a, 1, true).then(async e => {
-                            await e.edit(edit => {
-                                edit.insert(new vscode.Position(element.elementRange.start.line, element.elementRange.start.character), element.element.instruction+"\n");
+                if (variantsOfBlock.length > 1) {
+                    for (let index = 0; index < block.blockContent.get(variantsOfBlock[0])?.length!; index++) {
+                        const element = block.blockContent.get(variantsOfBlock[0])![index];
+                        let filePath = resulltPath + "/" + element.element.fileName.replace(variantsOfBlock[0], "");
+                        if (!treatedFiles.includes(filePath)) {
+                            let fileinit: string = "";
+                            for (let index = 0; index < 1000; index++) {
+                                fileinit = fileinit + "\n";
+                            }
+                            fs.appendFile(filePath, fileinit, function (err) {
+                                if (err) { throw err; };
                             });
+                            treatedFiles.push(filePath);
+                        }
 
-                            if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
+                        await vscode.workspace.openTextDocument(vscode.Uri.parse(filePath)).then(async (a: vscode.TextDocument) => {
+
+                            await vscode.window.showTextDocument(a, 1, true).then(async e => {
+                                await e.edit(edit => {
+                                    edit.insert(new vscode.Position(element.elementRange.start.line, element.elementRange.start.character), element.element.instruction + "\n");
+                                });
+
+                                //   if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
                                 let end = element.elementRange.end.line;
-                                let funcLength = element.elementRange.end.line - element.elementRange.start.line + 1;
-                                let range = new vscode.Range(end + 1, 0, end + funcLength, 0);
+                                let elementLength = element.elementRange.end.line - element.elementRange.start.line + 1;
+                                let range = new vscode.Range(end + 1, 0, end + elementLength + 1, 0);
                                 await e.edit(edit => {
                                     edit.delete(range);
                                 });
 
-                            }
+                                // }
+                            });
+                        }, (error: any) => {
+                            console.error(error);
+                            debugger;
                         });
-                    }, (error: any) => {
-                        console.error(error);
-                        debugger;
-                    });
 
 
+
+                    }
+                    await vscode.commands.executeCommand("saveAll");
+                    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
                 }
-                await vscode.commands.executeCommand("saveAll");
-                await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
             }
-
-            //}
             catch (err) {
                 console.log("exportFullForgeProject " + err);
             }
+            //   await vscode.commands.executeCommand("saveAll");
+            // await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
         }
     }
@@ -248,7 +250,6 @@ export class Utils {
         let resultJson = {
             "variants": variants
         };
-        console.log("finished");
 
 
         return JSON.stringify(resultJson);
