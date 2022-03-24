@@ -1,24 +1,24 @@
 import * as vscode from "vscode";
 import { IgnoredFolders } from "../Utils/IgnoredFolders";
-import * as path from "path"
+
 export class FoldersAdapter {
 
-    async adaptFolders(foldersVariants: readonly vscode.WorkspaceFolder[]): Promise<Map<string, string[]>> {
+    async adaptFolders(foldersVariants: readonly vscode.WorkspaceFolder[]) : Promise<Map<string, string[]>>{
         // Map<fileRelativeURL,listOf BaseUrl of Variants it appears on>
-        let filesVariantsMap = new Map<string, string[]>();
-
+        let filesVariantsMap = new Map<string,string[]>() ;
+      
         for (const folder of foldersVariants) {
-            let indexVariant = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
+            let indexVariant = folder.uri.fsPath.split(folder.name)[0]+folder.name +"/";
 
             let result: string[] = [];
             await this.browseFolders(folder.uri, ".", result);
             for (let index = 0; index < result.length; index++) {
                 const element = result[index];
                 if (filesVariantsMap.get(element)) {
-                    filesVariantsMap.get(element)?.push(indexVariant);
+                    filesVariantsMap.get(element)?.push(indexVariant) ;
                 }
                 else {
-                    filesVariantsMap.set(element, [indexVariant]);
+                    filesVariantsMap.set(element,[indexVariant]) ;
                 }
             }
         }
@@ -43,14 +43,14 @@ export class FoldersAdapter {
 
             // if fileType = file
             if (v[1] === 1) {
-                result.push(relativePathToInitialFolder + path.sep + v[0]);
+                result.push(relativePathToInitialFolder + "/" + v[0]);
             }
 
             //if fileType == Folder
             // second condition ignores hidden folders 
             if ((v[1] === 2) && (v[0].split(".")[0]) && !(v[0] in IgnoredFolders)) {
 
-                await this.browseFolders(filePath, relativePathToInitialFolder + path.sep + v[0], result);
+                await this.browseFolders(filePath, relativePathToInitialFolder + "/" + v[0], result);
             }
         }
     }

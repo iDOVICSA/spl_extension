@@ -43,14 +43,14 @@ export class FoldersAdapter {
 
             // if fileType = file
             if (v[1] === 1) {
-                result.push(relativePathToInitialFolder + path.sep + v[0]);
+                result.push(relativePathToInitialFolder + "/" + v[0]);
             }
 
             //if fileType == Folder
             // second condition ignores hidden folders 
             if ((v[1] === 2) && (v[0].split(".")[0]) && !(v[0] in IgnoredFolders)) {
 
-                await this.browseFolders(filePath, relativePathToInitialFolder + path.sep + v[0], result);
+                await this.browseFolders(filePath, relativePathToInitialFolder + "/" + v[0], result);
             }
         }
     }

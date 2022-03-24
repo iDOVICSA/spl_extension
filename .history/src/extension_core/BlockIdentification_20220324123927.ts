@@ -11,7 +11,6 @@ BlockIdentification using Interdependant Elements Algorithm
 */
 import { ExtensionCore } from "./extensionCore";
 import { Variant } from "./Variant";
-import * as path from 'path';
 
 export class BlockIdentification {
     async identifyBlocks(filesVariants: Map<string, string[]>): Promise<Block[]> { // <File, listOfVariants Where the file appears>
@@ -21,12 +20,10 @@ export class BlockIdentification {
             //check if all the files have same content
             let documentsByVariant = new Map<string, vscode.TextDocument>(); // <idVariant , Document>
             for (const v of variantsOfTheFile) {
-                let filePath = vscode.Uri.parse(v + path.sep + file);
-                let filePath2 = vscode.Uri.joinPath(vscode.Uri.parse(v), file);
+                let filePath = vscode.Uri.joinPath(vscode.Uri.parse(v), file);
                 let fileExtension = filePath.fsPath.split(".").pop()!;
-
                 if (fileExtension in CodeFilesExtensions) {
-                    let document = await vscode.workspace.openTextDocument(filePath.fsPath);
+                    let document = await vscode.workspace.openTextDocument(filePath);
                     documentsByVariant.set(v, document);
                 }
                 else {
