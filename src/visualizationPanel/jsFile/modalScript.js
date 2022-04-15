@@ -1,5 +1,6 @@
  // Get the modal
  var modal = document.getElementById('myModal');
+ const vscode = acquireVsCodeApi();
 
 // Get the <span> element that closes the modal
 //Close of header MODAL
@@ -23,7 +24,7 @@ function saveChangesButton() {
     var blockNameInput = document.getElementById("blockName");
     var id = blockNameInput.name;
     var nameOfBlock = listOfBlocks.get(id);
-    listOfBlocks.set(id,blockNameInput.value);
+    listOfBlocks.get(id).blockName  =blockNameInput.value;
     var x= document.getElementsByClassName("#"+id);
 
     Array.prototype.forEach.call(x, function(el) {
@@ -38,6 +39,12 @@ function saveChangesButton() {
         el.title =blockNameInput.value;
     });
     createConstraint();
+    let mssgToShow = "Block Renamed "+blockNameInput.value +" with succes";
+    vscode.postMessage({
+        command: 'alert',
+        text: mssgToShow,
+    });
+    modal.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
