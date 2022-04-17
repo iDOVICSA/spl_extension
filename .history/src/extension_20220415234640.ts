@@ -13,8 +13,6 @@ import { BlockIdentification } from "./extension_core/BlockIdentification";
 import { Utils } from "./Utils/Utilis";
 import { Block } from "./extension_core/Block";
 import { create } from "domain";
-import { AlternativesBeforeHierarchyFMSynthesis } from "./feature_model_synthesis/alternatives_before_hierarchy/AlternativesBeforeHierarchyFMSynthesis";
-import { Constrainte } from "./constraints_discovery/constrainte";
 
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
@@ -38,14 +36,10 @@ export function activate(context: vscode.ExtensionContext) {
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks);
-        let alternativesBeforeHierarchyFMSynthesis = new AlternativesBeforeHierarchyFMSynthesis(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
-        //  fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
         //   await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
-        mutexConstraints.push(new Constrainte(1, 8, 0));
-        mutexConstraints.push(new Constrainte(6, 8, 0));
-        alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
 
 
 

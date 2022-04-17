@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
         //  fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
         //   await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         mutexConstraints.push(new Constrainte(1, 8, 0));
         mutexConstraints.push(new Constrainte(6, 8, 0));
         alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
