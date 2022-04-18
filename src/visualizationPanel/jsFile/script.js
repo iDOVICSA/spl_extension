@@ -1,7 +1,8 @@
 
-let wordCloudIterable = new Map();
 let requireConstraintsFcaIterable  =[];
 let exclusionConstraintsFcaIterable  =[];
+let dataRequireConstraintsFpGrowth  =[];
+
 const Colors =['#ff4d4d', '#18dcff', '#ffaf40', '#fffa65', '#32ff7e','#7efff5','#7d5fff','#cd84f1','#ffcccc','#f7aef8'];
 const table = document.getElementById("table");
 const table2 = document.getElementById("table2");  
@@ -34,13 +35,6 @@ const blocks = [];
                   for (var value in dataListOfBlocks) {  
                     listOfBlocks.set(value,dataListOfBlocks[value]) ;
                  }
-                                  
-                 let jsonObjectWordCloud= JSON.parse(message.dataWordCloud); 
-
-                 for (var value in jsonObjectWordCloud) {  
-                    wordCloudIterable.set(value,jsonObjectWordCloud[value]) ;
-                     } 
-
                   let jsonObjectdataRequireConstraintsFca= JSON.parse(message.dataRequireConstraintsFca);
                   for (var value in jsonObjectdataRequireConstraintsFca) {
                     requireConstraintsFcaIterable.push(jsonObjectdataRequireConstraintsFca[value]);
@@ -50,6 +44,11 @@ const blocks = [];
                      for (var value in jsonObjectdataExclusionConstraintsFca) {
                         exclusionConstraintsFcaIterable.push(jsonObjectdataExclusionConstraintsFca[value]);
                         }  
+
+                  let jsonObjectdataRequireConstraintsFpGrowth= JSON.parse(message.dataRequireConstraintsFpGrowth);
+                   for (var value in jsonObjectdataRequireConstraintsFpGrowth) {
+                      dataRequireConstraintsFpGrowth.push(jsonObjectdataRequireConstraintsFpGrowth[value]);
+                           }
                           
             for (let [clef, valeur] of iterable) {
                 var variant = document.createElement("div");
@@ -64,7 +63,7 @@ const blocks = [];
                     var bloc = document.createElement("div");
                     bloc.setAttribute("onclick","show(this.id)");
                     bloc.setAttribute("class", "bloc "+element);
-                    bloc.setAttribute("title", listOfBlocks.get(id));
+                    bloc.setAttribute("title", listOfBlocks.get(id).blockName);
                     bloc.setAttribute("id",element);
                     bloc.style.height = (80 + element*30) +"px";
                     bloc.style.background = Colors[element];
@@ -72,7 +71,7 @@ const blocks = [];
                     var nomBloc = document.createElement("div");
                      nomBloc.setAttribute("id","nomBloc");
                      nomBloc.setAttribute("class", "sub_div #"+id);
-                     nomBloc.innerText= listOfBlocks.get(id);
+                     nomBloc.innerText= listOfBlocks.get(id).blockName;
                      bloc.appendChild(nomBloc);
                 });
             }
@@ -93,7 +92,7 @@ const blocks = [];
                 bloc.appendChild(label);
             }
             var blocksTitle = document.createElement("p");
-            blocksTitle.innerText = "Blocks"
+            blocksTitle.innerText = "Blocks";
             blocksTitle.setAttribute("id","variatnsTitle");
             blocksTitle.style = "border-top: 4px solid #4b4b4b;"
         
@@ -101,7 +100,7 @@ const blocks = [];
 
             for (let [clef, valeur] of listOfBlocks) {
                     var label = document.createElement("label");
-                    label.innerText = valeur ;
+                    label.innerText = valeur.blockName ;
                     label.setAttribute("class","containerCheckBox #"+clef);
                     var input = document.createElement("input");
                     input.setAttribute("type","checkbox");
@@ -133,29 +132,47 @@ const blocks = [];
         requireConstraintsFcaIterable.forEach(element => {
             var rerequireParagraph = document.createElement("div");
             rerequireParagraph.setAttribute("class","constraintDiscovery");
-            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " require " +listOfBlocks.get(element.secondBlock.toString()) ;
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString()).blockName  + " require " +listOfBlocks.get(element.secondBlock.toString()).blockName ;
             fca.appendChild(rerequireParagraph);
         });
         exclusionConstraintsFcaIterable.forEach(element => {
             var rerequireParagraph = document.createElement("div");
             rerequireParagraph.setAttribute("class","constraintDiscovery");
-            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " mutex " +listOfBlocks.get(element.secondBlock.toString()) ;
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString()).blockName  + " mutex " +listOfBlocks.get(element.secondBlock.toString()).blockName ;
             fca.appendChild(rerequireParagraph);
         });
-        requireConstraintsFcaIterable.forEach(element => {
+        dataRequireConstraintsFpGrowth.forEach(element => {
             var rerequireParagraph = document.createElement("div");
             rerequireParagraph.setAttribute("class","constraintDiscovery");
-            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString())  + " require " +listOfBlocks.get(element.secondBlock.toString()) ;
+            rerequireParagraph.innerHTML = listOfBlocks.get(element.firstBlock.toString()).blockName  + " require " +listOfBlocks.get(element.secondBlock.toString()).blockName ;
             fpGrowth.appendChild(rerequireParagraph);
         });
    }
 
    
  function show(clicked_id){
+    const elements = document.getElementsByTagName("option");
+    while (elements.length > 0) elements[0].remove();
+
+    var data=   listOfBlocks.get(clicked_id).tfIdfWordCloud;
+    let cpt= 0;
     modal.style.display = "block";
+    const options = document.getElementById("options");
+
+    var firstOption = document.createElement("option");
+    firstOption.setAttribute("id","#z0");
+    firstOption.innerText ="Select new name:";
+    options.appendChild(firstOption);
+
+    while(data.length>cpt && cpt<5){
+        var option = document.createElement("option");
+        option.innerText =data[cpt].x;
+        options.appendChild(option);
+        cpt++;
+    }
+
     
     anychart.onDocumentReady(function () {
-       var data = wordCloudIterable.get(clicked_id);
         // create a chart and set the data
         var chart = anychart.tagCloud();
     // set the parsing mode and configure parsing settings
@@ -215,7 +232,9 @@ function toggleCheckbox(element)
             
         Array.prototype.forEach.call(x, function(el) {
             // Do stuff here
-            el.style.display ="block";
+          //  el.style.display ="block";
+          el.style.opacity ="";
+
         });
 
      }else{
@@ -223,8 +242,18 @@ function toggleCheckbox(element)
             
             Array.prototype.forEach.call(x, function(el) {
                 // Do stuff here
-                el.style.display ="none";
+           //     el.style.display ="none";
+                  el.style.opacity ="0.4";
             });
           
      }
  }
+
+ function update() {
+    var firstOption = document.getElementById('#z0');
+    firstOption.style.display="none";
+    var select = document.getElementById('options');
+    var option = select.options[select.selectedIndex];
+    var blockNameInput = document.getElementById("blockName");
+    blockNameInput.value=option.innerText;
+}

@@ -36,26 +36,14 @@ export function activate(context: vscode.ExtensionContext) {
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
+        let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks);
         fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
-        await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
+  
+        await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks, allVariants, s!);
+        
+        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, resultsFeatureNaming, reqConstraints, mutexConstraints, []);
 
-
-
-        let document: vscode.TextDocument | undefined =
-          vscode.window.activeTextEditor?.document;
-        if (document) {
-          let fullText: string = document.getText();
-          const fullRange = new vscode.Range(
-            document.positionAt(0),
-            document.positionAt(fullText.length - 1)
-          );
-        } else {
-          vscode.window.showWarningMessage(
-            "cant execute command : no opened files"
-          );
-        }
       }
       catch (err) {
         console.log("error from main   " + err);
@@ -65,59 +53,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-      /* VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming, result, result2, resullt3);
-       let document: vscode.TextDocument | undefined =
-         vscode.window.activeTextEditor?.document;
-       if (document) {
-         let fullText: string = document.getText();
-         const fullRange = new vscode.Range(
-           document.positionAt(0),
-           document.positionAt(fullText.length - 1)
-         );
-       } else {
-         vscode.window.showWarningMessage(
-           "cant execute command : no opened files"
-         );
-       }*/
-
-
-      /* let extensionCore = new ExtensionCore();
-       await extensionCore.identifyUsingSemantics(vscode.workspace.textDocuments);
- 
-       //await  extensionCore.getRMap(vscode.workspace.textDocuments);
- 
-      /* let identifiedBlocks = extensionCore.identifyBlocks();
-       const originalValue = identifiedBlocks;
-       const str = JSON.stringify(originalValue, json_serializer.replacer);
-       const newValue = JSON.parse(str, json_serializer.reviver);
-       console.log(originalValue, newValue);
-       let featureNaming = new FeatureNamingTfIdf();
-       let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
- 
- 
-       let blocksByVariant = extensionCore.getBlocksByVariant(identifiedBlocks!);
- 
-       let fcaConstraintsDiscovery = new FCAConstraintsDiscovery();
-       let result = fcaConstraintsDiscovery.getRequireConstraints(blocksByVariant);
-       console.log("***************************");
-       let result2 = fcaConstraintsDiscovery.getMutualExculsionConstraints(blocksByVariant);
-       let fpGrowthConstraintsDiscovery = new FpGrowthConstraintsDiscovery();
-       let resullt3 = await fpGrowthConstraintsDiscovery.getRequireConstraints(blocksByVariant);
- 
-       VisualizationPanel.createOrShow(context.extensionUri, blocksByVariant, resultsFeatureNaming, result, result2, resullt3);
-       let document: vscode.TextDocument | undefined =
-         vscode.window.activeTextEditor?.document;
-       if (document) {
-         let fullText: string = document.getText();
-         const fullRange = new vscode.Range(
-           document.positionAt(0),
-           document.positionAt(fullText.length - 1)
-         );
-       } else {
-         vscode.window.showWarningMessage(
-           "cant execute command : no opened files"
-         );
-       }*/
     }
   );
 

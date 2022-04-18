@@ -6,6 +6,9 @@ import { Variant } from "../extension_core/Variant";
 import * as fs from 'fs';
 import { off } from "process";
 import { Element } from "../extension_core/Element";
+import path = require("path");
+import { checkServerIdentity } from "tls";
+import { ElementRange } from "../extension_core/ElementRange";
 
 export class Utils {
 
@@ -18,7 +21,7 @@ export class Utils {
         let resullt: Variant[] = [];
 
         for (const folder of initialFolders) {
-            let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + "/";
+            let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
             let variantName = folder.name;
             let variant = new Variant(variantId, variantName);
             resullt.push(variant);
@@ -163,6 +166,32 @@ export class Utils {
             console.log("result folder " + err);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * exports full forge project with feature model and feature maps
      * Mapping blocks <=> adding them to deletionPropagations 
@@ -172,7 +201,14 @@ export class Utils {
      */
     static async exportFullForgeProject(blocks: Block[], variantsCount: number, workspaceFolders: readonly vscode.WorkspaceFolder[]) {
         console.log(blocks);
-        let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split("/").pop()!)[0] + "Result";
+        let deletionPropagations: any[] = [];
+        let replacementPropagations: any[] = [];
+        let resourcePropagations: any[] = [];
+        let pathPropagations: any[] = [];
+
+
+
+        let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
         let treatedFiles: string[] = [];
         for (const block of blocks) {
             let variantsOfBlock = Array.from(block.blockContent.keys());
@@ -180,7 +216,8 @@ export class Utils {
                 if (variantsOfBlock.length > 1) {
                     for (let index = 0; index < block.blockContent.get(variantsOfBlock[0])?.length!; index++) {
                         const element = block.blockContent.get(variantsOfBlock[0])![index];
-                        let filePath = resulltPath + "/" + element.element.fileName.replace(variantsOfBlock[0], "");
+                        console.log(element.element.fileName);
+                        let filePath = resulltPath + path.sep + element.element.fileName.fsPath.replace(variantsOfBlock[0].replace("c:", ""), "");
                         if (!treatedFiles.includes(filePath)) {
                             let fileinit: string = "";
                             for (let index = 0; index < 1000; index++) {
@@ -230,7 +267,486 @@ export class Utils {
             // await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
         }
+
+        let mapsJson = {
+            "deletionPropagations": deletionPropagations,
+            "replacementPropagations": replacementPropagations,
+            "resourcePropagations": resourcePropagations,
+            "pathPropagations": pathPropagations
+
+        };
+        return JSON.stringify(mapsJson);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * exports full forge project with feature model and feature maps
+     * Mapping blocks <=> adding them to deletionPropagations 
+     * mandatory block will not be added to deletionPropagations
+     * @param blocks 
+     * @param variantsCount 
+     */
+    static async exportFullForgeProjectByMergeVariants(blocks: Block[], variants: Variant[], workspaceFolders: readonly vscode.WorkspaceFolder[]) {
+        let deletionPropagations: any[] = [];
+        let replacementPropagations: any[] = [];
+        let resourcePropagations: any[] = [];
+        let pathPropagations: any[] = [];
+        let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
+        let treatedFiles: string[] = [];
+        let treatedBlocks: Block[] = [];
+        let treatedVariants: Variant[] = [];
+        let pathRootsMap: Map<string, vscode.Range> = new Map<string, vscode.Range>();
+        // Map<fileName, Merged Elements>
+        let mergeResultArray = new Map<string, (ElementRange | undefined)[]>();
+
+        pathRootsMap.set("root", new vscode.Range(0, 0, 0, 0));
+        while (treatedBlocks.length < blocks.length) {
+            let maximal = this.getVariantWithMaximalBlocks(variants);
+            //blockList - treatedAlreadyBlocks 
+            let untreatedBlocks = maximal.blocksList.filter(item => treatedBlocks.indexOf(item) < 0);
+            //order blockList :
+            this.sortBlocksBySize(untreatedBlocks);
+
+            for (const block of untreatedBlocks) {
+
+                while (block.blockContent.get(maximal.variantId)?.length! > 0) {
+                    for (const content of block.blockContent.get(maximal.variantId)!) {
+                        let filePath = resulltPath + path.sep + content.element.fileName.fsPath.replace(maximal.variantId.replace("c:", ""), "");
+                        if (!treatedFiles.includes(filePath)) {
+                            let fileinit: string = "";
+                            for (let index = 0; index < 1000; index++) {
+                                fileinit = fileinit + "\n";
+                            }
+                            fs.appendFile(filePath, fileinit, function (err) {
+                                if (err) { throw err; };
+                            });
+                            mergeResultArray.set(filePath, []);
+                            treatedFiles.push(filePath);
+                        }
+                        //Filling the pathroot map to be checked for semantic merge 
+                        //TODO : before pathRoot.set check if that range is available : 
+                        if ((content.element.getElementKind() !== 5) && (content.element.getElementKind() !== 11)) {
+                            if (content.element.getElementParentInstruction().replace(/\s+/g, '') === content.element.instruction.replace(/\s+/g, '')) {
+                                pathRootsMap.set(content.element.getElementParentInstruction(), content.elementRange);
+                            }
+                        }
+                        else {
+                            pathRootsMap.set(content.element.getElementParentInstruction(), content.elementRange);
+                        }
+
+                        //Insert Element
+                        if (pathRootsMap.get(content.element.getElementParentInstruction())) {
+                            let distanceParentToElement: number;
+                            if (content.element.getElementParentInstruction() === "root") {
+                                distanceParentToElement = content.elementRange.start.line;
+
+                            }
+                            else {
+                                distanceParentToElement = content.elementRange.start.line - content.element.parent!.elementRange.start.line;
+                            }
+                            let whereIsCurrentParent: number;
+                            let elementNewEndPosition: number;
+                            let currentScopeLength: number;
+                            let elementNewStartPosition: number;
+
+                            if ((content.element.getElementKind() === 5) || (content.element.getElementKind() === 11)) {
+                                whereIsCurrentParent = pathRootsMap.get(content.element.parent!.element.instruction)?.start.line!;
+                                elementNewStartPosition = whereIsCurrentParent! + distanceParentToElement;
+                                elementNewEndPosition = elementNewStartPosition + content.elementRange.end.line - content.elementRange.start.line;
+                                currentScopeLength = pathRootsMap.get(content.element.parent!.element.instruction)?.end.line! - pathRootsMap.get(content.element.parent!.element.instruction)?.start.line! + 1;
+
+                            }
+                            else {
+                                whereIsCurrentParent = pathRootsMap.get(content.element.getElementParentInstruction())?.start.line!;
+                                elementNewStartPosition = whereIsCurrentParent + distanceParentToElement;
+                                elementNewEndPosition = elementNewStartPosition;
+                                currentScopeLength = pathRootsMap.get(content.element.getElementParentInstruction())?.end.line! - pathRootsMap.get(content.element.getElementParentInstruction())?.start.line! + 1;
+                            }
+                            //Checking Availability for this new position : Scope Availability + Space Availability
+                            //1-Scope
+
+
+                            if (distanceParentToElement < currentScopeLength) {
+                                // scope is available
+                                //2 check begining availablity
+                                let len = mergeResultArray.get(filePath)![elementNewStartPosition];
+                                if (len === undefined) {
+                                    //insert element
+                                    let lengthBefore = mergeResultArray.get(filePath)?.length;
+                                    for (let index = elementNewStartPosition; index <= elementNewEndPosition; index++) {
+                                        this.insertAtPosition(content, index, mergeResultArray.get(filePath)!);
+                                    }
+                                    let lengthAfter = mergeResultArray.get(filePath)?.length;
+                                    let nbrDecalage = lengthAfter! - lengthBefore!;
+                                    //update ranges of pathRootsMap
+                                    //1 update end of parents : end + content.length
+                                    if ((nbrDecalage > 0) && (elementNewStartPosition <= lengthBefore!)) {
+                                        let parentsArr = content.element.pathToRoot.split("@@");
+                                        parentsArr.forEach(parent => {
+                                            if ((parent !== "root") || (content.element.getElementParentInstruction() === "root")) {
+                                                let currentRange = pathRootsMap.get(parent);
+                                                let parentNewEndPosition = new vscode.Position(currentRange!.end.line + nbrDecalage, currentRange!.end.character);
+                                                let newRange = new vscode.Range(currentRange!.start, parentNewEndPosition);
+                                                pathRootsMap.set(parent, newRange);
+                                            }
+
+                                        });
+                                        //2 update end of following 
+
+                                        for (let index = elementNewEndPosition + 1; index < mergeResultArray.get(filePath)?.length!; index++) {
+                                            let element = mergeResultArray.get(filePath)![index];
+                                            if (element !== undefined) {
+                                                let oldRange = element!.elementRange;
+                                                let newRange = new vscode.Range(index, oldRange.start.character, oldRange.end.line + nbrDecalage, oldRange.end.character);
+                                                mergeResultArray.get(filePath)![index] = new ElementRange(element.element, newRange);
+                                                if (element.element.getElementParentInstruction() === "root") {
+                                                    let nmt = new vscode.Range(pathRootsMap.get("root")?.start.line!, pathRootsMap.get("root")?.start.character!, newRange.end.line, newRange.end.character);
+                                                    pathRootsMap.set("root", nmt);
+
+                                                }
+                                                else {
+                                                    if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
+                                                        pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+
+                                                    }
+                                                    else {
+                                                        if (element.element.getElementParentInstruction().replace(/\s+/g, '') === element.element.instruction.replace(/\s+/g, '')) {
+                                                            pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                                else {
+                                    if (len?.elementRange.start.line === len?.elementRange.end.line) {
+                                        //insert element
+                                        let lengthBefore = mergeResultArray.get(filePath)?.length;
+                                        //+1 of the element "len" which is holding current start position
+                                        for (let index = elementNewStartPosition + 1; index <= elementNewEndPosition + 1; index++) {
+                                            this.insertAtPosition(content, index, mergeResultArray.get(filePath)!);
+                                        }
+                                        let lengthAfter = mergeResultArray.get(filePath)?.length;
+                                        let nbrDecalage = lengthAfter! - lengthBefore!;
+                                        //update ranges of pathRootsMap
+                                        //1 update end of parents : end + content.length
+                                        if ((nbrDecalage > 0) && (elementNewStartPosition <= lengthBefore!)) {
+                                            let parentsArr = content.element.pathToRoot.split("@@");
+                                            parentsArr.forEach(parent => {
+                                                if ((parent !== "root") || (content.element.getElementParentInstruction() === "root")) {
+                                                    let currentRange = pathRootsMap.get(parent);
+                                                    let parentNewEndPosition = new vscode.Position(currentRange!.end.line + nbrDecalage, currentRange!.end.character);
+                                                    let newRange = new vscode.Range(currentRange!.start, parentNewEndPosition);
+                                                    pathRootsMap.set(parent, newRange);
+                                                }
+                                            });
+                                            //2 update end of following 
+                                            for (let index = elementNewEndPosition + 1; index < mergeResultArray.get(filePath)?.length!; index++) {
+                                                let element = mergeResultArray.get(filePath)![index];
+                                                if (element !== undefined) {
+                                                    let oldRange = element!.elementRange;
+                                                    let newRange = new vscode.Range(index, oldRange.start.character, oldRange.end.line + nbrDecalage, oldRange.end.character);
+                                                    mergeResultArray.get(filePath)![index] = new ElementRange(element.element, newRange);
+                                                    if (element.element.getElementParentInstruction() === "root") {
+                                                        let nmt = new vscode.Range(pathRootsMap.get("root")?.start.line!, pathRootsMap.get("root")?.start.character!, newRange.end.line, newRange.end.character);
+                                                        pathRootsMap.set("root", nmt);
+
+                                                    }
+                                                    else {
+                                                        if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
+                                                            pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+
+                                                        }
+                                                        else {
+                                                            if (element.element.getElementParentInstruction().replace(/\s+/g, '') === element.element.instruction.replace(/\s+/g, '')) {
+                                                                pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        //not available because there is a block
+                                        let end = len?.elementRange.end.line + 1;
+                                        //insert element
+                                        let lengthBefore = mergeResultArray.get(filePath)?.length;
+                                        for (let index = elementNewStartPosition + end; index <= elementNewEndPosition + end; index++) {
+                                            this.insertAtPosition(content, index, mergeResultArray.get(filePath)!);
+                                        }
+                                        let lengthAfter = mergeResultArray.get(filePath)?.length;
+                                        let nbrDecalage = lengthAfter! - lengthBefore!;
+                                        //update ranges of pathRootsMap
+                                        //1 update end of parents : end + content.length
+                                        if ((nbrDecalage > 0) && (elementNewStartPosition <= lengthBefore!)) {
+                                            let parentsArr = content.element.pathToRoot.split("@@");
+                                            parentsArr.forEach(parent => {
+                                                if ((parent !== "root") || (content.element.getElementParentInstruction() === "root")) {
+                                                    let currentRange = pathRootsMap.get(parent);
+                                                    let parentNewEndPosition = new vscode.Position(currentRange!.end.line + nbrDecalage, currentRange!.end.character);
+                                                    let newRange = new vscode.Range(currentRange!.start, parentNewEndPosition);
+                                                    pathRootsMap.set(parent, newRange);
+                                                }
+
+
+                                            });
+                                            //2 update end of following 
+                                            for (let index = elementNewEndPosition + 1; index < mergeResultArray.get(filePath)?.length!; index++) {
+                                                let element = mergeResultArray.get(filePath)![index];
+                                                if (element !== undefined) {
+                                                    let oldRange = element!.elementRange;
+                                                    let newRange = new vscode.Range(index, oldRange.start.character, oldRange.end.line + nbrDecalage, oldRange.end.character);
+                                                    mergeResultArray.get(filePath)![index] = new ElementRange(element.element, newRange);
+                                                    if (element.element.getElementParentInstruction() === "root") {
+                                                        let nmt = new vscode.Range(pathRootsMap.get("root")?.start.line!, pathRootsMap.get("root")?.start.character!, newRange.end.line, newRange.end.character);
+                                                        pathRootsMap.set("root", nmt);
+
+                                                    }
+                                                    else {
+                                                        if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
+                                                            pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+
+                                                        }
+                                                        else {
+                                                            if (element.element.getElementParentInstruction().replace(/\s+/g, '') === element.element.instruction.replace(/\s+/g, '')) {
+                                                                pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+
+                                    }
+                                }
+
+                            }
+                            else {
+                                //insert element
+                                if ((content.element.getElementKind() === 5) || (content.element.getElementKind() === 11)) {
+                                    elementNewStartPosition = pathRootsMap.get(content.element.parent!.element.instruction)?.end.line!;
+                                    elementNewEndPosition = elementNewStartPosition + content.elementRange.end.line - content.elementRange.start.line;
+
+                                }
+                                else {
+                                    elementNewStartPosition = pathRootsMap.get(content.element.getElementParentInstruction())?.end.line!;
+                                    elementNewEndPosition = elementNewStartPosition + content.elementRange.end.line - content.elementRange.start.line;
+                                }
+
+                                let lengthBefore = mergeResultArray.get(filePath)?.length;
+                                for (let index = elementNewStartPosition; index <= elementNewEndPosition; index++) {
+                                    this.insertAtPosition(content, index, mergeResultArray.get(filePath)!);
+                                }
+                                let lengthAfter = mergeResultArray.get(filePath)?.length;
+                                let nbrDecalage = lengthAfter! - lengthBefore!;
+                                //update ranges of pathRootsMap
+                                //1 update end of parents : end + content.length
+                                if ((nbrDecalage > 0) && (elementNewStartPosition <= lengthBefore!)) {
+                                    let parentsArr = content.element.pathToRoot.split("@@");
+                                    parentsArr.forEach(parent => {
+                                        if ((parent !== "root") || (content.element.getElementParentInstruction() === "root")) {
+                                            let currentRange = pathRootsMap.get(parent);
+                                            let parentNewEndPosition = new vscode.Position(currentRange!.end.line + nbrDecalage, currentRange!.end.character);
+                                            let newRange = new vscode.Range(currentRange!.start, parentNewEndPosition);
+                                            pathRootsMap.set(parent, newRange);
+                                        }
+
+                                    });
+                                    //2 update end of following 
+
+                                    for (let index = elementNewEndPosition + 1; index < mergeResultArray.get(filePath)?.length!; index++) {
+                                        let element = mergeResultArray.get(filePath)![index];
+                                        if (element !== undefined) {
+                                            let oldRange = element!.elementRange;
+                                            let newRange = new vscode.Range(index, oldRange.start.character, oldRange.end.line + nbrDecalage, oldRange.end.character);
+                                            mergeResultArray.get(filePath)![index] = new ElementRange(element.element, newRange);
+                                            if (element.element.getElementParentInstruction() === "root") {
+                                                let nmt = new vscode.Range(pathRootsMap.get("root")?.start.line!, pathRootsMap.get("root")?.start.character!, newRange.end.line, newRange.end.character);
+                                                pathRootsMap.set("root", nmt);
+
+                                            }
+                                            else {
+                                                if ((element.element.getElementKind() === 5) || (element.element.getElementKind() === 11)) {
+                                                    pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+
+                                                }
+                                                else {
+                                                    if (element.element.getElementParentInstruction().replace(/\s+/g, '') === element.element.instruction.replace(/\s+/g, '')) {
+                                                        pathRootsMap.set(element.element.getElementParentInstruction(), newRange);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            let idxRemove = block.blockContent.get(maximal.variantId)?.indexOf(content);
+                            block.blockContent.get(maximal.variantId)?.splice(idxRemove!, 1);
+                            console.log("r");
+                        }
+                        else {
+                            console.log("a");
+                        }
+
+                        //if pathRoot of element is not set ignore it 
+
+                        /*  await vscode.workspace.openTextDocument(vscode.Uri.parse(filePath)).then(async (a: vscode.TextDocument) => {
+          
+                              await vscode.window.showTextDocument(a, 1, true).then(async e => {
+                                  await e.edit(edit => {
+                                      edit.insert(new vscode.Position(element.elementRange.start.line, element.elementRange.start.character), element.element.instruction + "\n");
+                                  });
+                                  let end = element.elementRange.end.line;
+                                  let elementLength = element.elementRange.end.line - element.elementRange.start.line + 1;
+                                  let range = new vscode.Range(end + 1, 0, end + elementLength + 1, 0);
+                                  await e.edit(edit => {
+                                      edit.delete(range);
+                                  });
+                              });
+                          }, (error: any) => {
+                              console.error(error);
+                              debugger;
+                          });*/
+                    }
+                }
+
+                treatedBlocks.push(block);
+            }
+            treatedVariants.push(maximal);
+            let index = variants.indexOf(maximal);
+            variants.splice(index, 1);
+        }
+         let tst = Array.from(mergeResultArray.keys()) ;
+         let s = tst[0] ;
+         
+         for (let idx=0;idx<mergeResultArray.get(s)?.length!;idx++ ){
+             const element = mergeResultArray.get(s)![idx] ;
+             if (element) {
+
+                 await vscode.workspace.openTextDocument(vscode.Uri.parse(s)).then(async (a: vscode.TextDocument) => {
+           
+                     await vscode.window.showTextDocument(a, 1, true).then(async e => {
+                         await e.edit(edit => {
+                             edit.insert(new vscode.Position(idx, element.elementRange.start.character), element.element.instruction );
+                         });
+                         /*let end = element.elementRange.end.line;
+                         let elementLength = element.elementRange.end.line - element.elementRange.start.line + 1;
+                         let range = new vscode.Range(end + 1, 0, end + elementLength + 1, 0);
+                         await e.edit(edit => {
+                             edit.delete(range);
+                         });*/
+                         if ((element.element.getElementKind()===5)||(element.element.getElementKind()===11)) {
+                            idx = idx + element.elementRange.end.line -element.elementRange.start.line +1;
+                         }
+                     });
+                 }, (error: any) => {
+                     console.error(error);
+                     debugger;
+                 });
+             }
+             
+         } 
+        await vscode.commands.executeCommand("saveAll");
+        await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+
+
+        let mapsJson = {
+            "deletionPropagations": deletionPropagations,
+            "replacementPropagations": replacementPropagations,
+            "resourcePropagations": resourcePropagations,
+            "pathPropagations": pathPropagations
+
+        };
+        return JSON.stringify(mapsJson);
+    }
+
+    static getVariantWithMaximalBlocks(variants: Variant[]): Variant {
+        let currentMax = 0;
+        let maximalVariant: Variant;
+        try {
+            for (const variant of variants) {
+                if (variant.blocksList.length > currentMax) {
+                    currentMax = variant.blocksList.length;
+                    maximalVariant = variant;
+                }
+            }
+        }
+        catch (err) {
+            debugger;
+        }
+        return maximalVariant!;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    static insertAtPosition(value: ElementRange, position: number, tab: (ElementRange | undefined)[]) {
+        for (let idx = tab.length; idx <= position; idx++) {
+            tab.push(undefined);
+        }
+        if (tab[position] === undefined) {
+            tab[position] = value;
+        }
+        else {
+            tab.splice(position, 0, value).join();
+        }
+    }
+
+
+
+    static sortBlocksBySize(blocks: Block[]) {
+        blocks.sort((a, b) => {
+            if (a.blockContent.size > b.blockContent.size) {
+                return -1;
+            }
+            if (a.blockContent.size < b.blockContent.size) {
+                return 1;
+            }
+            return 0;
+        });
+
+
+    }
+
+
 
     static getBlocksByVariantJson(allVariants: Variant[]) {
         let indexVariant = 0;

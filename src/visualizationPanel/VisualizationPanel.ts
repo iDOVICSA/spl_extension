@@ -17,12 +17,11 @@ export class VisualizationPanel {
 	private _disposables: vscode.Disposable[] = [];
 	public variants: Variant[] | undefined;
 	public identifiedBlocks: Block[] | undefined;
-	public blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined;
 	public requireConstraintsFca: Constrainte[] | undefined;
 	public exclusionConstraintsFca: Constrainte[] | undefined;
 	public requireConstraintsFpGrowth: Constrainte[] | undefined;
 
-	public static createOrShow(extensionUri: vscode.Uri, variants: Variant[],identifiedBlocks: Block[], blocksresultsFeatureNamingByVariant: Map<number, any[]>, requireConstraintsFca: Constrainte[], exclusionConstraintsFca: Constrainte[], requireConstraintsFpGrowth: Constrainte[]) {
+	public static createOrShow(extensionUri: vscode.Uri, variants: Variant[], identifiedBlocks: Block[], requireConstraintsFca: Constrainte[], exclusionConstraintsFca: Constrainte[], requireConstraintsFpGrowth: Constrainte[]) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -40,20 +39,19 @@ export class VisualizationPanel {
 			column || vscode.ViewColumn.One,
 			getWebviewOptions(extensionUri),
 		);
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, variants,identifiedBlocks ,blocksresultsFeatureNamingByVariant, requireConstraintsFca, exclusionConstraintsFca, requireConstraintsFpGrowth);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, variants, identifiedBlocks, requireConstraintsFca, exclusionConstraintsFca, requireConstraintsFpGrowth);
 
 	}
 
 	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.variants, this.currentPanel?.identifiedBlocks,this.currentPanel?.blocksresultsFeatureNamingByVariant, this.currentPanel?.requireConstraintsFca, this.currentPanel?.exclusionConstraintsFca, this.currentPanel?.requireConstraintsFpGrowth);
+		VisualizationPanel.currentPanel = new VisualizationPanel(panel, extensionUri, this.currentPanel?.variants, this.currentPanel?.identifiedBlocks, this.currentPanel?.requireConstraintsFca, this.currentPanel?.exclusionConstraintsFca, this.currentPanel?.requireConstraintsFpGrowth);
 	}
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, variants: Variant[] | undefined,identifiedBlocks: Block[] | undefined,blocksresultsFeatureNamingByVariant: Map<number, any[]> | undefined, requireConstraintsFca: Constrainte[] | undefined, exclusionConstraintsFca: Constrainte[] | undefined, requireConstraintsFpGrowth: Constrainte[] | undefined) {
+	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, variants: Variant[] | undefined, identifiedBlocks: Block[] | undefined, requireConstraintsFca: Constrainte[] | undefined, exclusionConstraintsFca: Constrainte[] | undefined, requireConstraintsFpGrowth: Constrainte[] | undefined) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this.variants = variants;
 		this.identifiedBlocks = identifiedBlocks;
-		this.blocksresultsFeatureNamingByVariant = blocksresultsFeatureNamingByVariant;
 		this.requireConstraintsFca = requireConstraintsFca;
 		this.exclusionConstraintsFca = exclusionConstraintsFca;
 		this.requireConstraintsFpGrowth = requireConstraintsFpGrowth;
@@ -80,7 +78,7 @@ export class VisualizationPanel {
 			message => {
 				switch (message.command) {
 					case 'alert':
-						vscode.window.showErrorMessage(message.text);
+						vscode.window.showInformationMessage(message.text);
 						return;
 				}
 			},
@@ -96,31 +94,26 @@ export class VisualizationPanel {
 		if (!this.variants) { return; }
 		const jsonObject: any = {};
 		const jsonObjectListOfBlocks: any = {};
-		const jsonObjectWordCloud: any = {};
 		const jsonObjectRerequireConstraintsFca: any = {};
 		const jsonObjectExclusionConstraintsFca: any = {};
+		const jsonObjectRerequireConstraintsFpGrowth: any = {};
 		for (let index = 0; index < this.variants.length; index++) {
 			let idBlocks = [];
 			const element = this.variants[index].blocksList;
-			for (let index2 = 0; index2 < element.length; 	index2++) {
+			for (let index2 = 0; index2 < element.length; index2++) {
 				const bloc = element[index2];
-				idBlocks.push(bloc.blockId );
+				idBlocks.push(bloc.blockId);
 			}
-			jsonObject[this.variants[index].variantName]=idBlocks;
+			jsonObject[this.variants[index].variantName] = idBlocks;
 		}
 		const data = JSON.stringify(jsonObject);
 
 		for (let index = 0; index < this.identifiedBlocks!.length; index++) {
 			const element = this.identifiedBlocks![index];
-			
-			jsonObjectListOfBlocks[element.blockId]=element.blockName;
+
+			jsonObjectListOfBlocks[element.blockId] = element;
 		}
 		const dataListOfBlocks = JSON.stringify(jsonObjectListOfBlocks);
-
-		this.blocksresultsFeatureNamingByVariant?.forEach((value, key) => {
-			jsonObjectWordCloud[key] = value;
-		});
-		const dataWordCloud = JSON.stringify(jsonObjectWordCloud);
 
 		for (let index = 0; index < this.requireConstraintsFca!.length; index++) {
 			jsonObjectRerequireConstraintsFca[index] = this.requireConstraintsFca![index];
@@ -131,8 +124,13 @@ export class VisualizationPanel {
 			jsonObjectExclusionConstraintsFca[index] = this.exclusionConstraintsFca![index];
 		}
 		const dataExclusionConstraintsFca = JSON.stringify(jsonObjectExclusionConstraintsFca);
+
+		for (let index = 0; index < this.requireConstraintsFpGrowth!.length; index++) {
+			jsonObjectRerequireConstraintsFpGrowth[index] = this.requireConstraintsFpGrowth![index];
+		}
+		const dataRequireConstraintsFpGrowth = JSON.stringify(jsonObjectRerequireConstraintsFpGrowth);
 		this._panel.webview.postMessage({
-			command: 'showvariants', data: data, dataWordCloud: dataWordCloud, dataRequireConstraintsFca: dataRequireConstraintsFca, dataExclusionConstraintsFca: dataExclusionConstraintsFca ,dataListOfBlocks:dataListOfBlocks
+			command: 'showvariants', data: data, dataRequireConstraintsFca: dataRequireConstraintsFca, dataExclusionConstraintsFca: dataExclusionConstraintsFca, dataRequireConstraintsFpGrowth: dataRequireConstraintsFpGrowth, dataListOfBlocks: dataListOfBlocks
 		});
 	}
 
@@ -216,7 +214,13 @@ export class VisualizationPanel {
 	
 				<div class="modal-body">
 					<label>Block Name</label>
-					<input type="text" id="blockName" placeholder="Enter bloc name">
+					<input list="browsers" type="text" id="blockName" placeholder="Enter bloc name">
+						
+					</input>
+					<label>Suggestion</label>
+					<select id="options" onChange="update()">
+                    </select>
+
 					<h2>Word Cloud</h2>
 					<div class="center">
 						<div id="container"></div>

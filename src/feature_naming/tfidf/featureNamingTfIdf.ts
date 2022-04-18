@@ -89,6 +89,7 @@ export class FeatureNamingTfIdf {
         maxWords--;
         if (maxWords < 0) { break; };
       }
+      block.tfIdfWordCloud = sortedElementsOfBlockByTfIdf;
       results.set(block.blockId, sortedElementsOfBlockByTfIdf!);
     };
     return results;

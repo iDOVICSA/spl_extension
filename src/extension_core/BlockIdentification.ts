@@ -98,7 +98,7 @@ export class BlockIdentification {
         }
         let result: ElementRange[] = [];
         try {
-            this.traverseSymbolsChildren(document, fileSymbols!, "root", "777", 0, document.lineCount, result);
+            this.traverseSymbolsChildren(document, undefined,undefined, fileSymbols!, "root", "777", 0, document.lineCount, result);
             fileSymbols = undefined;
         }
         catch (err) {
@@ -116,6 +116,8 @@ export class BlockIdentification {
 
     traverseSymbolsChildren(
         document: vscode.TextDocument,
+        elementParent : ElementRange |undefined ,
+        parentSymbol: vscode.DocumentSymbol | undefined,
         children: vscode.DocumentSymbol[],
         pathToRoot: string,
         pathToRootTypes: string,
@@ -130,17 +132,29 @@ export class BlockIdentification {
                     if ((child.kind !== 5) && (child.kind !== 11)) { // some methods and functions have childrens like callbacks and method font in actions.java of notepad which have class child !!
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
-                                let r = document.lineAt(index).range;
-                                let er = new ElementRange(e, r);
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri,elementParent);
+                                
+                                let r: vscode.Range;
+                                if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
+                                    r = parentSymbol?.range!;
+                                }
+                                else {
+                                    r = document.lineAt(index).range;
+                                }
+                                let er = new ElementRange(e, r!);
                                 result.push(er);
                             }
                         }
                         startingLine = child.range.end.line + 1;
+                        let newParent = new Element(document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),pathToRoot+"@@"+document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),pathToRootTypes+"."+child.kind,document.uri,elementParent) ;
+                        let newParentRange = child.range ; 
+                        let newParentElementRange = new ElementRange(newParent,newParentRange) ;
                         this.traverseSymbolsChildren(
                             document,
+                            newParentElementRange,
+                            child,
                             child.children,
-                            pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),//
+                            pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""),//
                             pathToRootTypes + "." + child.kind,
                             child.range.start.line,
                             child.range.end.line + 1,
@@ -150,22 +164,20 @@ export class BlockIdentification {
                     else {
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
-                                let r = document.lineAt(index).range;
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri,elementParent);
+                                let r: vscode.Range;
+                                if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
+                                    r = parentSymbol?.range!;
+                                }
+                                else {
+                                    r = document.lineAt(index).range;
+                                }
                                 let er = new ElementRange(e, r);
                                 result.push(er);
                             }
                         }
-                        /*  for (let index = child.range.start.line; index <= child.range.end.line; index++) {
-                              if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                  //let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
-                                  let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
-                                  let r = document.lineAt(index).range;
-                                  let er = new ElementRange(e, r);
-                                  result.push(er);
-                              }
-                          }*/
-                        let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+
+                        let e = new Element(document.getText(child.range), pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri,elementParent);
                         let r = child.range;
                         let er = new ElementRange(e, r);
                         result.push(er);
@@ -175,22 +187,19 @@ export class BlockIdentification {
                     if ((child.kind === 5) || ((child.kind === 11))) {
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
-                                let r = document.lineAt(index).range;
+                                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri,elementParent);
+                                let r: vscode.Range;
+                                if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
+                                    r = parentSymbol?.range!;
+                                }
+                                else {
+                                    r = document.lineAt(index).range;
+                                }
                                 let er = new ElementRange(e, r);
                                 result.push(er);
                             }
                         }
-                        /*  for (let index = child.range.start.line; index <= child.range.end.line; index++) {
-                              if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                  //let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
-                                  let e = new Element(document.lineAt(index).text, pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
-                                  let r = document.lineAt(index).range;
-                                  let er = new ElementRange(e, r);
-                                  result.push(er);
-                              }
-                          }*/
-                        let e = new Element(document.getText(child.range), pathToRoot + "." + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri.fsPath);
+                        let e = new Element(document.getText(child.range), pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri,elementParent);
                         let r = child.range;
                         let er = new ElementRange(e, r);
                         result.push(er);
@@ -202,7 +211,7 @@ export class BlockIdentification {
         for (let index = startingLine; index < endingLine; index++) {
             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                 //let e = new Element(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim(), pathToRoot, pathToRootTypes);
-                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri.fsPath);
+                let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri,elementParent);
                 let r = document.lineAt(index).range;
                 let er = new ElementRange(e, r);
                 result.push(er);

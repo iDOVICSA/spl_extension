@@ -1,11 +1,22 @@
 import { Constrainte } from "./../constrainte";
 import { FPGrowth, Itemset } from 'node-fpgrowth';
+import { Block } from "../../extension_core/Block";
+import { Variant } from "../../extension_core/Variant";
 
 export class FpGrowthConstraintsDiscovery {
 
-    async getRequireConstraints(blocksByVariant: Map<number, number[]>): Promise<Constrainte[]> {
+    static async getRequireConstraints(variants: Variant[], blocks: Block[]): Promise<Constrainte[]> {
+        const transactions: number[][] = [];
+        let element: number[] = [];
         let allRequireConstraintes: Constrainte[] = [];
-        const transactions = Array.from(blocksByVariant.values());
+        variants.forEach((variant) => {
+            variant.blocksList.forEach((bloc) => {
+                element.push(bloc.blockId)
+            });
+            transactions.push(element);
+            element = [];
+        });
+
         // Execute FPGrowth with a minimum support of 40%. Algorithm is generic.
         const fpgrowth: FPGrowth<number> = new FPGrowth<number>(.0);
 
@@ -29,7 +40,7 @@ export class FpGrowthConstraintsDiscovery {
 
     }
 
-    getValideConstraine(coupleOfBlocs: Itemset<number>[] | undefined, monoBlocs: Itemset<number>[] | undefined): Constrainte[] {
+    static getValideConstraine(coupleOfBlocs: Itemset<number>[] | undefined, monoBlocs: Itemset<number>[] | undefined): Constrainte[] {
         let allRequireConstraintes: Constrainte[] = [];
 
         //foreach couple we verify if firstBloc => secondBloc and if secondBloc => firstBloc
