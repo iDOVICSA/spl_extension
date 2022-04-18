@@ -127,7 +127,7 @@ export class Utils {
                 let parentRelation = "Normal";
                 if (f.parent?.isFake) {
                     parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
+                } else if (f.children.size > 0) {
                     parentRelation = "Or";
 
                 }

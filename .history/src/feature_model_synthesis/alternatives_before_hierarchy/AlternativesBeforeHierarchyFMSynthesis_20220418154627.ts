@@ -30,11 +30,11 @@ export class AlternativesBeforeHierarchyFMSynthesis {
 
     public createFeatureModel() {
 
-        let root = new Feature(null, this.rootName, -2, false);
+        let root = new Feature(null, this.rootName, -1, false);
         this.listOfFeatures.set(-1, root);
 
-        /*   let eight = new Feature(null, this.rootName, 8, false);
-           this.listOfFeatures.set(8, eight);*/
+        let eight = new Feature(null, this.rootName, 8, false);
+        this.listOfFeatures.set(8, eight);
 
         let parentAssigned: Feature[] = [];
         //Convert Blocks to Feature
@@ -97,9 +97,8 @@ export class AlternativesBeforeHierarchyFMSynthesis {
         // create alternative group for each AltGroup 
         for (let index = 0; index < altGroupList.altGroups.length; index++) {
             const element = altGroupList.altGroups[index];
-            let fakeAlternative = new Feature(null, "Alternative_" + element.id, this.listOfFeatures.size + 1, false);
+            let fakeAlternative = new Feature(null, "Alternative_" + element.id, -2 - index, false);
             fakeAlternative.children = element.features;
-            fakeAlternative.isFake = true;
             element.altRoot = fakeAlternative;
             this.listOfFeatures.set(fakeAlternative.featureId, fakeAlternative);
             // console.log(fakeAlternative);
@@ -201,10 +200,7 @@ export class AlternativesBeforeHierarchyFMSynthesis {
             }
 
         });
-        //  console.log(Utils.deleteRedundantReqConstraint(this.reqConstraints, this.listOfFeatures));
-
-        let fmJson: string = Utils.exportAlternativesBeforeHierarchyFMForgeJson(this.listOfFeatures, this.reqConstraints, this.mutexConstraints);
-        console.log(fmJson);
+        console.log(Utils.deleteRedundantReqConstraint(this.reqConstraints, this.listOfFeatures));
     }
 }
 

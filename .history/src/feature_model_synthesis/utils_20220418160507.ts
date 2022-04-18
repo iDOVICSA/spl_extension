@@ -104,12 +104,12 @@ export class Utils {
         return redundantReqConstraint;
     }
 
-    static exportAlternativesBeforeHierarchyFMForgeJson(features: Map<number, Feature>, requireConstraints: Constrainte[], mutexConstraints: Constrainte[]) {
+    static exportAlternativesBeforeHierarchyFMForgeJson(blocks: Block[], features: Map<number, Feature>, requireConstraints: Constrainte[], mutexConstraints: Constrainte[], variantsCount: number) {
         let funcionnalities: any[] = [];
         let constraints: any[] = [];
         let core = {
             "key": (features.get(-1)?.featureId)?.toString(),
-            "name": (features.get(-1)?.featureName)?.toString(),
+            "name": "Notepad",
             "type": "Core",
             "parent": "-1",
             "parentRelation": "Normal",
@@ -122,22 +122,16 @@ export class Utils {
         };
         let mandatoryBlockId = -1;
         features.forEach((f) => {
-            if (f.featureId !== -2) {
-                const presence = (f.mandatory) ? "Mandatory" : "Optional";
-                let parentRelation = "Normal";
-                if (f.parent?.isFake) {
-                    parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
-
-                }
+            let blockVariantsCount = Array.from(block.blockContent.keys()).length;
+            if (blockVariantsCount === variantsCount) {
+                mandatoryBlockId = block.blockId;
                 let blockData = {
-                    "key": (f.featureId)?.toString(),
-                    "name": f.featureName,
+                    "key": (block.blockId).toString(),
+                    "name": "block" + block.blockId,
                     "type": "Functionality feature",
-                    "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
-                    "presence": presence,
+                    "parent": "s2a3i4-d7-ya45c-in66e",
+                    "parentRelation": "Normal",
+                    "presence": "Mandatory",
                     "lgFile": "",
                     "role": "",
                     "hexColor": "#d384a6",
@@ -145,7 +139,21 @@ export class Utils {
                 };
                 funcionnalities.push(blockData);
             }
-
+            else {
+                let blockData = {
+                    "key": (block.blockId).toString(),
+                    "name": "block" + block.blockId,
+                    "type": "Functionality feature",
+                    "parent": "s2a3i4-d7-ya45c-in66e",
+                    "parentRelation": "Normal",
+                    "presence": "Optional",
+                    "lgFile": "",
+                    "role": "",
+                    "hexColor": "#d384a6",
+                    "help": "",
+                };
+                funcionnalities.push(blockData);
+            }
         });
         for (const reqCon of requireConstraints) {
             if (reqCon.secondBlock !== mandatoryBlockId) {

@@ -1,5 +1,4 @@
 import { pbkdf2Sync } from "crypto";
-import { features } from "process";
 import { Constrainte } from "../../constraints_discovery/constrainte";
 import { Block } from "../../extension_core/Block";
 import { Feature } from "../feature";
@@ -13,9 +12,7 @@ export class AlternativesBeforeHierarchyFMSynthesis {
     listOfBlocks: Block[];
     reqConstraints: Constrainte[];
     mutexConstraints: Constrainte[];
-    //Constraint to show with feature model
-    noRedundantReqConstraints: Constrainte[] = [];
-    noRedundantMutexConstraints: Constrainte[] = [];
+
 
 
     constructor(blocks: Block[], reqConstraints: Constrainte[], mutexConstraints: Constrainte[], numberOfVariants: number) {
@@ -23,18 +20,15 @@ export class AlternativesBeforeHierarchyFMSynthesis {
         this.reqConstraints = reqConstraints;
         this.mutexConstraints = mutexConstraints;
         this.numberOfVariants = numberOfVariants;
-
-        this.noRedundantReqConstraints = reqConstraints;
-        this.noRedundantMutexConstraints = mutexConstraints;
     }
 
     public createFeatureModel() {
 
-        let root = new Feature(null, this.rootName, -2, false);
+        let root = new Feature(null, this.rootName, -1, false);
         this.listOfFeatures.set(-1, root);
 
-        /*   let eight = new Feature(null, this.rootName, 8, false);
-           this.listOfFeatures.set(8, eight);*/
+        let eight = new Feature(null, this.rootName, 8, false);
+        this.listOfFeatures.set(8, eight);
 
         let parentAssigned: Feature[] = [];
         //Convert Blocks to Feature
@@ -97,9 +91,8 @@ export class AlternativesBeforeHierarchyFMSynthesis {
         // create alternative group for each AltGroup 
         for (let index = 0; index < altGroupList.altGroups.length; index++) {
             const element = altGroupList.altGroups[index];
-            let fakeAlternative = new Feature(null, "Alternative_" + element.id, this.listOfFeatures.size + 1, false);
+            let fakeAlternative = new Feature(null, "Alternative_" + element.id, (index * -1) - 1, false);
             fakeAlternative.children = element.features;
-            fakeAlternative.isFake = true;
             element.altRoot = fakeAlternative;
             this.listOfFeatures.set(fakeAlternative.featureId, fakeAlternative);
             // console.log(fakeAlternative);
@@ -108,7 +101,7 @@ export class AlternativesBeforeHierarchyFMSynthesis {
 
         // Create hierarchy with the Requires
         this.listOfFeatures.forEach(f => {
-            console.log("AM FEATURE " + f.featureName);
+
             // check if the feature belongs to an alternative group
             let altGroup = altGroupList.getAltGroupOfFeature(f);
             let parentCondidate = Utils.getFeatureRequiredFeatures(this.reqConstraints, f, this.listOfFeatures);
@@ -189,22 +182,10 @@ export class AlternativesBeforeHierarchyFMSynthesis {
 
             if (f !== root) {
                 let altGroup = altGroupList.getAltGroupOfFeature(f);
-                if (altGroup) {
-                    f.parent = altGroup.altRoot!;
-                    f = altGroup.altRoot!;
-                }
-                if (!parentAssigned.includes(f)) {
-                    f.parent = root;
-                    root.children.set(f.featureId, f);
-                    parentAssigned.push(f);
-                }
+
             }
 
         });
-        //  console.log(Utils.deleteRedundantReqConstraint(this.reqConstraints, this.listOfFeatures));
-
-        let fmJson: string = Utils.exportAlternativesBeforeHierarchyFMForgeJson(this.listOfFeatures, this.reqConstraints, this.mutexConstraints);
-        console.log(fmJson);
     }
 }
 

@@ -122,21 +122,14 @@ export class Utils {
         };
         let mandatoryBlockId = -1;
         features.forEach((f) => {
-            if (f.featureId !== -2) {
+            if (f.featureId !== -1) {
                 const presence = (f.mandatory) ? "Mandatory" : "Optional";
-                let parentRelation = "Normal";
-                if (f.parent?.isFake) {
-                    parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
-
-                }
                 let blockData = {
                     "key": (f.featureId)?.toString(),
                     "name": f.featureName,
                     "type": "Functionality feature",
-                    "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
+                    "parent": (f.parent?.featureId)?.toString,
+                    "parentRelation": "Normal",
                     "presence": presence,
                     "lgFile": "",
                     "role": "",
@@ -196,6 +189,7 @@ export class Utils {
             "referencedModels": [],
             "constraints": constraints
         };
+        console.log(JSON.stringify(fmJson));
         return JSON.stringify(fmJson);
     }
 }

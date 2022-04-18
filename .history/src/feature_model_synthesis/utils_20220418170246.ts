@@ -111,7 +111,7 @@ export class Utils {
             "key": (features.get(-1)?.featureId)?.toString(),
             "name": (features.get(-1)?.featureName)?.toString(),
             "type": "Core",
-            "parent": "-1",
+            "parent": "a",
             "parentRelation": "Normal",
             "presence": "Mandatory",
             "lgFile": "",
@@ -124,19 +124,12 @@ export class Utils {
         features.forEach((f) => {
             if (f.featureId !== -2) {
                 const presence = (f.mandatory) ? "Mandatory" : "Optional";
-                let parentRelation = "Normal";
-                if (f.parent?.isFake) {
-                    parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
-
-                }
                 let blockData = {
                     "key": (f.featureId)?.toString(),
                     "name": f.featureName,
                     "type": "Functionality feature",
                     "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
+                    "parentRelation": "Normal",
                     "presence": presence,
                     "lgFile": "",
                     "role": "",

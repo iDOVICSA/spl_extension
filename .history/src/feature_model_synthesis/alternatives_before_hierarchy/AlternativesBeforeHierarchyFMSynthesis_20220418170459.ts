@@ -99,7 +99,6 @@ export class AlternativesBeforeHierarchyFMSynthesis {
             const element = altGroupList.altGroups[index];
             let fakeAlternative = new Feature(null, "Alternative_" + element.id, this.listOfFeatures.size + 1, false);
             fakeAlternative.children = element.features;
-            fakeAlternative.isFake = true;
             element.altRoot = fakeAlternative;
             this.listOfFeatures.set(fakeAlternative.featureId, fakeAlternative);
             // console.log(fakeAlternative);

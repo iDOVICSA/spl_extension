@@ -125,10 +125,10 @@ export class Utils {
             if (f.featureId !== -2) {
                 const presence = (f.mandatory) ? "Mandatory" : "Optional";
                 let parentRelation = "Normal";
-                if (f.parent?.isFake) {
+                if (f.isFake) {
                     parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
+                } else if (f.children.size > 0) {
+                    parentRelation = "Xor";
 
                 }
                 let blockData = {
@@ -136,7 +136,7 @@ export class Utils {
                     "name": f.featureName,
                     "type": "Functionality feature",
                     "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
+                    "parentRelation": "Normal",
                     "presence": presence,
                     "lgFile": "",
                     "role": "",

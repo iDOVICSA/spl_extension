@@ -86,10 +86,7 @@ export class Utils {
             let f2 = listOfFeature.get(c.secondBlock);
 
             let stop = false;
-            if (f?.mandatory === false && f2?.mandatory === false) {
-                if (c.firstBlock === 5 && c.secondBlock === 3) {
-                    console.log("ff");
-                }
+            if (f?.mandatory === false && f2?.mandatory === true) {
                 while (!stop && f) {
                     if (f?.parent?.featureId === c.secondBlock) {
                         stop = true;
@@ -102,100 +99,5 @@ export class Utils {
             }
         }
         return redundantReqConstraint;
-    }
-
-    static exportAlternativesBeforeHierarchyFMForgeJson(features: Map<number, Feature>, requireConstraints: Constrainte[], mutexConstraints: Constrainte[]) {
-        let funcionnalities: any[] = [];
-        let constraints: any[] = [];
-        let core = {
-            "key": (features.get(-1)?.featureId)?.toString(),
-            "name": (features.get(-1)?.featureName)?.toString(),
-            "type": "Core",
-            "parent": "-1",
-            "parentRelation": "Normal",
-            "presence": "Mandatory",
-            "lgFile": "",
-            "role": "",
-            "hexColor": "",
-            "help": "",
-            "nodeWeight": -1
-        };
-        let mandatoryBlockId = -1;
-        features.forEach((f) => {
-            if (f.featureId !== -2) {
-                const presence = (f.mandatory) ? "Mandatory" : "Optional";
-                let parentRelation = "Normal";
-                if (f.parent?.isFake) {
-                    parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
-
-                }
-                let blockData = {
-                    "key": (f.featureId)?.toString(),
-                    "name": f.featureName,
-                    "type": "Functionality feature",
-                    "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
-                    "presence": presence,
-                    "lgFile": "",
-                    "role": "",
-                    "hexColor": "#d384a6",
-                    "help": "",
-                };
-                funcionnalities.push(blockData);
-            }
-
-        });
-        for (const reqCon of requireConstraints) {
-            if (reqCon.secondBlock !== mandatoryBlockId) {
-                let reqConData = {
-                    "type": "⇒",
-                    "left": {
-                        "type": "feature",
-                        "featureKey": reqCon.firstBlock.toString()
-                    },
-                    "right": {
-                        "type": "feature",
-                        "featureKey": reqCon.secondBlock.toString()
-                    }
-                };
-                constraints.push(reqConData);
-
-            }
-
-        }
-        for (const mutexCon of mutexConstraints) {
-            let mutexConData = {
-                "type": "⇒",
-                "left": {
-                    "type": "feature",
-                    "featureKey": mutexCon.firstBlock.toString()
-                },
-                "right": {
-                    "type": "¬",
-                    "child": {
-                        "type": "feature",
-                        "featureKey": mutexCon.secondBlock.toString()
-                    }
-                }
-            };
-            constraints.push(mutexConData);
-
-        }
-        let keycore = "functionalities";
-        const jsonObject: any = {};
-
-        let fmJson = {
-            "core": core,
-            "functionalities": funcionnalities,
-            "fileResources": [],
-            "textResources": [],
-            "smartAppAssetResources": [],
-            "colorResources": [],
-            "referencedModels": [],
-            "constraints": constraints
-        };
-        return JSON.stringify(fmJson);
     }
 }

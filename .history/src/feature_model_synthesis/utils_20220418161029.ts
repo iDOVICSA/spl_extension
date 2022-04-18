@@ -104,7 +104,7 @@ export class Utils {
         return redundantReqConstraint;
     }
 
-    static exportAlternativesBeforeHierarchyFMForgeJson(features: Map<number, Feature>, requireConstraints: Constrainte[], mutexConstraints: Constrainte[]) {
+    static exportAlternativesBeforeHierarchyFMForgeJson(blocks: Block[], features: Map<number, Feature>, requireConstraints: Constrainte[], mutexConstraints: Constrainte[], variantsCount: number) {
         let funcionnalities: any[] = [];
         let constraints: any[] = [];
         let core = {
@@ -122,30 +122,20 @@ export class Utils {
         };
         let mandatoryBlockId = -1;
         features.forEach((f) => {
-            if (f.featureId !== -2) {
-                const presence = (f.mandatory) ? "Mandatory" : "Optional";
-                let parentRelation = "Normal";
-                if (f.parent?.isFake) {
-                    parentRelation = "Xor";
-                } else if (f.parent?.featureId !== -2) {
-                    parentRelation = "Or";
-
-                }
-                let blockData = {
-                    "key": (f.featureId)?.toString(),
-                    "name": f.featureName,
-                    "type": "Functionality feature",
-                    "parent": (f.parent?.featureId)?.toString(),
-                    "parentRelation": parentRelation,
-                    "presence": presence,
-                    "lgFile": "",
-                    "role": "",
-                    "hexColor": "#d384a6",
-                    "help": "",
-                };
-                funcionnalities.push(blockData);
-            }
-
+            const presence = (f.mandatory) : "Mandatory" ? "Optional";
+            let blockData = {
+                "key": (f.featureId)?.toString(),
+                "name": f.featureName,
+                "type": "Functionality feature",
+                "parent": "s2a3i4-d7-ya45c-in66e",
+                "parentRelation": "Normal",
+                "presence": "Mandatory",
+                "lgFile": "",
+                "role": "",
+                "hexColor": "#d384a6",
+                "help": "",
+            };
+            funcionnalities.push(blockData);
         });
         for (const reqCon of requireConstraints) {
             if (reqCon.secondBlock !== mandatoryBlockId) {
