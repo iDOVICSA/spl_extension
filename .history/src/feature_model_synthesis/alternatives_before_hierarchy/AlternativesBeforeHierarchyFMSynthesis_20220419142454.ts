@@ -1,3 +1,5 @@
+import { pbkdf2Sync } from "crypto";
+import { features } from "process";
 import { Constrainte } from "../../constraints_discovery/constrainte";
 import { Block } from "../../extension_core/Block";
 import { Feature } from "../feature";
@@ -202,8 +204,8 @@ export class AlternativesBeforeHierarchyFMSynthesis {
         //  console.log(Utils.deleteRedundantReqConstraint(this.reqConstraints, this.listOfFeatures));
 
         let fmJson: string = Utils.exportAlternativesBeforeHierarchyFMForgeJson(this.listOfFeatures, this.reqConstraints, this.mutexConstraints);
-        console.log(fmJson);
         return fmJson;
+        console.log(fmJson);
     }
 }
 

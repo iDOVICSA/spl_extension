@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
         //   await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
-        fmJson = flatFeatureDiagram.createFeatureModel();
+        fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
         //  await Utils.saveFmForgeJson(fmJson!, s!);
 
 
