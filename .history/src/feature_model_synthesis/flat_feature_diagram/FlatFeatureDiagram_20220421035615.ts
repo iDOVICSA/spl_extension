@@ -5,6 +5,7 @@ import { Utils } from "../utils";
 
 export class FlatFeatureDiagram {
 
+    rootName: string = "FeatureModel";
     numberOfVariants: number;
     listOfFeatures: Map<number, Feature> = new Map<number, Feature>();
     listOfBlocks: Block[];
@@ -21,7 +22,7 @@ export class FlatFeatureDiagram {
     }
 
     public createFeatureModel(rootName: string) {
-        let root = new Feature(null, rootName, -2, false);
+        let root = new Feature(null, this.rootName, -2, false);
         this.listOfFeatures.set(-1, root);
 
         //Convert Blocks to Feature

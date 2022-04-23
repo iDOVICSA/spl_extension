@@ -144,7 +144,7 @@
 								"type": "boolean",
 								"description": "Alternatives Before Hierarchy"
 							},
-							"prop2": {
+							"prop1": {
 								"type": "boolean",
 								"description": "Flat Feature Model"
 							}

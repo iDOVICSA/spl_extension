@@ -82,41 +82,13 @@
 					  "id" : "blockIdentification",
 					  "title": "Block Identification",
 					  "order": 1,
-					  "properties": {
-						"conf.settingsEditor.NameSetting": {
-							"type": "string",
-							"order": 1,
-							"description": "Feature Model Name.",
-							"default": "Feature Model"
-						}
-					  }
+					  "properties": {}
 				  },
 				  {
 					"id" : "constraintsDiscovery",
 					"title": "Constraints discovery",
 					"order": 2,
-					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
-							"type": "object",
-							"order": 2,
-							"description": "Select Algorithm.",
-							"properties": {
-								"prop1": {
-									"type": "boolean",
-									"description": "FCA"
-								},
-								"prop2": {
-									"type": "boolean",
-									"description": "fp Growth"
-								}
-							},
-							"additionalProperties": false,
-							"default": {
-								"prop1": true,
-								"prop2": true
-							}
-						}
-					}
+					"properties": {}
 				},
 				{
 					"id" : "visualisations",

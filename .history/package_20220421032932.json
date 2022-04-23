@@ -96,7 +96,7 @@
 					"title": "Constraints discovery",
 					"order": 2,
 					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
+						"conf.settingsEditor.fmAlgorithmSetting": {
 							"type": "object",
 							"order": 2,
 							"description": "Select Algorithm.",

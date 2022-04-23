@@ -36,6 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
         const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
         const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
 
+        console.log(configuredView.prop1);
 
         identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
         let featureNaming = new FeatureNamingTfIdf();
@@ -51,14 +52,12 @@ export function activate(context: vscode.ExtensionContext) {
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         if (configuredViewFmAlgorithm.prop1) {
-          fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configuredViewFmName);
-          await Utils.saveFmForgeJson("AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, s!);
-
+          fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
         }
         if (configuredViewFmAlgorithm.prop2) {
-          fmJson = flatFeatureDiagram.createFeatureModel(configuredViewFmName);
-          await Utils.saveFmForgeJson("FlatFMSynthesis.fm.forge", fmJson!, s!);
+          fmJson = flatFeatureDiagram.createFeatureModel();
         }
+        //  await Utils.saveFmForgeJson(fmJson!, s!);
 
 
         let document: vscode.TextDocument | undefined =

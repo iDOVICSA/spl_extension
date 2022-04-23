@@ -58,10 +58,9 @@
 				}
 			]
 		},
-		"configuration": [
-				{
-				"title": "TypeScript",
-				"properties": {
+		"configuration": {
+			"title": "TypeScript",
+			"properties": {
 				"typescript.useCodeSnippetsOnMethodSuggest": {
 					"type": "boolean",
 					"default": false,
@@ -75,89 +74,8 @@
 					"default": null,
 					"description": "Specifies the folder path containing the tsserver and lib*.d.ts files to use."
 				}
-							}
-		  		}
-				  ,
-				  {
-					  "id" : "blockIdentification",
-					  "title": "Block Identification",
-					  "order": 1,
-					  "properties": {
-						"conf.settingsEditor.NameSetting": {
-							"type": "string",
-							"order": 1,
-							"description": "Feature Model Name.",
-							"default": "Feature Model"
-						}
-					  }
-				  },
-				  {
-					"id" : "constraintsDiscovery",
-					"title": "Constraints discovery",
-					"order": 2,
-					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
-							"type": "object",
-							"order": 2,
-							"description": "Select Algorithm.",
-							"properties": {
-								"prop1": {
-									"type": "boolean",
-									"description": "FCA"
-								},
-								"prop2": {
-									"type": "boolean",
-									"description": "fp Growth"
-								}
-							},
-							"additionalProperties": false,
-							"default": {
-								"prop1": true,
-								"prop2": true
-							}
-						}
-					}
-				},
-				{
-					"id" : "visualisations",
-					"title": "Visualisations",
-					"order":4,
-					"properties": {}
-				},
-			{
-				"id": "featureModelSynthesis",
-				"title": "Feature Model synthesis",
-				"order": 3,
-				"properties": {
-					"conf.settingsEditor.featureModelNameSetting": {
-						"type": "string",
-						"order": 1,
-						"description": "Feature Model Name.",
-						"default": "Feature Model"
-					},
-					"conf.settingsEditor.fmAlgorithmSetting": {
-						"type": "object",
-						"order": 2,
-						"description": "Select Algorithm.",
-						"properties": {
-							"prop1": {
-								"type": "boolean",
-								"description": "Alternatives Before Hierarchy"
-							},
-							"prop2": {
-								"type": "boolean",
-								"description": "Flat Feature Model"
-							}
-						},
-						"additionalProperties": false,
-						"default": {
-							"prop1": true,
-							"prop2": false
-						}
-					}
-				}
 			}
-			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

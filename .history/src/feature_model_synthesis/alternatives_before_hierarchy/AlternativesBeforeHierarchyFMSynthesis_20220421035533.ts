@@ -5,6 +5,7 @@ import { Utils } from "../utils";
 
 export class AlternativesBeforeHierarchyFMSynthesis {
 
+    rootName: string = "FeatureModel";
     numberOfVariants: number;
     listOfFeatures: Map<number, Feature> = new Map<number, Feature>();
     listOfBlocks: Block[];

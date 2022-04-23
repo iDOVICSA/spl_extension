@@ -78,75 +78,23 @@
 							}
 		  		}
 				  ,
-				  {
-					  "id" : "blockIdentification",
-					  "title": "Block Identification",
-					  "order": 1,
-					  "properties": {
-						"conf.settingsEditor.NameSetting": {
-							"type": "string",
-							"order": 1,
-							"description": "Feature Model Name.",
-							"default": "Feature Model"
-						}
-					  }
-				  },
-				  {
-					"id" : "constraintsDiscovery",
-					"title": "Constraints discovery",
-					"order": 2,
-					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
-							"type": "object",
-							"order": 2,
-							"description": "Select Algorithm.",
-							"properties": {
-								"prop1": {
-									"type": "boolean",
-									"description": "FCA"
-								},
-								"prop2": {
-									"type": "boolean",
-									"description": "fp Growth"
-								}
-							},
-							"additionalProperties": false,
-							"default": {
-								"prop1": true,
-								"prop2": true
-							}
-						}
-					}
-				},
-				{
-					"id" : "visualisations",
-					"title": "Visualisations",
-					"order":4,
-					"properties": {}
-				},
 			{
-				"id": "featureModelSynthesis",
+				"id": "configurationSamples",
 				"title": "Feature Model synthesis",
-				"order": 3,
+				"order": 1,
 				"properties": {
-					"conf.settingsEditor.featureModelNameSetting": {
-						"type": "string",
-						"order": 1,
-						"description": "Feature Model Name.",
-						"default": "Feature Model"
-					},
-					"conf.settingsEditor.fmAlgorithmSetting": {
+					"conf.settingsEditor.boolObjectSetting": {
 						"type": "object",
-						"order": 2,
-						"description": "Select Algorithm.",
+						"order": 1,
+						"description": "An example bool object setting.",
 						"properties": {
 							"prop1": {
 								"type": "boolean",
-								"description": "Alternatives Before Hierarchy"
+								"description": "Property 1"
 							},
 							"prop2": {
 								"type": "boolean",
-								"description": "Flat Feature Model"
+								"description": "Property 2"
 							}
 						},
 						"additionalProperties": false,

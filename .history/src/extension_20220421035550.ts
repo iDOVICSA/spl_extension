@@ -52,13 +52,11 @@ export function activate(context: vscode.ExtensionContext) {
         VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         if (configuredViewFmAlgorithm.prop1) {
           fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configuredViewFmName);
-          await Utils.saveFmForgeJson("AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, s!);
-
         }
         if (configuredViewFmAlgorithm.prop2) {
-          fmJson = flatFeatureDiagram.createFeatureModel(configuredViewFmName);
-          await Utils.saveFmForgeJson("FlatFMSynthesis.fm.forge", fmJson!, s!);
+          fmJson = flatFeatureDiagram.createFeatureModel();
         }
+        //  await Utils.saveFmForgeJson(fmJson!, s!);
 
 
         let document: vscode.TextDocument | undefined =

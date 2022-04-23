@@ -79,55 +79,27 @@
 		  		}
 				  ,
 				  {
-					  "id" : "blockIdentification",
+					  "id" : "",
 					  "title": "Block Identification",
-					  "order": 1,
-					  "properties": {
-						"conf.settingsEditor.NameSetting": {
-							"type": "string",
-							"order": 1,
-							"description": "Feature Model Name.",
-							"default": "Feature Model"
-						}
-					  }
+					  "order": 0,
+					  "properties": {}
 				  },
 				  {
-					"id" : "constraintsDiscovery",
+					"id" : "",
 					"title": "Constraints discovery",
-					"order": 2,
-					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
-							"type": "object",
-							"order": 2,
-							"description": "Select Algorithm.",
-							"properties": {
-								"prop1": {
-									"type": "boolean",
-									"description": "FCA"
-								},
-								"prop2": {
-									"type": "boolean",
-									"description": "fp Growth"
-								}
-							},
-							"additionalProperties": false,
-							"default": {
-								"prop1": true,
-								"prop2": true
-							}
-						}
-					}
+					"order": 1,
+					"properties": {}
 				},
 				{
-					"id" : "visualisations",
+					"id" : "",
 					"title": "Visualisations",
-					"order":4,
+					"order":3,
 					"properties": {}
 				},
 			{
 				"id": "featureModelSynthesis",
 				"title": "Feature Model synthesis",
-				"order": 3,
+				"order": 2,
 				"properties": {
 					"conf.settingsEditor.featureModelNameSetting": {
 						"type": "string",

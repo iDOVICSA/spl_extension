@@ -78,64 +78,18 @@
 							}
 		  		}
 				  ,
-				  {
-					  "id" : "blockIdentification",
-					  "title": "Block Identification",
-					  "order": 1,
-					  "properties": {
-						"conf.settingsEditor.NameSetting": {
-							"type": "string",
-							"order": 1,
-							"description": "Feature Model Name.",
-							"default": "Feature Model"
-						}
-					  }
-				  },
-				  {
-					"id" : "constraintsDiscovery",
-					"title": "Constraints discovery",
-					"order": 2,
-					"properties": {
-						"conf.settingsEditor.constraintsDiscoveryAlgorithmSetting": {
-							"type": "object",
-							"order": 2,
-							"description": "Select Algorithm.",
-							"properties": {
-								"prop1": {
-									"type": "boolean",
-									"description": "FCA"
-								},
-								"prop2": {
-									"type": "boolean",
-									"description": "fp Growth"
-								}
-							},
-							"additionalProperties": false,
-							"default": {
-								"prop1": true,
-								"prop2": true
-							}
-						}
-					}
-				},
-				{
-					"id" : "visualisations",
-					"title": "Visualisations",
-					"order":4,
-					"properties": {}
-				},
 			{
 				"id": "featureModelSynthesis",
 				"title": "Feature Model synthesis",
-				"order": 3,
+				"order": 1,
 				"properties": {
-					"conf.settingsEditor.featureModelNameSetting": {
+					"conf.settingsEditor.multilineSetting": {
 						"type": "string",
 						"order": 1,
-						"description": "Feature Model Name.",
-						"default": "Feature Model"
+						"description": "An example multiline setting.",
+						"editPresentation": "multilineText"
 					},
-					"conf.settingsEditor.fmAlgorithmSetting": {
+					"conf.settingsEditor.fmAlgorithmSettings": {
 						"type": "object",
 						"order": 2,
 						"description": "Select Algorithm.",

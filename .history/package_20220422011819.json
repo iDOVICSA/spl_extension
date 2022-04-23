@@ -140,11 +140,11 @@
 						"order": 2,
 						"description": "Select Algorithm.",
 						"properties": {
-							"prop1": {
+							"alternative": {
 								"type": "boolean",
 								"description": "Alternatives Before Hierarchy"
 							},
-							"prop2": {
+							"flat": {
 								"type": "boolean",
 								"description": "Flat Feature Model"
 							}
