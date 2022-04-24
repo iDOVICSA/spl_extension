@@ -11,7 +11,6 @@
 	],
 	"activationEvents": [
 		"onCommand:spl-extension.adaptCode",
-		"onCommand:spl-extension.createFM",
 		"onLanguage:java"
 	],
 	"main": "./out/extension.js",
@@ -23,10 +22,6 @@
 			{
 				"command": "spl-extension.adaptCode",
 				"title": "Adapt Code"
-			},
-			{
-				"command": "spl-extension.createFM",
-				"title": "Create FM"
 			}
 		],
 		"viewsContainers": {
@@ -45,6 +40,12 @@
 					"name": "Block Identification",
 					"icon": "media/dep.svg",
 					"contextualTitle": "Package Explorer"
+				},
+				{
+					"id": "blockIdentification",
+					"name": "Block Identification",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Package Explorer"
 				}
 			]
 		},
@@ -52,10 +53,6 @@
 			{
 				"view": "blockIdentification",
 				"contents": "Launch block identification.\n[Identify features](command:spl-extension.adaptCode)"
-			},
-			{
-				"view": "blockIdentification",
-				"contents": "Launch FM Creation.\n[Create FM](command:spl-extension.createFM)"
 			}
 		],
 		"menus": {

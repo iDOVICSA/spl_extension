@@ -78,8 +78,10 @@ export class VisualizationPanel {
 			message => {
 				switch (message.command) {
 					case 'alert':
-						this.identifiedBlocks![message.text.blockId].blockName = message.text.newName;
-						vscode.window.showInformationMessage("Block renamed with succes");
+						console.log(this.identifiedBlocks?.length);
+						vscode.window.showInformationMessage(message.text);
+						this.identifiedBlocks?.pop();
+						console.log(this.identifiedBlocks?.length);
 
 						return;
 				}

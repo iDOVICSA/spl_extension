@@ -32,7 +32,9 @@ export function activate(context: vscode.ExtensionContext) {
       let identifiedBlocks: Block[];
       let fmJson: string;
       try {
-
+        const configuredViewGlobal = vscode.workspace.getConfiguration();
+        const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
+        const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
 
 
         identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
@@ -51,9 +53,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         context.subscriptions.push(
           vscode.commands.registerCommand('spl-extension.createFM', async () => {
-            const configuredViewGlobal = vscode.workspace.getConfiguration();
-            const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
-            const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
             if (configuredViewFmAlgorithm.prop2) {
               fmJson = flatFeatureDiagram.createFeatureModel(configuredViewFmName);
               await Utils.saveFmForgeJson("FlatFMSynthesis.fm.forge", fmJson!, s!);
@@ -64,6 +63,8 @@ export function activate(context: vscode.ExtensionContext) {
               await Utils.saveFmForgeJson("AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, s!);
 
             }
+
+
           })
         );
 
