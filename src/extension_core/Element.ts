@@ -6,15 +6,15 @@ export class Element {
   pathToRoot: string;  //to check ancesstors similarity
   pathToRootTypes: string; // vscode.SymbolKind enum 
   fileName: vscode.Uri; //
-  parent? : ElementRange; 
+  parent?: ElementRange;
 
 
-  constructor(instruction: string, pathToRoot: string, pathToRootTypes: string, fileName: vscode.Uri, parent : ElementRange |undefined) {
+  constructor(instruction: string, pathToRoot: string, pathToRootTypes: string, fileName: vscode.Uri, parent: ElementRange | undefined) {
     this.instruction = instruction;
     this.pathToRoot = pathToRoot;
     this.pathToRootTypes = pathToRootTypes;
     this.fileName = fileName;
-    this.parent = parent ; 
+    this.parent = parent;
   }
   /**
    * Checks wether two elements are equal 
@@ -66,6 +66,7 @@ export class Element {
     }
 
   }
+
 
 }
 

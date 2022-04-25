@@ -2,8 +2,6 @@
 export function deactivate() { }
 
 import * as vscode from "vscode";
-import { ExtensionCore } from "./extension_core/extensionCore";
-import * as json_serializer from "./json_serializer/json_serializer";
 import { VisualizationPanel } from "./visualizationPanel/VisualizationPanel";
 import { FeatureNamingTfIdf } from "./feature_naming/tfidf/featureNamingTfIdf";
 import { FCAConstraintsDiscovery } from "./constraints_discovery/fca/fcaConstraintsDiscovery";
@@ -12,7 +10,8 @@ import { FoldersAdapter } from "./folder_adapter/FoldersAdapter";
 import { BlockIdentification } from "./extension_core/BlockIdentification";
 import { Utils } from "./Utils/Utilis";
 import { Block } from "./extension_core/Block";
-import { create } from "domain";
+import { AlternativesBeforeHierarchyFMSynthesis } from "./feature_model_synthesis/alternatives_before_hierarchy/AlternativesBeforeHierarchyFMSynthesis";
+import { ForgeExport } from "./ForgeExport/ForgeExport";
 
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
@@ -32,24 +31,31 @@ export function activate(context: vscode.ExtensionContext) {
         identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
-        console.log(resultsFeatureNaming);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks);
-        fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+       // fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
   
-        await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks, allVariants, s!);
         
-        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+       // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
+        let alternativesBeforeHierarchyFMSynthesis = new AlternativesBeforeHierarchyFMSynthesis(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        //fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        //   await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
+        // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
+        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        fmJson= alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
+        let mapsJson = await ForgeExport.exportForge(identifiedBlocks,allVariants,s!) ;
+      //  await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks, allVariants, s!);
+
 
       }
       catch (err) {
         console.log("error from main   " + err);
       }
 
-      // await Utils.saveFmForgeJson(fmJson!,s!) ;
+       await Utils.saveFmForgeJson(fmJson!,s!) ;
 
 
 
