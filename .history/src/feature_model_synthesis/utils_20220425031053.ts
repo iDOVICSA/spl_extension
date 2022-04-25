@@ -140,7 +140,7 @@ export class Utils {
                     "presence": presence,
                     "lgFile": "",
                     "role": "",
-                    "hexColor": f.colorOfFeature,
+                    "hexColor": "#d384a6",
                     "help": "",
                 };
                 funcionnalities.push(blockData);

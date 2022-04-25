@@ -3,7 +3,6 @@
 Block Structure class 
 */
 
-import { Color } from "./Color";
 import { Element } from "./Element";
 import { ElementRange } from "./ElementRange";
 
@@ -14,12 +13,12 @@ export class Block {
   tfIdfWordCloud: any[] = [];
   colorOfBlock: string = "#082567";
 
-  constructor(blockId: number, blockName: string | undefined, blockContent: Map<string, ElementRange[]>) {
+  constructor(blockId: number, blockName: string | undefined, blockContent: Map<string, ElementRange[]>, colorOfBlock: string) {
     this.blockId = blockId;
     this.blockName = blockName;
     this.blockContent = blockContent;
-    if (Color.listOfColor[blockId]) {
-      this.colorOfBlock = Color.listOfColor[blockId];
+    if (colorOfBlock) {
+      this.colorOfBlock = colorOfBlock;
     }
   }
 

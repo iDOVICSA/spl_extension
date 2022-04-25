@@ -3,6 +3,7 @@ let requireConstraintsFcaIterable  =[];
 let exclusionConstraintsFcaIterable  =[];
 let dataRequireConstraintsFpGrowth  =[];
 
+const Colors =['#ff4d4d', '#18dcff', '#ffaf40', '#fffa65', '#32ff7e','#7efff5','#7d5fff','#cd84f1','#ffcccc','#f7aef8'];
 const table = document.getElementById("table");
 const table2 = document.getElementById("table2");  
 const fca = document.getElementById("fca");
@@ -108,7 +109,7 @@ const blocks = [];
                     input.setAttribute("id",clef);
                     var span = document.createElement("span");
                     span.setAttribute("class","checkmark");
-                    span.style.background =valeur.colorOfBlock;
+                    span.style.background =Colors[clef];
                     label.appendChild(input);
                     label.appendChild(span);
                     bloc.appendChild(label);
