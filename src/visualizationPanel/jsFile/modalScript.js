@@ -39,10 +39,13 @@ function saveChangesButton() {
         el.title =blockNameInput.value;
     });
     createConstraint();
-    let mssgToShow = "Block Renamed "+blockNameInput.value +" with succes";
+    const jsonObject = {};
+    jsonObject["blockId"]=id;
+    jsonObject["newName"]=blockNameInput.value;
+    jsonObject["mssgToShow"]="Block Renamed "+blockNameInput.value +" with succes";
     vscode.postMessage({
         command: 'alert',
-        text: mssgToShow,
+        text: jsonObject,
     });
     modal.style.display = "none";
 }

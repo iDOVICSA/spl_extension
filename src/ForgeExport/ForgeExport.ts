@@ -108,16 +108,17 @@ export class ForgeExport {
         let s = tst[0];
         this.getFileContent(mergeResultTree.get(s)!, resullt);
         let pos = 0;
-
+        let rangeSeeds : any[] =[];
         let blockId = resullt[0].block.blockId;
         let highlightStartLine = 0;
         let highlightStartCharacter = 0;
-        let ridex = 0;
+        let propagationId = 0;
         let lastElement : ElementRange; 
         let propagations: any[] = [];
         let file = "Notepad.java";
         let mandatoryBlockId = this.getMandatoryBlockId(blocks,variantsCount) ;
-
+        let seeds : any[] =[] ;
+        
         //TODO Add Last Elements in maps.forge 
         for (let idx = 0; idx < resullt.length; idx++) {
             const element = resullt[idx];
@@ -136,8 +137,8 @@ export class ForgeExport {
                                 "featureKey": blockId.toString(),
                                 "ranges": [
                                     {
-                                        "propagationId": ridex.toString(),
-                                        "sourceId": ridex.toString(),
+                                        "propagationId": propagationId.toString(),
+                                        "sourceId": propagationId.toString(),
                                         "startLine": highlightStartLine,
                                         "startColumn": highlightStartCharacter,
                                         "endLine": pos-1,
@@ -152,7 +153,20 @@ export class ForgeExport {
                                 ]
                             };
                             propagations.push(propagationElement);
-                            ridex++;
+                            let seedElement = {
+                                "id": propagationId,
+                                "analyzer": "Interoperable analyzer",
+                                "featureKey": blockId.toString(),
+                                "startLine": highlightStartLine,
+                                "startColumn": highlightStartCharacter,
+                                "endLine": pos-1,
+                                "endColumn": resullt[idx-1].element.elementRange.end.character,
+                                "type": "Deletion",
+                                "isValidated": true,
+                                "isMapped": false
+                            };
+                            seeds.push(seedElement) ;
+                            propagationId++;
                         }
                         highlightStartCharacter = 0;
                         highlightStartLine = pos ; 
@@ -175,6 +189,13 @@ export class ForgeExport {
             }
 
         }
+
+        let rangeSeedsElement = {
+            "file" : file,
+            "seeds" : seeds
+        };
+        rangeSeeds.push(rangeSeedsElement) ;
+
         let deletionPropagationsElement = {
             "file": file,
             "propagations": propagations
@@ -183,6 +204,8 @@ export class ForgeExport {
 
 
 
+/*  end of loop on files*/
+
         let mapsJson = {
             "deletionPropagations": deletionPropagations,
             "replacementPropagations": replacementPropagations,
@@ -190,13 +213,18 @@ export class ForgeExport {
             "pathPropagations": pathPropagations
 
         };
+        let seedsJson = {
+            "rangeSeeds" : rangeSeeds,
+            "fileSeeds" : []
+        };
+
 
         console.log(mapsJson);
 
         await vscode.commands.executeCommand("saveAll");
-        await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
 
-        return mapsJson ;
+        return [JSON.stringify(mapsJson),JSON.stringify(seedsJson)] ;
     }
 
     static getFileContent(children: TreeElement[], resullt: TreeElement[]) {

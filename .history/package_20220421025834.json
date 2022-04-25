@@ -1,0 +1,111 @@
+{
+	"name": "spl-extension",
+	"displayName": "spl_extension",
+	"description": "extension for extracting software product lines from artefacts variants ",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.63.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:spl-extension.adaptCode",
+		"onLanguage:java"
+	],
+	"main": "./out/extension.js",
+	"capabilities": {
+		"documentSymbolProvider": "true"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "spl-extension.adaptCode",
+				"title": "Adapt Code"
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "spl-viewContainer",
+					"title": "SY SPL",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"spl-viewContainer": [
+				{
+					"id": "blockIdentification",
+					"name": "Block Identification",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Package Explorer"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "blockIdentification",
+				"contents": "Launch block identification.\n[Identify features](command:spl-extension.adaptCode)"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			]
+		},
+		"configuration": [
+			
+				{
+				"title": "TypeScript",
+			"properties": {
+				"typescript.useCodeSnippetsOnMethodSuggest": {
+					"type": "boolean",
+					"default": false,
+					"description": "Complete functions with their parameter signature."
+				},
+				"typescript.tsdk": {
+					"type": [
+						"string",
+						"null"
+					],
+					"default": null,
+					"description": "Specifies the folder path containing the tsserver and lib*.d.ts files to use."
+				}
+			}
+		  		}
+			]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.4",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "^14.18.6",
+		"@types/vscode": "^1.63.0",
+		"@types/vscode-webview": "^1.57.0",
+		"@typescript-eslint/eslint-plugin": "^5.1.0",
+		"@typescript-eslint/parser": "^5.1.0",
+		"@vscode/test-electron": "^1.6.2",
+		"eslint": "^8.1.0",
+		"glob": "^7.1.7",
+		"mocha": "^8.1.3",
+		"typescript": "^4.4.4"
+	},
+	"dependencies": {
+		"fs": "^0.0.1-security",
+		"natural": "^5.1.13",
+		"node-fpgrowth": "^1.2.1",
+		"tiny-tfidf": "^0.9.1"
+	}
+}

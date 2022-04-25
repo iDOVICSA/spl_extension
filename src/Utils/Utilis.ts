@@ -147,19 +147,36 @@ export class Utils {
         };
         return JSON.stringify(fmJson);
     }
-    static async saveFmForgeJson(fmJson: string, workspaceFolders: readonly vscode.WorkspaceFolder[]) {
+    static async saveFmForgeJson(seedsFileName : string,mapsFileName: string,fmFileName: string, fmJson: string,mapsJson:string,seedsJson : string, workspaceFolders: readonly vscode.WorkspaceFolder[]) {
         try {
 
-            let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split("/").pop()!)[0] + "Result";
-            vscode.workspace.fs.createDirectory(vscode.Uri.parse(resulltPath));
-            vscode.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, null, { uri: vscode.Uri.parse(resulltPath) });
-            fs.writeFile(resulltPath + "/Result.fm.forge", fmJson!, 'utf8', function (err) {
+            let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
+            await vscode.workspace.fs.createDirectory(vscode.Uri.file(resulltPath));
+
+            vscode.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, null, { uri: vscode.Uri.file(resulltPath) });
+            fs.writeFile(resulltPath + path.sep + fmFileName, fmJson!, 'utf8', function (err) {
                 if (err) {
                     console.log("An error occured while writing JSON Object to File.");
                     return console.log(err);
                 }
 
-                console.log("JSON file has been saved.");
+                console.log("FM JSON file has been saved.");
+            });
+            fs.writeFile(resulltPath + path.sep + mapsFileName, mapsJson!, 'utf8', function (err) {
+                if (err) {
+                    console.log("An error occured while writing JSON Object to File.");
+                    return console.log(err);
+                }
+
+                console.log("Maps JSON file has been saved.");
+            });
+            fs.writeFile(resulltPath + path.sep + seedsFileName, seedsJson!, 'utf8', function (err) {
+                if (err) {
+                    console.log("An error occured while writing JSON Object to File.");
+                    return console.log(err);
+                }
+
+                console.log("Seeds JSON file has been saved.");
             });
         }
         catch (err) {
