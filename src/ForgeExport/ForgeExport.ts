@@ -96,40 +96,34 @@ export class ForgeExport {
 
 
 
-        console.log("ter");
-        let resullt: TreeElement[] = [];
+
         let deletionPropagations: any[] = [];
         let replacementPropagations: any[] = [];
         let resourcePropagations: any[] = [];
         let pathPropagations: any[] = [];
-
-
-        let tst = Array.from(mergeResultTree.keys());
-        let s = tst[0];
-        this.getFileContent(mergeResultTree.get(s)!, resullt);
-        let pos = 0;
-        let rangeSeeds : any[] =[];
-        let blockId = resullt[0].block.blockId;
-        let highlightStartLine = 0;
-        let highlightStartCharacter = 0;
+        let rangeSeeds: any[] = [];
+        let allFiles = Array.from(mergeResultTree.keys());
         let propagationId = 0;
-        let lastElement : ElementRange; 
-        let propagations: any[] = [];
-        let file = "Notepad.java";
-        let mandatoryBlockId = this.getMandatoryBlockId(blocks,variantsCount) ;
-        let seeds : any[] =[] ;
-        
-        //TODO Add Last Elements in maps.forge 
-        for (let idx = 0; idx < resullt.length; idx++) {
-            const element = resullt[idx];
-            if (element) {
+        for (let idx = 0; idx < allFiles.length; idx++) {
+            let s = allFiles[idx];
+            let resullt: TreeElement[] = [];
+            this.getFileContent(mergeResultTree.get(s)!, resullt);
+            let pos = 0;
+            let blockId = resullt[0].block.blockId;
+            let highlightStartLine = 0;
+            let highlightStartCharacter = 0;
 
-                await vscode.workspace.openTextDocument(vscode.Uri.parse(s)).then(async (a: vscode.TextDocument) => {
-                    await vscode.window.showTextDocument(a, 1, true).then(async e => {
-                        await e.edit(edit => {
-                            edit.insert(new vscode.Position(pos, element.element.elementRange.start.character), element.element.element.instruction);
-                        });
-                    });
+            let propagations: any[] = [];
+            let file = s.replace(resulltPath + "/", "");
+            let mandatoryBlockId = this.getMandatoryBlockId(blocks, variantsCount);
+            let seeds: any[] = [];
+            let str: string[] = [];
+
+            for (let idx = 0; idx < resullt.length; idx++) {
+
+                const element = resullt[idx];
+                str[idx] = element.element.element.instruction;
+                if (element) {
                     if (element.block.blockId !== blockId) {
                         if (blockId !== mandatoryBlockId) {
 
@@ -141,8 +135,8 @@ export class ForgeExport {
                                         "sourceId": propagationId.toString(),
                                         "startLine": highlightStartLine,
                                         "startColumn": highlightStartCharacter,
-                                        "endLine": pos-1,
-                                        "endColumn": resullt[idx-1].element.elementRange.end.character,
+                                        "endLine": pos - 1,
+                                        "endColumn": resullt[idx - 1].element.elementRange.end.character,
                                         "isValidated": true,
                                         "isMapped": false,
                                         "analyzer": "Interoperable analyzer",
@@ -159,17 +153,17 @@ export class ForgeExport {
                                 "featureKey": blockId.toString(),
                                 "startLine": highlightStartLine,
                                 "startColumn": highlightStartCharacter,
-                                "endLine": pos-1,
-                                "endColumn": resullt[idx-1].element.elementRange.end.character,
+                                "endLine": pos - 1,
+                                "endColumn": resullt[idx - 1].element.elementRange.end.character,
                                 "type": "Deletion",
                                 "isValidated": true,
                                 "isMapped": false
                             };
-                            seeds.push(seedElement) ;
+                            seeds.push(seedElement);
                             propagationId++;
                         }
                         highlightStartCharacter = 0;
-                        highlightStartLine = pos ; 
+                        highlightStartLine = pos;
                         blockId = element.block.blockId;
                     }
 
@@ -179,32 +173,92 @@ export class ForgeExport {
                     else {
                         pos = pos + 1;
                     }
-
-
-                }, (error: any) => {
-                    console.error(error);
-                    debugger;
-                });
-
+                }
+            }
+            let element = resullt.pop()!;
+            resullt.push(element!);
+            if (blockId !== mandatoryBlockId) {
+                let endLine: number;
+                if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
+                    endLine = pos - (element.element.elementRange.end.line - element.element.elementRange.start.line + 1);
+                }
+                else {
+                    endLine = pos - 1;
+                }
+                let propagationElement = {
+                    "featureKey": blockId.toString(),
+                    "ranges": [
+                        {
+                            "propagationId": propagationId.toString(),
+                            "sourceId": propagationId.toString(),
+                            "startLine": highlightStartLine,
+                            "startColumn": highlightStartCharacter,
+                            "endLine": endLine!,
+                            "endColumn": resullt[idx].element.elementRange.end.character,
+                            "isValidated": true,
+                            "isMapped": false,
+                            "analyzer": "Interoperable analyzer",
+                            "isFromMarker": true,
+                            "parent": "-1",
+                            "children": []
+                        }
+                    ]
+                };
+                propagations.push(propagationElement);
+                let seedElement = {
+                    "id": propagationId,
+                    "analyzer": "Interoperable analyzer",
+                    "featureKey": blockId.toString(),
+                    "startLine": highlightStartLine,
+                    "startColumn": highlightStartCharacter,
+                    "endLine": endLine!,
+                    "endColumn": resullt[idx].element.elementRange.end.character,
+                    "type": "Deletion",
+                    "isValidated": true,
+                    "isMapped": false
+                };
+                seeds.push(seedElement);
+                propagationId++;
             }
 
+            await fs.writeFile(resulltPath + path.sep + file, str.join("\n"), 'utf8', function (err) {
+                if (err) {
+                    console.log("An error occured while writing JSON Object to File.");
+                    return console.log(err);
+                }
+                console.log("Code file has been saved.");
+            });
+
+
+
+
+
+            let rangeSeedsElement = {
+                "file": file,
+                "seeds": seeds
+            };
+            rangeSeeds.push(rangeSeedsElement);
+            let deletionPropagationsElement = {
+                "file": file,
+                "propagations": propagations
+            };
+            deletionPropagations.push(deletionPropagationsElement);
         }
 
-        let rangeSeedsElement = {
-            "file" : file,
-            "seeds" : seeds
-        };
-        rangeSeeds.push(rangeSeedsElement) ;
-
-        let deletionPropagationsElement = {
-            "file": file,
-            "propagations": propagations
-        };
-        deletionPropagations.push(deletionPropagationsElement);
 
 
 
-/*  end of loop on files*/
+
+
+
+
+
+
+
+
+
+
+        /*  end of loop on files*/
 
         let mapsJson = {
             "deletionPropagations": deletionPropagations,
@@ -214,17 +268,15 @@ export class ForgeExport {
 
         };
         let seedsJson = {
-            "rangeSeeds" : rangeSeeds,
-            "fileSeeds" : []
+            "rangeSeeds": rangeSeeds,
+            "fileSeeds": []
         };
 
 
-        console.log(mapsJson);
+        //await vscode.commands.executeCommand("saveAll");
+        //await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
 
-        await vscode.commands.executeCommand("saveAll");
-        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-
-        return [JSON.stringify(mapsJson),JSON.stringify(seedsJson)] ;
+        return [JSON.stringify(mapsJson), JSON.stringify(seedsJson)];
     }
 
     static getFileContent(children: TreeElement[], resullt: TreeElement[]) {
@@ -262,10 +314,10 @@ export class ForgeExport {
     }
 
 
-    static getMandatoryBlockId(blocks : Block[], variantsCount : number) :number{
+    static getMandatoryBlockId(blocks: Block[], variantsCount: number): number {
         for (const block of blocks) {
-            if (Array.from(block.blockContent.keys()).length===variantsCount) {
-                return block.blockId ; 
+            if (Array.from(block.blockContent.keys()).length === variantsCount) {
+                return block.blockId;
             }
         }
         return -1;

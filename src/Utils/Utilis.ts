@@ -153,7 +153,7 @@ export class Utils {
             let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
             await vscode.workspace.fs.createDirectory(vscode.Uri.file(resulltPath));
 
-            vscode.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, null, { uri: vscode.Uri.file(resulltPath) });
+            //vscode.workspace.updateWorkspaceFolders(workspaceFolders ? workspaceFolders.length : 0, null, { uri: vscode.Uri.file(resulltPath) });
             fs.writeFile(resulltPath + path.sep + fmFileName, fmJson!, 'utf8', function (err) {
                 if (err) {
                     console.log("An error occured while writing JSON Object to File.");

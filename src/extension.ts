@@ -1,5 +1,6 @@
 // this method is called when your extension is deactivated
 export function deactivate() { }
+import path = require("path");
 
 import * as vscode from "vscode";
 import { VisualizationPanel } from "./visualizationPanel/VisualizationPanel";
@@ -40,10 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks);
-       // fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
-  
-        
-       // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        // fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+
+
+        // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         let alternativesBeforeHierarchyFMSynthesis = new AlternativesBeforeHierarchyFMSynthesis(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
         let flatFeatureDiagram = new FlatFeatureDiagram(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
@@ -52,27 +53,30 @@ export function activate(context: vscode.ExtensionContext) {
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
         VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         //fmJson= alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
-        let seedsMaps = await ForgeExport.exportForge(identifiedBlocks,allVariants,s!) ;
-        let mapsJson = seedsMaps[0] ;
-        let seedsJson = seedsMaps[1] ; 
+
         //  await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks, allVariants, s!);
 
         context.subscriptions.push(
           vscode.commands.registerCommand('spl-extension.createFM', async () => {
+
             const configuredViewGlobal = vscode.workspace.getConfiguration();
             const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
             const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
+            let seedsMaps = await ForgeExport.exportForge(identifiedBlocks, allVariants, s!);
+            let mapsJson = seedsMaps[0];
+            let seedsJson = seedsMaps[1];
             if (configuredViewFmAlgorithm.prop2) {
               fmJson = flatFeatureDiagram.createFeatureModel(configuredViewFmName);
-              await Utils.saveFmForgeJson("~FlatFMSynthesis.functionalities.maps.forge","FlatFMSynthesis.maps.forge","FlatFMSynthesis.fm.forge", fmJson!,mapsJson,seedsJson, s!);
-              
+              await Utils.saveFmForgeJson("~FlatFMSynthesis.functionalities.maps.forge", "FlatFMSynthesis.maps.forge", "FlatFMSynthesis.fm.forge", fmJson!, mapsJson, seedsJson, s!);
             }
 
             if (configuredViewFmAlgorithm.prop1) {
               fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configuredViewFmName);
-              await Utils.saveFmForgeJson("~AlternativesBeforeHierarchyFMSynthesis.functionalities.maps.forge","AlternativesBeforeHierarchyFMSynthesis.maps.forge","AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!,mapsJson,seedsJson, s!);
-
+              await Utils.saveFmForgeJson("~AlternativesBeforeHierarchyFMSynthesis.functionalities.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, mapsJson, seedsJson, s!);
             }
+            
+            let resulltPath = s![0].uri.fsPath.split(s!![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
+            vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.parse(resulltPath), { forceNewWindow: true });
           })
         );
 

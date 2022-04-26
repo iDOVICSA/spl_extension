@@ -51,11 +51,11 @@
 		"viewsWelcome": [
 			{
 				"view": "blockIdentification",
-				"contents": "Launch block identification.\n[Identify features](command:spl-extension.adaptCode)"
+				"contents": "Launch block identification.\n[Identify blocks](command:spl-extension.adaptCode)"
 			},
 			{
 				"view": "blockIdentification",
-				"contents": "Launch FM Creation.\n[Create FM](command:spl-extension.createFM)"
+				"contents": "Export maximal project.\n[Export forge project](command:spl-extension.createFM)"
 			}
 		],
 		"menus": {
