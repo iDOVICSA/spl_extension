@@ -96,8 +96,8 @@ body {
 }
 .center {
   margin-inline: auto;
-  height: 340px;
-  margin-top: 14px;
+  height: 400px;
+  margin-top: 20px;
   width: 80%;
   border: 2px solid #050500;
 }
@@ -424,8 +424,6 @@ select {
   font-size: 16px;
   box-sizing: border-box;
   border-radius: 4px;
-  margin-bottom: inherit;
-
 }
 
 option:hover {

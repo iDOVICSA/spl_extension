@@ -81,6 +81,7 @@ export class VisualizationPanel {
 						this.identifiedBlocks![message.text.blockId].blockName = message.text.newName;
 						this.identifiedBlocks![message.text.blockId].colorOfBlock = message.text.newColor;
 						vscode.window.showInformationMessage("Data saved with succes");
+
 						return;
 				}
 			},

@@ -108,7 +108,6 @@ const blocks = [];
                     input.setAttribute("id",clef);
                     var span = document.createElement("span");
                     span.setAttribute("class","checkmark");
-                    span.setAttribute("id","checkmarkColor"+clef);
                     span.style.background =valeur.colorOfBlock;
                     label.appendChild(input);
                     label.appendChild(span);
@@ -155,7 +154,7 @@ const blocks = [];
 
     while (elements.length > 0) elements[0].remove();
 
-    let colorOfBlock = document.getElementById("favcolor");
+    let colorOfBlock = document.getElementById("color");
 
 
     var data=   listOfBlocks.get(clicked_id).tfIdfWordCloud;
@@ -210,8 +209,6 @@ const blocks = [];
 
     blockNameInput.value = blockName.title;
     blockNameInput.setAttribute("name",clicked_id);
-
-    colorOfBlock.value =  listOfBlocks.get(clicked_id).colorOfBlock;
 
 }
 

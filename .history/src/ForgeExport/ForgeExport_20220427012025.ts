@@ -114,7 +114,7 @@ export class ForgeExport {
             let highlightStartCharacter = 0;
 
             let propagations: any[] = [];
-            let file = s.replace(resulltPath + path.sep, "");
+            let file = s.replace(resulltPath + "/", "");
             let mandatoryBlockId = this.getMandatoryBlockId(blocks, variantsCount);
             let seeds: any[] = [];
             let str: string[] = [];

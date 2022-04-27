@@ -108,7 +108,6 @@ const blocks = [];
                     input.setAttribute("id",clef);
                     var span = document.createElement("span");
                     span.setAttribute("class","checkmark");
-                    span.setAttribute("id","checkmarkColor"+clef);
                     span.style.background =valeur.colorOfBlock;
                     label.appendChild(input);
                     label.appendChild(span);
@@ -212,6 +211,7 @@ const blocks = [];
     blockNameInput.setAttribute("name",clicked_id);
 
     colorOfBlock.value =  listOfBlocks.get(clicked_id).colorOfBlock;
+    console.log(colorOfBlock.value);
 
 }
 

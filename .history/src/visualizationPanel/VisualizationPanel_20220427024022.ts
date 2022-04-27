@@ -79,8 +79,8 @@ export class VisualizationPanel {
 				switch (message.command) {
 					case 'alert':
 						this.identifiedBlocks![message.text.blockId].blockName = message.text.newName;
-						this.identifiedBlocks![message.text.blockId].colorOfBlock = message.text.newColor;
-						vscode.window.showInformationMessage("Data saved with succes");
+						vscode.window.showInformationMessage("Block renamed with succes");
+
 						return;
 				}
 			},
@@ -224,7 +224,7 @@ export class VisualizationPanel {
                     </select>
 
 					<label>Change block color</label>
-               	    <input type="color" id="favcolor" value="#000000">
+                <input type="color" id="favcolor" value="#000000">
 
 					<h2>Word Cloud</h2>
 					<div class="center">
