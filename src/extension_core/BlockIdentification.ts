@@ -21,16 +21,16 @@ export class BlockIdentification {
             //check if all the files have same content
             let documentsByVariant = new Map<string, vscode.TextDocument>(); // <idVariant , Document>
             for (const v of variantsOfTheFile) {
-                let filePath = vscode.Uri.parse(v + path.sep + file);
-                let filePath2 = vscode.Uri.joinPath(vscode.Uri.parse(v), file);
-                let fileExtension = filePath.fsPath.split(".").pop()!;
+                let filePath = v + path.sep + file;
+                
+                let fileExtension = filePath.split(".").pop()!;
 
                 if (fileExtension in CodeFilesExtensions) {
-                    let document = await vscode.workspace.openTextDocument(filePath.fsPath);
+                    let document = await vscode.workspace.openTextDocument(filePath);
                     documentsByVariant.set(v, document);
                 }
                 else {
-                    console.log(fileExtension + "  noooo");
+                    console.log(fileExtension + "  not supported extension yet");
                 }
             }
             if (documentsByVariant.size > 0) {
@@ -91,7 +91,7 @@ export class BlockIdentification {
                 vscode.DocumentSymbol[]
             >("vscode.executeDocumentSymbolProvider", document.uri).then(async (mySymbols) => {
                 fileSymbols = mySymbols;
-                console.log("sucess  " + mySymbols);
+                console.log("sucess  :"+document.uri.fsPath + "  "+ mySymbols);
             }, (reason) => {
                 console.log("error  " + reason);
             });
