@@ -52,7 +52,6 @@ const blocks = [];
             for (let [clef, valeur] of iterable) {
                 var variant = document.createElement("div");
                 variant.setAttribute("class",clef +" variants");
-                variant.setAttribute("draggable","true");
                 var title = document.createElement("div");
                 title.setAttribute("class", "title");
                 title.innerText = clef;
@@ -75,19 +74,6 @@ const blocks = [];
                      bloc.appendChild(nomBloc);
                 });
             }
-            const draggbles = document.querySelectorAll(".variants");
-            draggbles.forEach(dragabble => {
-                console.log(dragabble);
-                dragabble.addEventListener('dragstart', ()=> {
-                    console.log("start");
-                    dragabble.classList.add("dragging");
-                })
-                dragabble.addEventListener('dragend', ()=> {
-                    console.log("end");
-                    dragabble.classList.remove("dragging");
-            
-                })
-            });
 
             for (let [clef, valeur] of iterable) {
                 var label = document.createElement("label");
@@ -122,7 +108,6 @@ const blocks = [];
                     input.setAttribute("id",clef);
                     var span = document.createElement("span");
                     span.setAttribute("class","checkmark");
-                    span.setAttribute("id","checkmarkColor"+clef);
                     span.style.background =valeur.colorOfBlock;
                     label.appendChild(input);
                     label.appendChild(span);
@@ -169,7 +154,7 @@ const blocks = [];
 
     while (elements.length > 0) elements[0].remove();
 
-    let colorOfBlock = document.getElementById("favcolor");
+    let colorOfBlock = document.getElementById("color");
 
 
     var data=   listOfBlocks.get(clicked_id).tfIdfWordCloud;
@@ -225,8 +210,6 @@ const blocks = [];
     blockNameInput.value = blockName.title;
     blockNameInput.setAttribute("name",clicked_id);
 
-    colorOfBlock.value =  listOfBlocks.get(clicked_id).colorOfBlock;
-
 }
 
 function toggleCheckbox(element)
@@ -277,38 +260,3 @@ function toggleCheckbox(element)
     var blockNameInput = document.getElementById("blockName");
     blockNameInput.value=option.innerText;
 }
-
-const containers = document.getElementById("vardy");
-
-
-
-containers.addEventListener('dragover', e=> {
-    e.preventDefault();
-    const afterElement = getDragAfterElement(containers, e.clientX);
-    const draggable = document.querySelector(".dragging");
-    console.log(afterElement);
-    if (afterElement == null) {
-
-        containers.appendChild(draggable);
-      } else {
-
-        containers.insertBefore(draggable,  afterElement)
-      }})
-
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.variants:not(.dragging)')]
-
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.left  - box.width / 2;
-      console.log(offset);
-    
-
-      if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child }
-      } else {
-        return closest;
-      }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-  }

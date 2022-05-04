@@ -82,7 +82,7 @@ export class BlockIdentification {
      * fills the rMap
      */
     async adaptSourceFile(document: vscode.TextDocument, variantId: string) {
-
+        
         let rValue: ElementRangesMapDecorator = new ElementRangesMapDecorator(new Map<Element, vscode.Range[]>());
         let fileSymbols: vscode.DocumentSymbol[] | undefined;
 

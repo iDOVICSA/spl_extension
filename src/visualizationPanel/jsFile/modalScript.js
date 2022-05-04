@@ -22,14 +22,26 @@ span2.onclick = function() {
 function saveChangesButton() {
     console.log("Information saved succesfully");
     var blockNameInput = document.getElementById("blockName");
+    //get the new color
+    var newColor = document.getElementById("favcolor").value;
+    //get block ID
     var id = blockNameInput.name;
     var nameOfBlock = listOfBlocks.get(id);
     listOfBlocks.get(id).blockName  =blockNameInput.value;
+    listOfBlocks.get(id).colorOfBlock  =newColor;
+    var checkMark = document.getElementById("checkmarkColor"+id);
     var x= document.getElementsByClassName("#"+id);
+    var block= document.getElementsByClassName("bloc "+id);
 
+    checkMark.style.background=newColor;
     Array.prototype.forEach.call(x, function(el) {
         // Do stuff here
         el.childNodes[0].nodeValue = blockNameInput.value;
+    });
+
+    Array.prototype.forEach.call(block, function(el) {
+        // Do stuff here
+        el.style.background = newColor;
     });
 
     var p= document.getElementsByClassName(id);
@@ -39,9 +51,11 @@ function saveChangesButton() {
         el.title =blockNameInput.value;
     });
     createConstraint();
+    //send data to backend
     const jsonObject = {};
     jsonObject["blockId"]=id;
     jsonObject["newName"]=blockNameInput.value;
+    jsonObject["newColor"]=newColor;
     jsonObject["mssgToShow"]="Block Renamed "+blockNameInput.value +" with succes";
     vscode.postMessage({
         command: 'alert',
@@ -55,4 +69,8 @@ window.onclick = function(event) {
     if (event.target == modal) {
         modal.style.display = "none";
     }
-}
+};
+
+
+
+

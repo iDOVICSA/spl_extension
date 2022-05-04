@@ -28,62 +28,33 @@ export function activate(context: vscode.ExtensionContext) {
       let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
-      let identifiedBlocks!: Block[];
+      let identifiedBlocks: Block[];
       let fmJson: string;
       try {
 
 
-        /*vscode.window.withProgress({
-          location: vscode.ProgressLocation.Notification,
-          title: "Blocks identification ",
-          cancellable: false
-        }, async (progress, token) => { 
-    
-          progress.report({ increment: 0 });
-    
-//          identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants);
 
-          progress.report({ increment: 40, message: "I am long running! - still going..." });
-
-     //     let featureNaming = new FeatureNamingTfIdf();
-       //   let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!!);
-
-          
-            progress.report({ increment: 45, message: "I am long running! - still going even more..." });
-        
-          setTimeout(() => {
-            progress.report({ increment: 50, message: "I am long running! - almost there..." });
-          }, 3000);
-    
-          const p = new Promise<void>(resolve => {
-            setTimeout(() => {
-              resolve();
-            }, 5000);
-          });
-    
-          return p;
-        });*/
-        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants);
+        identifiedBlocks = await blocksIdentification.identifyBlocks(filesVariants);
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
-        Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
-        let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks!);
-        let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks!);
-        let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks!);
-        // fmJson = Utils.exportFMForgeJson(identifiedBlocks!, reqConstraints, mutexConstraints, allVariants.length);
+        Utils.attributeBlocksToVariants(allVariants, identifiedBlocks);
+        let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks);
+        let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks);
+        let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks);
+        // fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
 
 
-        // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks!, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        // VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-        let alternativesBeforeHierarchyFMSynthesis = new AlternativesBeforeHierarchyFMSynthesis(identifiedBlocks!, reqConstraints, mutexConstraints, allVariants.length);
-        let flatFeatureDiagram = new FlatFeatureDiagram(identifiedBlocks!, reqConstraints, mutexConstraints, allVariants.length);
-        //fmJson = Utils.exportFMForgeJson(identifiedBlocks!, reqConstraints, mutexConstraints, allVariants.length);
-        //   await Utils.exportFullForgeProject(identifiedBlocks!, allVariants.length, s!);
+        let alternativesBeforeHierarchyFMSynthesis = new AlternativesBeforeHierarchyFMSynthesis(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        let flatFeatureDiagram = new FlatFeatureDiagram(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        //fmJson = Utils.exportFMForgeJson(identifiedBlocks, reqConstraints, mutexConstraints, allVariants.length);
+        //   await Utils.exportFullForgeProject(identifiedBlocks, allVariants.length, s!);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks!, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
         //fmJson= alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
 
-        //  await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks!, allVariants, s!);
+        //  await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks, allVariants, s!);
 
         context.subscriptions.push(
           vscode.commands.registerCommand('spl-extension.createFM', async () => {
@@ -91,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
             const configuredViewGlobal = vscode.workspace.getConfiguration();
             const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
             const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
-            let seedsMaps = await ForgeExport.exportForge(identifiedBlocks!, allVariants, s!);
+            let seedsMaps = await ForgeExport.exportForge(identifiedBlocks, allVariants, s!);
             let mapsJson = seedsMaps[0];
             let seedsJson = seedsMaps[1];
             if (configuredViewFmAlgorithm.prop2) {

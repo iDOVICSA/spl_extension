@@ -19,7 +19,6 @@ body {
   flex-basis: 240px;
   flex-grow: 0;
   flex-shrink: 0;
-  cursor: move;
 }
 
 #vardy {
