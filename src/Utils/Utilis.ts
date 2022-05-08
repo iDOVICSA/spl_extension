@@ -37,7 +37,7 @@ export class Utils {
 
     static attributeBlocksToVariants(variants: Variant[], blocks: Block[]) {
         for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.blockContent.keys());
+            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
             for (const variantId of variantsOfBlock) {
                 let variant = variants.filter(item => item.variantId === variantId)[0];
                 variant.blocksList.push(block);
@@ -63,7 +63,7 @@ export class Utils {
         };
         let mandatoryBlockId = -1;
         blocks.forEach((block) => {
-            let blockVariantsCount = Array.from(block.blockContent.keys()).length;
+            let blockVariantsCount = Array.from(block.sourceCodeContent.keys()).length;
             if (blockVariantsCount === variantsCount) {
                 mandatoryBlockId = block.blockId;
                 let blockData = {
@@ -228,11 +228,11 @@ export class Utils {
         let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
         let treatedFiles: string[] = [];
         for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.blockContent.keys());
+            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
             try {
                 if (variantsOfBlock.length > 1) {
-                    for (let index = 0; index < block.blockContent.get(variantsOfBlock[0])?.length!; index++) {
-                        const element = block.blockContent.get(variantsOfBlock[0])![index];
+                    for (let index = 0; index < block.sourceCodeContent.get(variantsOfBlock[0])?.length!; index++) {
+                        const element = block.sourceCodeContent.get(variantsOfBlock[0])![index];
                         console.log(element.element.fileName);
                         let filePath = resulltPath + path.sep + element.element.fileName.fsPath.replace(variantsOfBlock[0].replace("c:", ""), "");
                         if (!treatedFiles.includes(filePath)) {
@@ -349,8 +349,8 @@ export class Utils {
 
             for (const block of untreatedBlocks) {
 
-                while (block.blockContent.get(maximal.variantId)?.length! > 0) {
-                    for (const content of block.blockContent.get(maximal.variantId)!) {
+                while (block.sourceCodeContent.get(maximal.variantId)?.length! > 0) {
+                    for (const content of block.sourceCodeContent.get(maximal.variantId)!) {
                         try {
                             debugIndex++;
                             if (debugIndex === 8) {
@@ -548,8 +548,8 @@ export class Utils {
                                     }
                                 }
 
-                                let idxRemove = block.blockContent.get(maximal.variantId)?.indexOf(content);
-                                block.blockContent.get(maximal.variantId)?.splice(idxRemove!, 1);
+                                let idxRemove = block.sourceCodeContent.get(maximal.variantId)?.indexOf(content);
+                                block.sourceCodeContent.get(maximal.variantId)?.splice(idxRemove!, 1);
                                 console.log("r");
                             }
                             else {
@@ -773,10 +773,10 @@ export class Utils {
 
     static sortBlocksBySize(blocks: Block[]) {
         blocks.sort((a, b) => {
-            if (a.blockContent.size > b.blockContent.size) {
+            if (a.sourceCodeContent.size > b.sourceCodeContent.size) {
                 return -1;
             }
-            if (a.blockContent.size < b.blockContent.size) {
+            if (a.sourceCodeContent.size < b.sourceCodeContent.size) {
                 return 1;
             }
             return 0;

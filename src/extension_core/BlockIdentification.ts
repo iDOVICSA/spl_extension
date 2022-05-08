@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { CodeFilesExtensions } from "../Utils/FilesExtensions";
+import { CodeFilesExtensions, MediaFilesExtsensions } from "../Utils/FilesExtensions";
 import { ElementRangesMapDecorator } from "../Utils/MapDecorator/ElementRangesMapDecorator";
 import { Utils } from "../Utils/Utilis";
 import { Block } from "./Block";
@@ -19,24 +19,36 @@ export class BlockIdentification {
         for (const file of allFiles) {
             let variantsOfTheFile = filesVariants.get(file)!;
             //check if all the files have same content
-            let documentsByVariant = new Map<string, vscode.TextDocument>(); // <idVariant , Document>
+            let sourceCodedocumentsByVariant = new Map<string, vscode.TextDocument>(); // <idVariant , Document>
+            let mediaDocuments = new Map<string, string>();
             for (const v of variantsOfTheFile) {
-                let filePath = vscode.Uri.parse(v + path.sep + file);
-                let filePath2 = vscode.Uri.joinPath(vscode.Uri.parse(v), file);
-                let fileExtension = filePath.fsPath.split(".").pop()!;
+                //let filePath = v + path.sep + file;
+                let filePath = v + file;
 
+                let fileExtension = filePath.split(".").pop()!;
+
+               
                 if (fileExtension in CodeFilesExtensions) {
-                    let document = await vscode.workspace.openTextDocument(filePath.fsPath);
-                    documentsByVariant.set(v, document);
+                    let document = await vscode.workspace.openTextDocument(filePath);
+                    sourceCodedocumentsByVariant.set(v, document);
                 }
                 else {
-                    console.log(fileExtension + "  noooo");
+                    if (fileExtension in MediaFilesExtsensions) {
+                        mediaDocuments.set(v, file);
+                    }
+                    else {
+                        console.log(fileExtension + "  not supported  yet");
+                    }
                 }
             }
-            if (documentsByVariant.size > 0) {
-                await this.fillRMap(documentsByVariant);
+            if (sourceCodedocumentsByVariant.size > 0) {
+                await this.fillRMap(sourceCodedocumentsByVariant);
                 this.identifyInitialBlocks();
-                documentsByVariant.clear;
+                sourceCodedocumentsByVariant.clear;
+            }
+            if (mediaDocuments.size > 0) {
+                this.addMediaToblock(mediaDocuments);
+                mediaDocuments.clear;
             }
         }
         return this.blocks;
@@ -48,14 +60,6 @@ export class BlockIdentification {
         await ec.identifyUsingSemantics(documents);
         ec.identifyBlocks();
         console.log("___________________________________________________________________________");
-
-        /*    let extensionCore = new ExtensionCore();
-            extensionCore.getinitialR(documents);
-            extensionCore.identifyInitialBlocks();
-            extensionCore.getIdBlocks() ;
-            extensionCore.showBlocksContants();
-            console.log("_________________________________________________________________");*/
-
     }
     //<variantId , Map<Element,vscode.Range[]>>
     rMap?: Map<string, Map<Element, vscode.Range[]>>;
@@ -91,7 +95,7 @@ export class BlockIdentification {
                 vscode.DocumentSymbol[]
             >("vscode.executeDocumentSymbolProvider", document.uri).then(async (mySymbols) => {
                 fileSymbols = mySymbols;
-                console.log("sucess  " + mySymbols);
+                console.log("sucess  :"+document.uri.fsPath + "  "+ mySymbols);
             }, (reason) => {
                 console.log("error  " + reason);
             });
@@ -356,12 +360,35 @@ export class BlockIdentification {
 
         }
     }
-    createBlockId(intersection: Map<string, ElementRange[]>): string {
+    createBlockId(intersection: Map<string, ElementRange[]|string>): string {
         let resullt = "";
         let allVariants = Array.from(intersection.keys());
         allVariants.sort((a, b) => a.localeCompare(b));
         resullt = allVariants.toString();
         return resullt;
+    }
+    addMediaToblock(mediaDocuments: Map<string, string>) {
+        let found = false;
+        let stop = false;
+        let keyOfBloc = -1;
+        let index = 0;
+        while ((index < this.blocks.length) && (!found)) {
+            if (this.blocks[index].havingSameBlockId(mediaDocuments)) {
+                found = true;
+                keyOfBloc = index;
+            }
+            index++;
+        }
+        let m = Array.from(mediaDocuments.keys());
+        let s = m[0];
+        if (found) {
+            this.blocks[keyOfBloc].mediaContent?.push(mediaDocuments.get(s)!);
+        } else {
+            let idBlock = this.createBlockId(mediaDocuments);
+            let b = new Block(this.blocks.length, "Block " + this.blocks.length, new Map<string, ElementRange[]>());
+            b.mediaContent?.push(mediaDocuments.get(s)!);
+            this.blocks.push(b);
+        }
     }
 
 }

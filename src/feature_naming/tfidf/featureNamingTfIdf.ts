@@ -5,44 +5,6 @@ const symbolsSeperators = /[-\n._:{}()\s;<>!=+-]+/;
 const wordsSeparators: string[] = ["private", "public", "String", "void", "return"];
 
 export class FeatureNamingTfIdf {
-  /* nameBlocks(allBlocks: Map<number, string[]>): Map<number, any[]> {
-     // Map <blockNumber , frequentItems[]> ; frequentItem <itemName , itemScore> ;
-     let results = new Map<number, any[]>();
-     const tfIdf = natural.TfIdf;
-     const tfidf = new tfIdf();
-     // Preparation of the block 'tokenization + splitting upperCamelCase' + Preparing Corpus by adding each block as
-     // a document to TfIdf constructor ;
-     let allBlockArray = Array.from(allBlocks.keys()!);
-     allBlockArray.forEach((blockNumber) => {
-       let blockElements = allBlocks.get(blockNumber)!;
-       //this update is due to adding pathRoot+pathRootType to elements {
-       let blockContent: string = "";
-       blockElements.forEach(element => {
-         blockContent = blockContent + " " + element.split("###")[0];
-       });
- 
-       //  let blockContent = blockElements.join(" ");
-       blockContent = blockContent.split(symbolsSeperators).join(" "); // eliminates symbols {}();<>=+-!
-       blockContent = blockContent.replace(/([a-z])([A-Z])/g, "$1 $2"); // splits upperCamelCase
-       wordsSeparators.forEach((seperator) => {
-         // eliminates Words in wordsSeperators array
-         var regExp = new RegExp(seperator, "g");
-         blockContent = blockContent.replace(regExp, "");
-       });
-       tfidf.addDocument(blockContent);
-     });
- 
-     // returning each block most frequent words
-     allBlockArray.forEach((blockNumber) => {
-       let sortedElementsOfBlockByTfIdf: any[] = [];
-       tfidf.listTerms(blockNumber).forEach(function (item: any) {
-         var frequentWord = { x: item.term, value: item.tfidf };
-         sortedElementsOfBlockByTfIdf.push(frequentWord);
-       });
-       results.set(blockNumber, sortedElementsOfBlockByTfIdf!);
-     });
-     return results;
-   }*/
 
   /**
    * 
@@ -55,12 +17,12 @@ export class FeatureNamingTfIdf {
     const tfidf = new tfIdf();
     for (const block of identifiedBlocks) {
       let blockContent: string = "";
-      let variantsOfBlock = Array.from(block.blockContent.keys());
+      let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
       /**
        * [0] because all other variants share same instructions and differs
        * only in range which are not important in feature naming
        */
-      let blockElements = block.blockContent.get(variantsOfBlock[0])!;
+      let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
       blockElements.forEach(element => {
         blockContent = blockContent + " " + element.element.instruction;
       });
@@ -77,12 +39,6 @@ export class FeatureNamingTfIdf {
       let sortedElementsOfBlockByTfIdf: any[] = [];
       let maxWords = 20;
 
-      /*tfidf.listTerms(block.blockId).forEach(function (item: any) {
-        var frequentWord = { x: item.term, value: item.tfidf };
-        sortedElementsOfBlockByTfIdf.push(frequentWord);
-        maxWords-- ; 
-        
-      });*/
       for (const item of tfidf.listTerms(block.blockId)) {
         var frequentWord = { x: item.term, value: item.tfidf };
         sortedElementsOfBlockByTfIdf.push(frequentWord);

@@ -20,6 +20,7 @@ export class ForgeExport {
         let treatedVariants: Variant[] = [];
 
         while (treatedBlocks.length < blocks.length) {
+
             let maximal = Utils.getVariantWithMaximalBlocks(variants);
             //blockList - treatedAlreadyBlocks 
             let untreatedBlocks = maximal.blocksList.filter(item => treatedBlocks.indexOf(item) < 0);
@@ -27,8 +28,8 @@ export class ForgeExport {
             Utils.sortBlocksBySize(untreatedBlocks);
             pathRootsMap.set("root", true);
             for (const block of untreatedBlocks) {
-                while (block.blockContent.get(maximal.variantId)?.length! > 0) {
-                    for (const content of block.blockContent.get(maximal.variantId)!) {
+                while (block.sourceCodeContent.get(maximal.variantId)?.length! > 0) {
+                    for (const content of block.sourceCodeContent.get(maximal.variantId)!) {
                         let filePath = resulltPath + path.sep + content.element.fileName.fsPath.replace(maximal.variantId.replace("c:", ""), "");
 
                         if (!treatedFiles.includes(filePath)) {
@@ -81,12 +82,13 @@ export class ForgeExport {
                                 }
                                 arr?.push(treeEm);
                             }
-                            let idxRemove = block.blockContent.get(maximal.variantId)?.indexOf(content);
-                            block.blockContent.get(maximal.variantId)?.splice(idxRemove!, 1);
+                            let idxRemove = block.sourceCodeContent.get(maximal.variantId)?.indexOf(content);
+                            block.sourceCodeContent.get(maximal.variantId)?.splice(idxRemove!, 1);
                             console.log("r");
                         }
-                    }
+                    }   
                 }
+                await this.addMediaFilesToMaximalProject(resulltPath,block) ;
                 treatedBlocks.push(block);
             }
             treatedVariants.push(maximal);
@@ -229,10 +231,6 @@ export class ForgeExport {
                 console.log("Code file has been saved.");
             });
 
-
-
-
-
             let rangeSeedsElement = {
                 "file": file,
                 "seeds": seeds
@@ -316,11 +314,26 @@ export class ForgeExport {
 
     static getMandatoryBlockId(blocks: Block[], variantsCount: number): number {
         for (const block of blocks) {
-            if (Array.from(block.blockContent.keys()).length === variantsCount) {
+            if (Array.from(block.sourceCodeContent.keys()).length === variantsCount) {
                 return block.blockId;
             }
         }
         return -1;
 
     }
+
+    static async addMediaFilesToMaximalProject(resulltPath : string, block : Block) {
+        let firstKey = Array.from(block.sourceCodeContent.keys())[0] ;
+        for(const file of block.mediaContent) {
+            let fileUri = vscode.Uri.file(firstKey+file) ;
+            let t = file.split(path.sep);
+            //t.pop() ;
+            let target =vscode.Uri.parse(resulltPath+path.sep+t.join(path.sep)) ; 
+
+
+            await vscode.workspace.fs.copy(fileUri,target); 
+        }
+        
+    }
+
 }

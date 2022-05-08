@@ -10,7 +10,5 @@ export class TreeElement {
         this.element = element;
         this.block = block;
         this.children = [] ; 
-
       }
-
 }

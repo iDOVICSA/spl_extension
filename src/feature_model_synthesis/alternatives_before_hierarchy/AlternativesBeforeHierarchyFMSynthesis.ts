@@ -37,7 +37,7 @@ export class AlternativesBeforeHierarchyFMSynthesis {
         //Convert Blocks to Feature
         this.listOfBlocks.forEach(element => {
             // check if the block is mandatory 
-            let f = new Feature(null, element.blockName!, element.blockId, element.blockContent.size === this.numberOfVariants, element.colorOfBlock);
+            let f = new Feature(null, element.blockName!, element.blockId, element.sourceCodeContent.size === this.numberOfVariants, element.colorOfBlock);
             this.listOfFeatures.set(element.blockId, f);
         });
 
