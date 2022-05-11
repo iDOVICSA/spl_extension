@@ -18,6 +18,9 @@ export class ForgeExport {
         let mergeResultTree = new Map<string, TreeElement[]>();
 
         let treatedVariants: Variant[] = [];
+        let pathPropagations: any[] = [];
+        let fileSeeds : any[] ;
+        let propagationId = 0;
 
         while (treatedBlocks.length < blocks.length) {
 
@@ -88,7 +91,9 @@ export class ForgeExport {
                         }
                     }   
                 }
-                await this.addMediaFilesToMaximalProject(resulltPath,block) ;
+              //  let pr = await this.addMediaFilesToMaximalProject(resulltPath,block,propagationId) ;
+                //pathPropagations.push(pr) ;
+                //propagationId = propagationId+pr.length +1 ; 
                 treatedBlocks.push(block);
             }
             treatedVariants.push(maximal);
@@ -102,10 +107,8 @@ export class ForgeExport {
         let deletionPropagations: any[] = [];
         let replacementPropagations: any[] = [];
         let resourcePropagations: any[] = [];
-        let pathPropagations: any[] = [];
         let rangeSeeds: any[] = [];
         let allFiles = Array.from(mergeResultTree.keys());
-        let propagationId = 0;
         for (let idx = 0; idx < allFiles.length; idx++) {
             let s = allFiles[idx];
             let resullt: TreeElement[] = [];
@@ -222,7 +225,12 @@ export class ForgeExport {
                 seeds.push(seedElement);
                 propagationId++;
             }
-
+            let dirs = file.split(path.sep) ; 
+            dirs.pop() ;
+            let dir = resulltPath+path.sep+ dirs.join(path.sep) ;
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir, { recursive: true });
+            }
             await fs.writeFile(resulltPath + path.sep + file, str.join("\n"), 'utf8', function (err) {
                 if (err) {
                     console.log("An error occured while writing JSON Object to File.");
@@ -322,17 +330,31 @@ export class ForgeExport {
 
     }
 
-    static async addMediaFilesToMaximalProject(resulltPath : string, block : Block) {
+    static async addMediaFilesToMaximalProject(resulltPath : string, block : Block, propagationId:number) : Promise<any[]> {
+        let pathPropagations : any[]=[] ;
         let firstKey = Array.from(block.sourceCodeContent.keys())[0] ;
         for(const file of block.mediaContent) {
             let fileUri = vscode.Uri.file(firstKey+file) ;
             let t = file.split(path.sep);
-            //t.pop() ;
             let target =vscode.Uri.parse(resulltPath+path.sep+t.join(path.sep)) ; 
+            let pathPropagationElement ={
+                "propagationId": propagationId.toString(),
+                "sourceId": propagationId.toString(),
+                "propagatedPath": file,
+                "featureKey": block.blockId.toString(),
+                "isValidated": true,
+                "isMapped": false,
+                "analyzer": "File system analyzer",
+                "isFromMarker": true
+            };
+            let seedElement
+            propagationId++ ; 
+            pathPropagations.push(pathPropagationElement) ;
 
 
             await vscode.workspace.fs.copy(fileUri,target); 
         }
+        return pathPropagations ; 
         
     }
 

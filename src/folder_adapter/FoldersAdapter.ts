@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { IgnoredFolders } from "../Utils/IgnoredFolders";
-import * as path from "path"
+import * as path from "path";
 export class FoldersAdapter {
 
     async adaptFolders(foldersVariants: readonly vscode.WorkspaceFolder[]): Promise<Map<string, string[]>> {

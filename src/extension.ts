@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     async () => {
-
+  
       let s = vscode.workspace.workspaceFolders;
       let allVariants = Utils.loadVariants(s!);
 

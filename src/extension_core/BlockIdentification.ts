@@ -387,6 +387,10 @@ export class BlockIdentification {
             let idBlock = this.createBlockId(mediaDocuments);
             let b = new Block(this.blocks.length, "Block " + this.blocks.length, new Map<string, ElementRange[]>());
             b.mediaContent?.push(mediaDocuments.get(s)!);
+            let variantsIds =Array.from(mediaDocuments.keys()) ; 
+            for (const variantId of variantsIds) {
+                b.sourceCodeContent.set(variantId,[]) ;
+            }
             this.blocks.push(b);
         }
     }
