@@ -251,7 +251,13 @@ export class BlockIdentification {
             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                 //let e = new Element(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim(), pathToRoot, pathToRootTypes);
                 let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri, elementParent);
-                let r = document.lineAt(index).range;
+                let r: vscode.Range;
+                if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
+                    r = parentSymbol?.range!;
+                }
+                else {
+                    r = document.lineAt(index).range;
+                }
                 let er = new ElementRange(e, r);
                 result.push(er);
             }

@@ -91,7 +91,7 @@ export class ForgeExport {
                         }
                     }   
                 }
-              //  let pr = await this.addMediaFilesToMaximalProject(resulltPath,block,propagationId) ;
+                let pr = await this.addMediaFilesToMaximalProject(resulltPath,block,5) ;
                 //pathPropagations.push(pr) ;
                 //propagationId = propagationId+pr.length +1 ; 
                 treatedBlocks.push(block);
@@ -347,8 +347,8 @@ export class ForgeExport {
                 "analyzer": "File system analyzer",
                 "isFromMarker": true
             };
-            let seedElement
-            propagationId++ ; 
+            let seedElement;
+            propagationId++ ;
             pathPropagations.push(pathPropagationElement) ;
 
 
