@@ -21,22 +21,42 @@ export class Element {
    * @param anotherElement 
    * @returns boolean value
    */
-  isEqual(anotherElement: Element): Boolean {
+   
+  isEqual(anotherElement: Element , divideFunc:boolean): Boolean {
     //first checks same parents and parentTypes
     if ((this.pathToRoot.normalize() === anotherElement.pathToRoot.normalize()) && (this.pathToRootTypes.normalize() === anotherElement.pathToRootTypes.normalize())) {
 
       // if element is function 11 or method 5 : delete comments then checks string value 
-      if ((this.getElementKind() === 11) || (this.getElementKind() === 5)) {
-        let thisCodeDeletedComments = this.instruction.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '');
-        let otherCodeDeletedComments = anotherElement.instruction.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '');
-        return thisCodeDeletedComments.replace(/\s+/g, '').normalize() === otherCodeDeletedComments.replace(/\s+/g, '').normalize();
-      }
-      // other instructions ---> check only their string value equality
-      else {
-        //return this.instruction.normalize() === anotherElement.instruction.normalize();
-
+      if (divideFunc) {
         return this.instruction.replace(/\s+/g, '').normalize() === anotherElement.instruction.replace(/\s+/g, '').normalize();
+
       }
+      else {
+        if ((this.getElementKind() === 11) || (this.getElementKind() === 5)) {
+          let thisCodeDeletedComments = this.instruction.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '');
+          let otherCodeDeletedComments = anotherElement.instruction.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '');
+          return thisCodeDeletedComments.replace(/\s+/g, '').normalize() === otherCodeDeletedComments.replace(/\s+/g, '').normalize();
+        }
+        // other instructions ---> check only their string value equality
+        else {
+
+          return this.instruction.replace(/\s+/g, '').normalize() === anotherElement.instruction.replace(/\s+/g, '').normalize();
+        }
+      }
+
+
+    }
+    else {
+      return false;
+    }
+  }
+
+
+  isEqualAllDivided(anotherElement: Element): Boolean {
+    //first checks same parents and parentTypes
+    if ((this.pathToRoot.normalize() === anotherElement.pathToRoot.normalize()) && (this.pathToRootTypes.normalize() === anotherElement.pathToRootTypes.normalize())) {
+      return this.instruction.replace(/\s+/g, '').normalize() === anotherElement.instruction.replace(/\s+/g, '').normalize();
+
     }
     else {
       return false;
@@ -46,6 +66,8 @@ export class Element {
        && this.pathToRoot.normalize() === anotherElement.pathToRoot.normalize()
        && this.pathToRootTypes.normalize() === anotherElement.pathToRootTypes.normalize() ;*/
   }
+
+
   /**
    * 
    * @param anotherElement 

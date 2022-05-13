@@ -1,5 +1,5 @@
 export class Color {
-    static listOfColor = ['#ff4d4d', '#18dcff', '#ffaf40', '#fffa65', '#32ff7e', '#7efff5', '#7d5fff', '#cd84f1', '#ffcccc', '#f7aef8'];
+    static listOfColor = ['#ff2600', '#35ad02', '#ffaf40', '#c47200', '#0d5fb8', '#fa39b0', '#f7e648', '#575650', '#633a21', '#fec7ff'];
 
 
 

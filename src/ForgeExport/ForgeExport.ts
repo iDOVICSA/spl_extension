@@ -10,6 +10,7 @@ import * as fs from 'fs';
 
 export class ForgeExport {
     static async exportForge(blocks: Block[], variants: Variant[], workspaceFolders: readonly vscode.WorkspaceFolder[]) {
+        let divideFunc : any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods")  ; 
         let pathRootsMap: Map<string, boolean> = new Map<string, boolean>();
         let treatedBlocks: Block[] = [];
         let treatedFiles: string[] = [];
@@ -48,14 +49,21 @@ export class ForgeExport {
                         }
 
                         if (pathRootsMap.get(content.getParentPathRoot())) {
-                            if ((content.element.getElementKind() !== 5) && (content.element.getElementKind() !== 11)) {
-                                if (content.element.getElementParentInstruction().replace(/\s+/g, '') === content.element.instruction.replace(/\s+/g, '')) {
+                            if (divideFunc.prop1) {
+                                pathRootsMap.set(content.element.pathToRoot, true);
+
+                            }
+                            else {
+                                if ((content.element.getElementKind() !== 5) && (content.element.getElementKind() !== 11)) {
+                                    if (content.element.getElementParentInstruction().replace(/\s+/g, '') === content.element.instruction.replace(/\s+/g, '')) {
+                                        pathRootsMap.set(content.element.pathToRoot, true);
+                                    }
+                                }
+                                else {
                                     pathRootsMap.set(content.element.pathToRoot, true);
                                 }
                             }
-                            else {
-                                pathRootsMap.set(content.element.pathToRoot, true);
-                            }
+ 
 
 
 
@@ -87,7 +95,6 @@ export class ForgeExport {
                             }
                             let idxRemove = block.sourceCodeContent.get(maximal.variantId)?.indexOf(content);
                             block.sourceCodeContent.get(maximal.variantId)?.splice(idxRemove!, 1);
-                            console.log("r");
                         }
                     }   
                 }
@@ -171,25 +178,37 @@ export class ForgeExport {
                         highlightStartLine = pos;
                         blockId = element.block.blockId;
                     }
-
-                    if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
-                        pos = pos + element.element.elementRange.end.line - element.element.elementRange.start.line + 1;
-                    }
-                    else {
+                    if (divideFunc.prop1) {
                         pos = pos + 1;
                     }
+                    else {
+                        if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
+                            pos = pos + element.element.elementRange.end.line - element.element.elementRange.start.line + 1;
+                        }
+                        else {
+                            pos = pos + 1;
+                        }
+                    }
+                   
                 }
             }
             let element = resullt.pop()!;
             resullt.push(element!);
             if (blockId !== mandatoryBlockId) {
                 let endLine: number;
-                if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
-                    endLine = pos - (element.element.elementRange.end.line - element.element.elementRange.start.line + 1);
+                if (divideFunc.prop1) {
+                    endLine = pos - 1;
+
                 }
                 else {
-                    endLine = pos - 1;
+                    if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
+                        endLine = pos - (element.element.elementRange.end.line - element.element.elementRange.start.line + 1);
+                    }
+                    else {
+                        endLine = pos - 1;
+                    }
                 }
+                
                 let propagationElement = {
                     "featureKey": blockId.toString(),
                     "ranges": [

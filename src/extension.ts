@@ -63,7 +63,9 @@ export function activate(context: vscode.ExtensionContext) {
     
           return p;
         });*/
-        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants);
+        let divideFunc : any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods")  ; 
+        divideFunc = divideFunc.prop1 as boolean ; 
+        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants,divideFunc);
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
