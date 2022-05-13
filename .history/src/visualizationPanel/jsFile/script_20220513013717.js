@@ -312,4 +312,7 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
- 
+  function renameAllBlocks(){
+    console.log("hh");
+}
+

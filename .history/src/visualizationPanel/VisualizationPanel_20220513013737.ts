@@ -81,7 +81,6 @@ export class VisualizationPanel {
 						this.identifiedBlocks![message.text.blockId].blockName = message.text.newName;
 						this.identifiedBlocks![message.text.blockId].colorOfBlock = message.text.newColor;
 						vscode.window.showInformationMessage("Data saved with succes");
-						console.log("i have renamed block" + message.text.blockId);
 						return;
 				}
 			},
@@ -199,7 +198,7 @@ export class VisualizationPanel {
 				<div id="blocMenu">
 				<p id="variatnsTitle">Options</p>
 				<div style="display: grid; margin-top:4px ;">
-                    <button onclick="renameAllBlocks()" class="btn">Rename All Blocks</button>
+                    <button onclick="renameAllBlocks()" class="btn btn-border-underline">Rename All Blocks</button>
                 </div>
 					<p id="variatnsTitle">variants</p>
 	

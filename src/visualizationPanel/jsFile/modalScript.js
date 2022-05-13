@@ -34,6 +34,7 @@ function saveChangesButton() {
     var block= document.getElementsByClassName("bloc "+id);
 
     checkMark.style.background=newColor;
+    //change name in diffrent blocks
     Array.prototype.forEach.call(x, function(el) {
         // Do stuff here
         el.childNodes[0].nodeValue = blockNameInput.value;
@@ -45,7 +46,8 @@ function saveChangesButton() {
     });
 
     var p= document.getElementsByClassName(id);
- 
+     //change name in diffrent checkbox
+
     Array.prototype.forEach.call(p, function(el) {
         // Do stuff here
         el.title =blockNameInput.value;
@@ -72,5 +74,43 @@ window.onclick = function(event) {
 };
 
 
+
+function renameAllBlocks(){
+    for (let [clef, valeur] of listOfBlocks) {
+        if(valeur.tfIdfWordCloud.length>0){
+            let newBlockName =valeur.tfIdfWordCloud[0].x;
+            listOfBlocks.get(clef).blockName  =newBlockName;
+            //change name in diffrent blocks
+            var x= document.getElementsByClassName("#"+clef);
+
+     Array.prototype.forEach.call(x, function(el) {
+        // Do stuff here
+        el.childNodes[0].nodeValue = newBlockName;
+    });
+
+    var p= document.getElementsByClassName(clef);
+     //change name in diffrent checkbox
+
+    Array.prototype.forEach.call(p, function(el) {
+        // Do stuff here
+        el.title =newBlockName;
+    });
+    createConstraint();
+
+    const jsonObject = {};
+    jsonObject["blockId"]=clef;
+    jsonObject["newName"]=newBlockName;
+    jsonObject["newColor"]=valeur.colorOfBlock;
+    jsonObject["mssgToShow"]="Block Renamed with succes";
+    vscode.postMessage({
+        command: 'alert',
+        text: jsonObject,
+    });
+
+        }
+
+}
+
+}
 
 

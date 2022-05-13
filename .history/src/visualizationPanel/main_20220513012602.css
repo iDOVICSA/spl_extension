@@ -437,19 +437,36 @@ option:hover {
 
 
 .btn {
-  color: #ffffff;
-  background-color: #4b4b4b;
+  background-color: var(--background-color);
+  color: rgb(255, 255, 255);
   padding: 6px;
-  border-color: #fff;
+  border: none;
+  outline: none;
+  position: relative;
   cursor: pointer;
-  background-color: none;
+
+  --background-color: #575552;
+  --border-size: 2px;
+  --accent-color: #1f7a6f;
   margin: auto;
   font-size: 18px;
   border-radius: 6px;
-  border: 3px solid #777777;
 }
-.btn:hover {
-  border-color:#1f7a6f ;
-  background-color: #5a5959;
 
+.btn.btn-border-underline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--border-size);
+  background-color: var(--accent-color);
+  transition: transform 300ms ease-in-out;
+
+  transform: scaleX(0);
+}
+
+.btn.btn-border-underline:hover::before,
+.btn.btn-border-underline:focus::before {
+  transform: scaleX(1);
 }

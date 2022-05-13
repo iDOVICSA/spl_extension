@@ -312,4 +312,21 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
- 
+  function renameAllBlocks(){
+    for (let [clef, valeur] of listOfBlocks) {
+        if(valeur.tfIdfWordCloud.length>0){
+            listOfBlocks.get(clef).blockName  =valeur.tfIdfWordCloud[0].x;
+            //change name in diffrent blocks
+            var x= document.getElementsByClassName("#"+clef);
+
+     Array.prototype.forEach.call(x, function(el) {
+        // Do stuff here
+        el.childNodes[0].nodeValue = blockNameInput.value;
+    });
+
+        }
+
+}
+
+}
+

@@ -312,4 +312,24 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
- 
+  function renameAllBlocks(){
+    for (let [clef, valeur] of listOfBlocks) {
+        var label = document.createElement("label");
+        label.innerText = valeur.blockName ;
+        label.setAttribute("class","containerCheckBox #"+clef);
+        var input = document.createElement("input");
+        input.setAttribute("type","checkbox");
+        input.setAttribute("checked","checked");
+        input.setAttribute("onchange","toggleCheckboxBlocks(this)");
+        input.setAttribute("id",clef);
+        var span = document.createElement("span");
+        span.setAttribute("class","checkmark");
+        span.setAttribute("id","checkmarkColor"+clef);
+        span.style.background =valeur.colorOfBlock;
+        label.appendChild(input);
+        label.appendChild(span);
+        bloc.appendChild(label);
+}
+
+}
+

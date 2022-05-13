@@ -312,4 +312,32 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
- 
+  function renameAllBlocks(){
+    for (let [clef, valeur] of listOfBlocks) {
+        if(valeur.tfIdfWordCloud.length>0){
+            let newBlockName =valeur.tfIdfWordCloud[0].x;
+            listOfBlocks.get(clef).blockName  =newBlockName;
+            //change name in diffrent blocks
+            var x= document.getElementsByClassName("#"+clef);
+
+     Array.prototype.forEach.call(x, function(el) {
+        // Do stuff here
+        el.childNodes[0].nodeValue = newBlockName;
+    });
+
+    var p= document.getElementsByClassName(clef);
+     //change name in diffrent checkbox
+
+    Array.prototype.forEach.call(p, function(el) {
+        // Do stuff here
+        el.title =newBlockName;
+    });
+    createConstraint();
+
+
+        }
+
+}
+
+}
+
