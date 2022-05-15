@@ -14,9 +14,9 @@ import { Variant } from "./Variant";
 import * as path from 'path';
 
 export class BlockIdentification {
-   divideFunc : boolean =true;
-    async identifyBlocks(filesVariants: Map<string, string[]>, divideFunc : boolean): Promise<Block[]> { // <File, listOfVariants Where the file appears>
-    this.divideFunc = divideFunc ; 
+    divideFunc: boolean = true;
+    async identifyBlocks(filesVariants: Map<string, string[]>, divideFunc: boolean): Promise<Block[]> { // <File, listOfVariants Where the file appears>
+        this.divideFunc = divideFunc;
         let allFiles = Array.from(filesVariants.keys());
         for (const file of allFiles) {
             let variantsOfTheFile = filesVariants.get(file)!;
@@ -309,7 +309,7 @@ export class BlockIdentification {
         pathToRootTypes: string,
         startingLine: number,
         endingLine: number,
-        result: ElementRange[] // list of elements (instruction+pathRoot+pathRootTypes)
+        result: ElementRange[]
     ) {
         for (const child of children) {
             if (child.kind !== 3) {
@@ -324,6 +324,7 @@ export class BlockIdentification {
                             let r: vscode.Range;
                             if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                                 r = parentSymbol?.range!;
+                                e.symbol = child;
                             }
                             else {
                                 r = document.lineAt(index).range;
@@ -335,6 +336,7 @@ export class BlockIdentification {
                     startingLine = child.range.end.line + 1;
 
                     let newParent = new Element(document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
+                    newParent.symbol = child;
                     let newParentRange = child.range;
                     let newParentElementRange = new ElementRange(newParent, newParentRange);
                     this.traverseSymbolsChildrenDivideAll(
@@ -358,6 +360,7 @@ export class BlockIdentification {
                                 let r: vscode.Range;
                                 if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                                     r = parentSymbol?.range!;
+                                    e.symbol = child;
                                 }
                                 else {
                                     r = document.lineAt(index).range;
@@ -369,29 +372,25 @@ export class BlockIdentification {
 
 
                         let newP: ElementRange;
+                        let e = new Element(document.lineAt(child.selectionRange.start.line).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
+                        let r = child.range!;
+                        e.symbol = child;
+                        newP = new ElementRange(e, r);
                         for (let index = child.range.start.line; index <= child.range.end.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
-                                let e: Element;
-                                if (index === child.range.start.line) {
-                                    e = new Element(document.lineAt(index).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
+
+                                if (index === child.selectionRange.start.line) {
+                                    result.push(newP);
                                 }
                                 else {
+                                    let e: Element;
                                     e = new Element(document.lineAt(index).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, newP!);
-                                }
-
-                                let r: vscode.Range;
-                                if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
-                                    r = child.range!;
-                                }
-                                else {
-                                    r = document.lineAt(index).range;
+                                    let r = document.lineAt(index).range;
+                                    let er = new ElementRange(e, r);
+                                    result.push(er);
 
                                 }
-                                let er = new ElementRange(e, r);
-                                if (index === child.range.start.line) {
-                                    newP = er;
-                                }
-                                result.push(er);
+
                             }
 
 
@@ -413,6 +412,7 @@ export class BlockIdentification {
                 let r: vscode.Range;
                 if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                     r = parentSymbol?.range!;
+
                 }
                 else {
                     r = document.lineAt(index).range;
@@ -555,7 +555,7 @@ export class BlockIdentification {
         let i = 0;
         while (!stop && i < elements.length) {
 
-            if (elements[i].isEqual(element,this.divideFunc) === true) {
+            if (elements[i].isEqual(element, this.divideFunc) === true) {
                 stop = true;
                 selectedElementIndice = i;
             };

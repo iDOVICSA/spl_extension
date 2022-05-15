@@ -132,9 +132,19 @@ export class ForgeExport {
             let str: string[] = [];
 
             for (let idx = 0; idx < resullt.length; idx++) {
-
                 const element = resullt[idx];
                 str[idx] = element.element.element.instruction;
+
+                if (element.element.getParent()!=="root") {
+                    if (!element.element.element.symbol) {
+                        if (element.element.elementRange.start.line<element.element.element.parent?.element.symbol?.selectionRange.start.line!) {
+                            str.splice(idx-1,0,element.element.element.instruction) ;
+                            str.splice(idx+1,1) ;
+                        }
+                    }
+                }
+
+
                 if (element) {
                     if (element.block.blockId !== blockId) {
                         if (blockId !== mandatoryBlockId) {
@@ -150,7 +160,6 @@ export class ForgeExport {
                                         "endLine": pos - 1,
                                         "endColumn": resullt[idx - 1].element.elementRange.end.character,
                                         "isValidated": true,
-                                        "isMapped": false,
                                         "analyzer": "Interoperable analyzer",
                                         "isFromMarker": true,
                                         "parent": "-1",
@@ -169,7 +178,6 @@ export class ForgeExport {
                                 "endColumn": resullt[idx - 1].element.elementRange.end.character,
                                 "type": "Deletion",
                                 "isValidated": true,
-                                "isMapped": false
                             };
                             seeds.push(seedElement);
                             propagationId++;
@@ -257,17 +265,24 @@ export class ForgeExport {
                 }
                 console.log("Code file has been saved.");
             });
+            let rangeSeedsElement: any;
+            if (seeds.length > 0) {
+                rangeSeedsElement = {
+                    "file": file,
+                    "seeds": seeds
+                };
+                rangeSeeds.push(rangeSeedsElement);
+            }
+            let deletionPropagationsElement: any;
+            if (propagations.length > 0) {
+                deletionPropagationsElement = {
+                    "file": file,
+                    "propagations": propagations
+                };
+                deletionPropagations.push(deletionPropagationsElement);
+            }
 
-            let rangeSeedsElement = {
-                "file": file,
-                "seeds": seeds
-            };
-            rangeSeeds.push(rangeSeedsElement);
-            let deletionPropagationsElement = {
-                "file": file,
-                "propagations": propagations
-            };
-            deletionPropagations.push(deletionPropagationsElement);
+
         }
 
 
@@ -297,9 +312,6 @@ export class ForgeExport {
             "fileSeeds": []
         };
 
-
-        //await vscode.commands.executeCommand("saveAll");
-        //await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
 
         return [JSON.stringify(mapsJson), JSON.stringify(seedsJson)];
     }

@@ -7,6 +7,7 @@ export class Element {
   pathToRootTypes: string; // vscode.SymbolKind enum 
   fileName: vscode.Uri; //
   parent?: ElementRange;
+  symbol? : vscode.DocumentSymbol ;
 
 
   constructor(instruction: string, pathToRoot: string, pathToRootTypes: string, fileName: vscode.Uri, parent: ElementRange | undefined) {
@@ -15,6 +16,7 @@ export class Element {
     this.pathToRootTypes = pathToRootTypes;
     this.fileName = fileName;
     this.parent = parent;
+   
   }
   /**
    * Checks wether two elements are equal 
