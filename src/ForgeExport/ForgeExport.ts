@@ -22,7 +22,6 @@ export class ForgeExport {
         let pathPropagations: any[] = [];
         let fileSeeds: any[];
         let propagationId = 0;
-
         while (treatedBlocks.length < blocks.length) {
 
             let maximal = Utils.getVariantWithMaximalBlocks(variants);
@@ -64,7 +63,7 @@ export class ForgeExport {
                                 }
                             }
 
-
+                            
 
 
                             if (content.getParent() === "root") {
@@ -98,7 +97,7 @@ export class ForgeExport {
                         }
                     }
                 }
-                let pr = await this.addMediaFilesToMaximalProject(resulltPath, block, 5);
+                //let pr = await this.addMediaFilesToMaximalProject(resulltPath, block, 5);
                 //pathPropagations.push(pr) ;
                 //propagationId = propagationId+pr.length +1 ; 
                 treatedBlocks.push(block);
@@ -117,6 +116,7 @@ export class ForgeExport {
         let rangeSeeds: any[] = [];
         let allFiles = Array.from(mergeResultTree.keys());
         for (let idx = 0; idx < allFiles.length; idx++) {
+            
             let s = allFiles[idx];
             let resullt: TreeElement[] = [];
             this.getFileContent(mergeResultTree.get(s)!, resullt);
@@ -132,6 +132,7 @@ export class ForgeExport {
             let str: string[] = [];
 
             for (let idx = 0; idx < resullt.length; idx++) {
+
                 const element = resullt[idx];
                 str[idx] = element.element.element.instruction;
 
@@ -216,39 +217,52 @@ export class ForgeExport {
                         endLine = pos - 1;
                     }
                 }
-
-                let propagationElement = {
-                    "featureKey": blockId.toString(),
-                    "ranges": [
-                        {
-                            "propagationId": propagationId.toString(),
-                            "sourceId": propagationId.toString(),
-                            "startLine": highlightStartLine,
-                            "startColumn": highlightStartCharacter,
-                            "endLine": endLine!,
-                            "endColumn": resullt[idx].element.elementRange.end.character,
-                            "isValidated": true,
-                            "isMapped": false,
-                            "analyzer": "Interoperable analyzer",
-                            "isFromMarker": true,
-                            "parent": "-1",
-                            "children": []
-                        }
-                    ]
-                };
+                let propagationElement : any ;
+                try {
+                    propagationElement = {
+                        "featureKey": blockId.toString(),
+                        "ranges": [
+                            {
+                                "propagationId": propagationId.toString(),
+                                "sourceId": propagationId.toString(),
+                                "startLine": highlightStartLine,
+                                "startColumn": highlightStartCharacter,
+                                "endLine": endLine!,
+                                "endColumn": element.element.elementRange.end.character,
+                                "isValidated": true,
+                                "isMapped": false,
+                                "analyzer": "Interoperable analyzer",
+                                "isFromMarker": true,
+                                "parent": "-1",
+                                "children": []
+                            }
+                        ]
+                    };
+                }
+                catch (err) {
+                    console.log(err);              
+               }
+            
                 propagations.push(propagationElement);
-                let seedElement = {
-                    "id": propagationId,
-                    "analyzer": "Interoperable analyzer",
-                    "featureKey": blockId.toString(),
-                    "startLine": highlightStartLine,
-                    "startColumn": highlightStartCharacter,
-                    "endLine": endLine!,
-                    "endColumn": resullt[idx].element.elementRange.end.character,
-                    "type": "Deletion",
-                    "isValidated": true,
-                    "isMapped": false
-                };
+                let seedElement : any ; 
+                try {
+                    seedElement = {
+                        "id": propagationId,
+                        "analyzer": "Interoperable analyzer",
+                        "featureKey": blockId.toString(),
+                        "startLine": highlightStartLine,
+                        "startColumn": highlightStartCharacter,
+                        "endLine": endLine!,
+                        "endColumn": element.element.elementRange.end.character,
+                        "type": "Deletion",
+                        "isValidated": true,
+                        "isMapped": false
+                    };
+                } 
+                catch(err) {
+                    console.log(err) ;
+                }
+             
                 seeds.push(seedElement);
                 propagationId++;
             }
@@ -340,7 +354,7 @@ export class ForgeExport {
                 }
             }
 
-            if (a.element.elementRange.start.line >= b.element.elementRange.start.line) {
+            if (a.element.getDistanceToParent() >= b.element.getDistanceToParent()) {
                 return 1;
             }
             else {

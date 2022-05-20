@@ -8,6 +8,7 @@ export class Element {
   fileName: vscode.Uri; //
   parent?: ElementRange;
   symbol? : vscode.DocumentSymbol ;
+  
 
 
   constructor(instruction: string, pathToRoot: string, pathToRootTypes: string, fileName: vscode.Uri, parent: ElementRange | undefined) {

@@ -15,6 +15,43 @@ import * as path from 'path';
 
 export class BlockIdentification {
     divideFunc: boolean = true;
+    async identifyBlocksInit(filesVariants: Map<string, string[]>, divideFunc: boolean): Promise<Block[]> { // <File, listOfVariants Where the file appears>
+        this.divideFunc = divideFunc;
+        let allFiles = Array.from(filesVariants.keys());
+        for (const file of allFiles) {
+            let variantsOfTheFile = filesVariants.get(file)!;
+            //check if all the files have same content
+            let sourceCodedocumentsByVariant = new Map<string, vscode.TextDocument>(); // <idVariant , Document>
+            let mediaDocuments = new Map<string, string>();
+            for (const v of variantsOfTheFile) {
+                //let filePath = v + path.sep + file;
+                let filePath = v + file;
+
+                let fileExtension = filePath.split(".").pop()!;
+
+
+                if (fileExtension in CodeFilesExtensions) {
+                    let document = await vscode.workspace.openTextDocument(filePath);
+                    sourceCodedocumentsByVariant.set(v, document);
+                }
+                else {
+                    if (fileExtension in MediaFilesExtsensions) {
+                        mediaDocuments.set(v, file);
+                    }
+                    else {
+                        console.log(fileExtension + "  not supported  yet");
+                    }
+                }
+            }
+            if (sourceCodedocumentsByVariant.size > 0) {
+                await this.fillRMapInit(sourceCodedocumentsByVariant);
+              
+                sourceCodedocumentsByVariant.clear;
+            }
+
+        }
+        return this.blocks;
+    }
     async identifyBlocks(filesVariants: Map<string, string[]>, divideFunc: boolean): Promise<Block[]> { // <File, listOfVariants Where the file appears>
         this.divideFunc = divideFunc;
         let allFiles = Array.from(filesVariants.keys());
@@ -81,6 +118,21 @@ export class BlockIdentification {
             }
         }
     }
+
+
+    async fillRMapInit(comparableFilesByVariant: Map<string, vscode.TextDocument>) {
+        this.rMap = new Map<string, Map<Element, vscode.Range[]>>();
+        let variantsOfTheFile = Array.from(comparableFilesByVariant.keys());
+        for (const variantId of variantsOfTheFile) {
+            let file = comparableFilesByVariant.get(variantId);
+            try {
+                await this.adaptSourceFileInit(file!, variantId);
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+    }
     /**
      * 
      * @param document 
@@ -90,11 +142,11 @@ export class BlockIdentification {
     async adaptSourceFile(document: vscode.TextDocument, variantId: string) {
 
         let rValue: ElementRangesMapDecorator = new ElementRangesMapDecorator(new Map<Element, vscode.Range[]>());
-        let fileSymbols: vscode.DocumentSymbol[] | undefined;
+        let fileSymbols: (vscode.DocumentSymbol | vscode.SymbolInformation)[] | undefined;
 
         while (!fileSymbols) {
             await vscode.commands.executeCommand<
-                vscode.DocumentSymbol[]
+            (vscode.DocumentSymbol|vscode.SymbolInformation)[]
             >("vscode.executeDocumentSymbolProvider", document.uri).then(async (mySymbols) => {
                 fileSymbols = mySymbols;
                 console.log("sucess  :" + document.uri.fsPath + "  " + mySymbols);
@@ -105,10 +157,10 @@ export class BlockIdentification {
         let result: ElementRange[] = [];
         try {
             if (this.divideFunc) {
-                this.traverseSymbolsChildrenDivideAll(document, undefined, undefined, fileSymbols!, "root", "777", 0, document.lineCount, result);
+                this.traverseSymbolsChildrenDivideAll(document, undefined, undefined, fileSymbols! as vscode.DocumentSymbol[], "root", "777", 0, document.lineCount, result);
             }
             else {
-                this.traverseSymbolsChildren(document, undefined, undefined, fileSymbols!, "root", "777", 0, document.lineCount, result);
+                this.traverseSymbolsChildren(document, undefined, undefined, fileSymbols!  as vscode.DocumentSymbol[], "root", "777", 0, document.lineCount, result);
 
             }
             fileSymbols = undefined;
@@ -127,7 +179,13 @@ export class BlockIdentification {
     }
 
 
+    async adaptSourceFileInit(document: vscode.TextDocument, variantId: string) {
 
+
+        await vscode.window.showTextDocument(document,1,false) ;
+
+       
+    }
 
 
 
@@ -320,11 +378,11 @@ export class BlockIdentification {
                     for (let index = startingLine; index < child.range.start.line; index++) {
                         if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                             let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri, elementParent);
-
+                            e.parent = elementParent ;
                             let r: vscode.Range;
                             if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                                 r = parentSymbol?.range!;
-                                e.symbol = child;
+                                e.symbol = parentSymbol;
                             }
                             else {
                                 r = document.lineAt(index).range;
@@ -337,6 +395,7 @@ export class BlockIdentification {
 
                     let newParent = new Element(document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
                     newParent.symbol = child;
+                    newParent.parent = elementParent ; //
                     let newParentRange = child.range;
                     let newParentElementRange = new ElementRange(newParent, newParentRange);
                     this.traverseSymbolsChildrenDivideAll(
@@ -357,6 +416,7 @@ export class BlockIdentification {
                         for (let index = startingLine; index < child.range.start.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                                 let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri, elementParent);
+                                e.parent = elementParent ; 
                                 let r: vscode.Range;
                                 if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                                     r = parentSymbol?.range!;
@@ -375,30 +435,31 @@ export class BlockIdentification {
                         let e = new Element(document.lineAt(child.selectionRange.start.line).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
                         let r = child.range!;
                         e.symbol = child;
+                        e.parent = elementParent ;
                         newP = new ElementRange(e, r);
                         for (let index = child.range.start.line; index <= child.range.end.line; index++) {
                             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
 
                                 if (index === child.selectionRange.start.line) {
-                                    result.push(newP);
+                                    let e = new Element(document.lineAt(child.selectionRange.start.line).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, elementParent);
+                                    let r = child.range!;
+                                    e.symbol = child;
+                                    e.parent = newP ; 
+                                    let ers = new ElementRange(e,r) ;
+                                    result.push(ers);
                                 }
                                 else {
                                     let e: Element;
                                     e = new Element(document.lineAt(index).text, pathToRoot + "@@" + document.lineAt(child.selectionRange.start.line).text.replace(/\s/g, ""), pathToRootTypes + "." + child.kind, document.uri, newP!);
+                                    e.parent = newP ;
                                     let r = document.lineAt(index).range;
                                     let er = new ElementRange(e, r);
                                     result.push(er);
 
                                 }
-
                             }
-
-
                         }
                         startingLine = child.range.end.line + 1;
-
-
-
 
                     }
 
@@ -409,10 +470,11 @@ export class BlockIdentification {
             if (Utils.stringIsNotEmpty(document.lineAt(index).text)) {
                 //let e = new Element(document.lineAt(index).text.split(/\s+\t+/).join(" ").trim(), pathToRoot, pathToRootTypes);
                 let e = new Element(document.lineAt(index).text, pathToRoot, pathToRootTypes, document.uri, elementParent);
+                e.parent = elementParent ;
                 let r: vscode.Range;
                 if ((parentSymbol) && (e.instruction.replace(/\s+/g, '') === e.getElementParentInstruction().replace(/\s+/g, ''))) {
                     r = parentSymbol?.range!;
-
+                    e.symbol = parentSymbol ;//
                 }
                 else {
                     r = document.lineAt(index).range;
