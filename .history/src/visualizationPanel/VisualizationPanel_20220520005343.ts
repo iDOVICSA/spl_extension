@@ -86,7 +86,7 @@ export class VisualizationPanel {
 						return;
 
 					case 'refreshWindow':
-						this.kill();
+						this.showVariants();
 						//this._update();
 						return;
 				}

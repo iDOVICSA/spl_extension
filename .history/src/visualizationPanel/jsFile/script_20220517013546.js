@@ -15,7 +15,10 @@ let listOfBlocks = new Map() ;
 const blocks = [];
 
 
+(function () {
     // Handle the message inside the webview
+    
+
     window.addEventListener('message', event => {
 
         const message = event.data; // The JSON data our extension sent
@@ -26,6 +29,7 @@ const blocks = [];
                   for (var value in jsonObject) {  
                 iterable.set(value,jsonObject[value]) ;
                  }
+                 
                  let dataListOfBlocks= JSON.parse(message.dataListOfBlocks); 
                   for (var value in dataListOfBlocks) {  
                     listOfBlocks.set(value,dataListOfBlocks[value]) ;
@@ -34,14 +38,17 @@ const blocks = [];
                   for (var value in jsonObjectdataRequireConstraintsFca) {
                     requireConstraintsFcaIterable.push(jsonObjectdataRequireConstraintsFca[value]);
                      }  
+                     
                      let jsonObjectdataExclusionConstraintsFca= JSON.parse(message.dataExclusionConstraintsFca);
                      for (var value in jsonObjectdataExclusionConstraintsFca) {
                         exclusionConstraintsFcaIterable.push(jsonObjectdataExclusionConstraintsFca[value]);
                         }  
+
                   let jsonObjectdataRequireConstraintsFpGrowth= JSON.parse(message.dataRequireConstraintsFpGrowth);
                    for (var value in jsonObjectdataRequireConstraintsFpGrowth) {
                       dataRequireConstraintsFpGrowth.push(jsonObjectdataRequireConstraintsFpGrowth[value]);
                            }
+                          
             for (let [clef, valeur] of iterable) {
                 var variant = document.createElement("div");
                 variant.setAttribute("class",clef +" variants");
@@ -127,6 +134,7 @@ const blocks = [];
         }
     });
  
+    })();
     
     function createConstraint(){
 

@@ -55,7 +55,6 @@ export class VisualizationPanel {
 		this.requireConstraintsFca = requireConstraintsFca;
 		this.exclusionConstraintsFca = exclusionConstraintsFca;
 		this.requireConstraintsFpGrowth = requireConstraintsFpGrowth;
-
 		// Set the webview's initial html content
 		this._update();
 
@@ -84,11 +83,6 @@ export class VisualizationPanel {
 						vscode.window.showInformationMessage("Data saved with succes");
 						console.log("i have renamed block" + message.text.blockId);
 						return;
-
-					case 'refreshWindow':
-						this.kill();
-						//this._update();
-						return;
 				}
 			},
 			null,
@@ -96,61 +90,52 @@ export class VisualizationPanel {
 		);
 	}
 
-	public kill() {
-		VisualizationPanel.currentPanel?.dispose();
-		VisualizationPanel.createOrShow(this._extensionUri, this.variants!, this.identifiedBlocks!, this.requireConstraintsFca!, this.exclusionConstraintsFca!, this.requireConstraintsFpGrowth!);
-
-	}
-
 	public showVariants() {
 		// Send a message to the webview webview.
 		// You can send any JSON serializable data.
-		try {
-			const jsonObject: any = {};
-			const jsonObjectListOfBlocks: any = {};
-			const jsonObjectRerequireConstraintsFca: any = {};
-			const jsonObjectExclusionConstraintsFca: any = {};
-			const jsonObjectRerequireConstraintsFpGrowth: any = {};
-			for (let index = 0; index < this.variants!.length; index++) {
-				let idBlocks = [];
-				const element = this.variants![index].blocksList;
-				for (let index2 = 0; index2 < element.length; index2++) {
-					const bloc = element[index2];
-					idBlocks.push(bloc.blockId);
-				}
-				jsonObject[this.variants![index].variantName] = idBlocks;
+		console.log("show me");
+		if (!this.variants) { return; }
+		console.log("lol");
+		const jsonObject: any = {};
+		const jsonObjectListOfBlocks: any = {};
+		const jsonObjectRerequireConstraintsFca: any = {};
+		const jsonObjectExclusionConstraintsFca: any = {};
+		const jsonObjectRerequireConstraintsFpGrowth: any = {};
+		for (let index = 0; index < this.variants.length; index++) {
+			let idBlocks = [];
+			const element = this.variants[index].blocksList;
+			for (let index2 = 0; index2 < element.length; index2++) {
+				const bloc = element[index2];
+				idBlocks.push(bloc.blockId);
 			}
-			const data = JSON.stringify(jsonObject);
-
-			for (let index = 0; index < this.identifiedBlocks!.length; index++) {
-				const element = this.identifiedBlocks![index];
-
-				jsonObjectListOfBlocks[element.blockId] = element;
-			}
-			const dataListOfBlocks = JSON.stringify(jsonObjectListOfBlocks);
-
-			for (let index = 0; index < this.requireConstraintsFca!.length; index++) {
-				jsonObjectRerequireConstraintsFca[index] = this.requireConstraintsFca![index];
-			}
-			const dataRequireConstraintsFca = JSON.stringify(jsonObjectRerequireConstraintsFca);
-
-			for (let index = 0; index < this.exclusionConstraintsFca!.length; index++) {
-				jsonObjectExclusionConstraintsFca[index] = this.exclusionConstraintsFca![index];
-			}
-			const dataExclusionConstraintsFca = JSON.stringify(jsonObjectExclusionConstraintsFca);
-
-			for (let index = 0; index < this.requireConstraintsFpGrowth!.length; index++) {
-				jsonObjectRerequireConstraintsFpGrowth[index] = this.requireConstraintsFpGrowth![index];
-			}
-			const dataRequireConstraintsFpGrowth = JSON.stringify(jsonObjectRerequireConstraintsFpGrowth);
-			this._panel.webview.postMessage({
-				command: 'showvariants', data: data, dataRequireConstraintsFca: dataRequireConstraintsFca, dataExclusionConstraintsFca: dataExclusionConstraintsFca, dataRequireConstraintsFpGrowth: dataRequireConstraintsFpGrowth, dataListOfBlocks: dataListOfBlocks
-			});
-
-		} catch (err) {
-			console.log(err);
+			jsonObject[this.variants[index].variantName] = idBlocks;
 		}
+		const data = JSON.stringify(jsonObject);
 
+		for (let index = 0; index < this.identifiedBlocks!.length; index++) {
+			const element = this.identifiedBlocks![index];
+
+			jsonObjectListOfBlocks[element.blockId] = element;
+		}
+		const dataListOfBlocks = JSON.stringify(jsonObjectListOfBlocks);
+
+		for (let index = 0; index < this.requireConstraintsFca!.length; index++) {
+			jsonObjectRerequireConstraintsFca[index] = this.requireConstraintsFca![index];
+		}
+		const dataRequireConstraintsFca = JSON.stringify(jsonObjectRerequireConstraintsFca);
+
+		for (let index = 0; index < this.exclusionConstraintsFca!.length; index++) {
+			jsonObjectExclusionConstraintsFca[index] = this.exclusionConstraintsFca![index];
+		}
+		const dataExclusionConstraintsFca = JSON.stringify(jsonObjectExclusionConstraintsFca);
+
+		for (let index = 0; index < this.requireConstraintsFpGrowth!.length; index++) {
+			jsonObjectRerequireConstraintsFpGrowth[index] = this.requireConstraintsFpGrowth![index];
+		}
+		const dataRequireConstraintsFpGrowth = JSON.stringify(jsonObjectRerequireConstraintsFpGrowth);
+		this._panel.webview.postMessage({
+			command: 'showvariants', data: data, dataRequireConstraintsFca: dataRequireConstraintsFca, dataExclusionConstraintsFca: dataExclusionConstraintsFca, dataRequireConstraintsFpGrowth: dataRequireConstraintsFpGrowth, dataListOfBlocks: dataListOfBlocks
+		});
 	}
 
 	public dispose() {
@@ -216,9 +201,6 @@ export class VisualizationPanel {
 				<p id="variatnsTitle">Options</p>
 				<div style="display: grid; margin-top:4px ;">
                     <button onclick="renameAllBlocks()" class="btn">Rename All Blocks</button>
-                </div>
-				<div style="display: grid; margin-top:4px ;">
-                    <button onclick="refreshBlocks()" class="btn">Refresh window</button>
                 </div>
 					<p id="variatnsTitle">variants</p>
 	

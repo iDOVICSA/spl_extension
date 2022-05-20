@@ -443,8 +443,7 @@ option:hover {
   border-color: #fff;
   cursor: pointer;
   background-color: none;
-  margin: 0px 14px 0px;
-  font-size: 18px;
+  0px 14px 0px  font-size: 18px;
   border-radius: 6px;
   border: 3px solid #777777;
 }

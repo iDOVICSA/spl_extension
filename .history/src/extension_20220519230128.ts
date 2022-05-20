@@ -111,6 +111,15 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(resulltPath), { forceNewWindow: true });
           })
         );
+
+        context.subscriptions.push(
+          vscode.commands.registerCommand('spl-extension.refresh', async () => {
+
+
+          })
+        );
+
+
       }
       catch (err) {
         console.log("error from main   " + err);

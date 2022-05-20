@@ -86,20 +86,13 @@ export class VisualizationPanel {
 						return;
 
 					case 'refreshWindow':
-						this.kill();
-						//this._update();
+						this._update();
 						return;
 				}
 			},
 			null,
 			this._disposables
 		);
-	}
-
-	public kill() {
-		VisualizationPanel.currentPanel?.dispose();
-		VisualizationPanel.createOrShow(this._extensionUri, this.variants!, this.identifiedBlocks!, this.requireConstraintsFca!, this.exclusionConstraintsFca!, this.requireConstraintsFpGrowth!);
-
 	}
 
 	public showVariants() {

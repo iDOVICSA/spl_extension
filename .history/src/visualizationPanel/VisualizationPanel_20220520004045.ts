@@ -1,3 +1,4 @@
+import { kill } from 'process';
 import * as vscode from 'vscode';
 import { Constrainte } from '../constraints_discovery/constrainte';
 import { Block } from '../extension_core/Block';
@@ -86,8 +87,8 @@ export class VisualizationPanel {
 						return;
 
 					case 'refreshWindow':
-						this.kill();
-						//this._update();
+						kill();
+						this._update();
 						return;
 				}
 			},
@@ -96,10 +97,8 @@ export class VisualizationPanel {
 		);
 	}
 
-	public kill() {
+	public static kill() {
 		VisualizationPanel.currentPanel?.dispose();
-		VisualizationPanel.createOrShow(this._extensionUri, this.variants!, this.identifiedBlocks!, this.requireConstraintsFca!, this.exclusionConstraintsFca!, this.requireConstraintsFpGrowth!);
-
 	}
 
 	public showVariants() {

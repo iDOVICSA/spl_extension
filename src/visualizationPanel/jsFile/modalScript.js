@@ -110,7 +110,12 @@ function renameAllBlocks(){
         }
 
 }
-
 }
 
+function refreshBlocks(){
+    vscode.postMessage({
+        command: 'refreshWindow',
+        text: 'succes',
+    });
 
+}

@@ -86,8 +86,7 @@ export class VisualizationPanel {
 						return;
 
 					case 'refreshWindow':
-						this.kill();
-						//this._update();
+						this._update();
 						return;
 				}
 			},
@@ -96,10 +95,9 @@ export class VisualizationPanel {
 		);
 	}
 
-	public kill() {
-		VisualizationPanel.currentPanel?.dispose();
-		VisualizationPanel.createOrShow(this._extensionUri, this.variants!, this.identifiedBlocks!, this.requireConstraintsFca!, this.exclusionConstraintsFca!, this.requireConstraintsFpGrowth!);
-
+	public static kill() {
+		HelloWorldPanel.currentPanel?.dispose();
+		HelloWorldPanel.currentPanel = undefined;
 	}
 
 	public showVariants() {

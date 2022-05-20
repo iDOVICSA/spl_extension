@@ -111,6 +111,8 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(resulltPath), { forceNewWindow: true });
           })
         );
+
+
       }
       catch (err) {
         console.log("error from main   " + err);

@@ -16,6 +16,8 @@ const blocks = [];
 
 
     // Handle the message inside the webview
+    
+
     window.addEventListener('message', event => {
 
         const message = event.data; // The JSON data our extension sent
@@ -26,23 +28,30 @@ const blocks = [];
                   for (var value in jsonObject) {  
                 iterable.set(value,jsonObject[value]) ;
                  }
+                 console.log("rani 1");
+
                  let dataListOfBlocks= JSON.parse(message.dataListOfBlocks); 
                   for (var value in dataListOfBlocks) {  
                     listOfBlocks.set(value,dataListOfBlocks[value]) ;
                  }
+                 console.log("rani 2");
                   let jsonObjectdataRequireConstraintsFca= JSON.parse(message.dataRequireConstraintsFca);
                   for (var value in jsonObjectdataRequireConstraintsFca) {
                     requireConstraintsFcaIterable.push(jsonObjectdataRequireConstraintsFca[value]);
                      }  
+                     console.log("rani 3");
                      let jsonObjectdataExclusionConstraintsFca= JSON.parse(message.dataExclusionConstraintsFca);
                      for (var value in jsonObjectdataExclusionConstraintsFca) {
                         exclusionConstraintsFcaIterable.push(jsonObjectdataExclusionConstraintsFca[value]);
                         }  
+                        console.log("rani 4");
                   let jsonObjectdataRequireConstraintsFpGrowth= JSON.parse(message.dataRequireConstraintsFpGrowth);
                    for (var value in jsonObjectdataRequireConstraintsFpGrowth) {
                       dataRequireConstraintsFpGrowth.push(jsonObjectdataRequireConstraintsFpGrowth[value]);
                            }
+                           console.log("rani 5");
             for (let [clef, valeur] of iterable) {
+                console.log("Dkhalt w rana 3aychine");
                 var variant = document.createElement("div");
                 variant.setAttribute("class",clef +" variants");
                 variant.setAttribute("draggable","true");

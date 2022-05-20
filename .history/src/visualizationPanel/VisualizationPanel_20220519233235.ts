@@ -84,22 +84,17 @@ export class VisualizationPanel {
 						vscode.window.showInformationMessage("Data saved with succes");
 						console.log("i have renamed block" + message.text.blockId);
 						return;
-
 					case 'refreshWindow':
-						this.kill();
-						//this._update();
+						this.identifiedBlocks![message.text.blockId].blockName = message.text.newName;
+						this.identifiedBlocks![message.text.blockId].colorOfBlock = message.text.newColor;
+						vscode.window.showInformationMessage("Data saved with succes");
+						console.log("i have renamed block" + message.text.blockId);
 						return;
 				}
 			},
 			null,
 			this._disposables
 		);
-	}
-
-	public kill() {
-		VisualizationPanel.currentPanel?.dispose();
-		VisualizationPanel.createOrShow(this._extensionUri, this.variants!, this.identifiedBlocks!, this.requireConstraintsFca!, this.exclusionConstraintsFca!, this.requireConstraintsFpGrowth!);
-
 	}
 
 	public showVariants() {
