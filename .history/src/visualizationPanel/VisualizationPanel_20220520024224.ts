@@ -268,7 +268,7 @@ export class VisualizationPanel {
 	
 				<div class="modal-footer">
 					<button class="bet_time closeButton close" id="closeButton">Close</button>
-					<button class="bet_time showBlockButton close" id="detailsButton"  onclick="detailsButton()">Block details</button>
+					<button class="bet_time showBlockButton close" id="detailsButton"  onclick="detailsButton()">show bloc details</button>
 					<button class="bet_time saveChangesButton" onclick="saveChangesButton()">Save changes</button>
 	
 				</div>

@@ -815,13 +815,14 @@ export class Utils {
         let firstVariant: any = undefined;
         let blocName = "/** \n" + "* Block Name : " + b.blockName + " \n";
         let variantTitle = "* Variants Name : \n";
-        let txt = "* Block Element : \n" + "*/ \n \n";
+        let txt = "* Block Element : \n";
         b.sourceCodeContent.forEach((elementRange: ElementRange[], key: string) => {
             if (!firstVariant) {
                 firstVariant = key;
             }
             variantTitle = variantTitle + key + "\n";
         });
+        variantTitle = variantTitle + "*/ \n";
 
         let elementRange = b.sourceCodeContent.get(firstVariant);
         let fileName = "";
@@ -832,9 +833,7 @@ export class Utils {
                 fileName = element.fileName.fsPath.replace(firstVariant, "") + " : ";
 
                 if (fileName !== fileNameSave) {
-                    txt = txt + "/** \n";
                     txt = txt + "* " + fileName + "\n";
-                    txt = txt + "*/ \n";
                     fileNameSave = fileName;
                 }
 

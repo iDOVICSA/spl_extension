@@ -94,9 +94,8 @@ export class VisualizationPanel {
 					case 'showBlocDetails':
 						await vscode.commands.executeCommand("workbench.action.files.newUntitledFile");
 						const e = vscode.window.activeTextEditor;
-						let txt = Utils.showBlocDetails(this.identifiedBlocks![message.text.blockId]);
 						e?.edit(edit => {
-							edit.insert(new vscode.Position(0, 0), txt);
+							edit.insert(new vscode.Position(0, 0), "Your advertisement here");
 						});
 						return;
 				}
@@ -268,7 +267,7 @@ export class VisualizationPanel {
 	
 				<div class="modal-footer">
 					<button class="bet_time closeButton close" id="closeButton">Close</button>
-					<button class="bet_time showBlockButton close" id="detailsButton"  onclick="detailsButton()">Block details</button>
+					<button class="bet_time closeButton close" id="detailsButton"  onclick="detailsButton()">show bloc details</button>
 					<button class="bet_time saveChangesButton" onclick="saveChangesButton()">Save changes</button>
 	
 				</div>

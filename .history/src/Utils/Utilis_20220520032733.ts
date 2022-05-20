@@ -815,7 +815,7 @@ export class Utils {
         let firstVariant: any = undefined;
         let blocName = "/** \n" + "* Block Name : " + b.blockName + " \n";
         let variantTitle = "* Variants Name : \n";
-        let txt = "* Block Element : \n" + "*/ \n \n";
+        let txt = "* Block Element : \n" + "*/ \n";
         b.sourceCodeContent.forEach((elementRange: ElementRange[], key: string) => {
             if (!firstVariant) {
                 firstVariant = key;

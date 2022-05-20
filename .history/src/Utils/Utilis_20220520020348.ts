@@ -812,37 +812,18 @@ export class Utils {
     }
 
     static showBlocDetails(b: Block): string {
-        let firstVariant: any = undefined;
-        let blocName = "/** \n" + "* Block Name : " + b.blockName + " \n";
-        let variantTitle = "* Variants Name : \n";
-        let txt = "* Block Element : \n" + "*/ \n \n";
+        let blocName = "### Variants Name ### \n" b.blockName + " \n";
+        let variantTitle = "### Variants Name ### \n";
+        let txt = "### Files Name ### \n";
         b.sourceCodeContent.forEach((elementRange: ElementRange[], key: string) => {
-            if (!firstVariant) {
-                firstVariant = key;
-            }
             variantTitle = variantTitle + key + "\n";
-        });
-
-        let elementRange = b.sourceCodeContent.get(firstVariant);
-        let fileName = "";
-        let fileNameSave = "";
-        if (elementRange) {
             for (let index = 0; index < elementRange.length; index++) {
                 const element = elementRange[index].element;
-                fileName = element.fileName.fsPath.replace(firstVariant, "") + " : ";
-
-                if (fileName !== fileNameSave) {
-                    txt = txt + "/** \n";
-                    txt = txt + "* " + fileName + "\n";
-                    txt = txt + "*/ \n";
-                    fileNameSave = fileName;
-                }
-
                 txt = txt + element.instruction + "\n";
-
             }
-        }
-        return blocName + variantTitle + txt;
+
+        });
+        return variantTitle + txt;
 
     }
 }

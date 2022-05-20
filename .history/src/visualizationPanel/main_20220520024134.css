@@ -273,10 +273,10 @@ label {
   font-size: medium;
 }
 
-.showBlockButton {
+.closeButton {
   color: #fff;
-  background-color: #17a2b8;
-  border-color: #17a2b8;
+  background-color: #6c757d;
+  border-color: #6c757d;
 }
 
 .closeButton {
