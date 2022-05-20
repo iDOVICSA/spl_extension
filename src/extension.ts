@@ -74,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         let divideFunc : any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods")  ; 
         divideFunc = divideFunc.prop1 as boolean ; 
-      //  identifiedBlocks! = await blocksIdentification.identifyBlocksInit(filesVariants,divideFunc);
+        identifiedBlocks! = await blocksIdentification.identifyBlocksInit(filesVariants,divideFunc);
         identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants,divideFunc);
 
         let featureNaming = new FeatureNamingTfIdf();
@@ -93,7 +93,8 @@ export function activate(context: vscode.ExtensionContext) {
         //fmJson = Utils.exportFMForgeJson(identifiedBlocks!, reqConstraints, mutexConstraints, allVariants.length);
         //   await Utils.exportFullForgeProject(identifiedBlocks!, allVariants.length, s!);
         // let blocksByVariantJson = Utils.getBlocksByVariantJson(allVariants) ;  
-        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks!, reqConstraints, mutexConstraints, reqConstraintFpGrowth);
+        VisualizationPanel.createOrShow(context.extensionUri, allVariants, identifiedBlocks!, reqConstraints, mutexConstraints, reqConstraints);
+
         //fmJson= alternativesBeforeHierarchyFMSynthesis.createFeatureModel();
 
         //  await Utils.exportFullForgeProjectByMergeVariants(identifiedBlocks!, allVariants, s!);
@@ -121,8 +122,6 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(resulltPath), { forceNewWindow: true });
           })
         );
-
-
       }
       catch (err) {
         console.log("error from main   " + err);

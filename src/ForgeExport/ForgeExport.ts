@@ -136,11 +136,11 @@ export class ForgeExport {
                 const element = resullt[idx];
                 str[idx] = element.element.element.instruction;
 
-                if (element.element.getParent()!=="root") {
+                if (element.element.getParent() !== "root") {
                     if (!element.element.element.symbol) {
-                        if (element.element.elementRange.start.line<element.element.element.parent?.element.symbol?.selectionRange.start.line!) {
-                            str.splice(idx-1,0,element.element.element.instruction) ;
-                            str.splice(idx+1,1) ;
+                        if (element.element.elementRange.start.line < element.element.element.parent?.element.symbol?.selectionRange.start.line!) {
+                            str.splice(idx - 1, 0, element.element.element.instruction);
+                            str.splice(idx + 1, 1);
                         }
                     }
                 }
@@ -381,7 +381,7 @@ export class ForgeExport {
         for (const file of block.mediaContent) {
             let fileUri = vscode.Uri.file(firstKey + file);
             let t = file.split(path.sep);
-            let target = vscode.Uri.parse(resulltPath + path.sep + t.join(path.sep));
+            let target = vscode.Uri.file(resulltPath + path.sep + t.join(path.sep));
             let pathPropagationElement = {
                 "propagationId": propagationId.toString(),
                 "sourceId": propagationId.toString(),

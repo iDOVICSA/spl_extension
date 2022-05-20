@@ -110,7 +110,24 @@ function renameAllBlocks(){
         }
 
 }
+}
 
+function refreshBlocks(){
+    vscode.postMessage({
+        command: 'refreshWindow',
+        text: 'succes',
+    });
 }
 
 
+function detailsButton(){
+    const jsonObject = {};
+    var blockNameInput = document.getElementById("blockName");
+    var id = blockNameInput.name;
+    jsonObject["blockId"]=id;
+
+    vscode.postMessage({
+        command: 'showBlocDetails',
+        text: jsonObject,
+    });
+}
