@@ -17,31 +17,19 @@ export class Utils {
      * @param initialFolders : Opened Folders in the workspace 
      * @returns List of Variant objects 
      */
-    static loadVariants(initialFolders: readonly vscode.WorkspaceFolder[], uris: any): Variant[] {
+    static loadVariants(initialFolders: readonly vscode.WorkspaceFolder[]): Variant[] {
         let resullt: Variant[] = [];
-        let folderToDelete: vscode.Uri[] = [];
-        for (const folder of initialFolders) {
-            if (Utils.ifSelected(folder.uri, uris)) {
+        if () {
+            for (const folder of initialFolders) {
                 let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
                 let variantName = folder.name;
                 let variant = new Variant(variantId, variantName);
                 resullt.push(variant);
             }
         }
-        return resullt;
-    }
 
-    static ifSelected(folderSelected: vscode.Uri, uris: any) {
-        for (let index = 0; index < uris?.length; index++) {
-            const element = uris[index];
-            if (element.fsPath === folderSelected.fsPath) {
-                return true;
-            }
-        }
-        if (uris === undefined) {
-            return true;
-        }
-        return false;
+
+        return resullt;
     }
 
 
@@ -859,8 +847,4 @@ export class Utils {
         return blocName + variantTitle + txt;
 
     }
-}
-
-function ifSelected(uri: vscode.Uri, uris: any) {
-    throw new Error("Function not implemented.");
 }

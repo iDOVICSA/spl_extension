@@ -12,6 +12,7 @@
 	"activationEvents": [
 		"onCommand:spl-extension.adaptCode",
 		"onCommand:spl-extension.createFM",
+		"onCommand:spl-extension.refresh",
 		"onLanguage:java"
 	],
 	"main": "./out/extension.js",
@@ -22,11 +23,15 @@
 		"commands": [
 			{
 				"command": "spl-extension.adaptCode",
-				"title": "[Identify Blocks] Identify Blocks for selected folders"
+				"title": "[Adapt Code] Identify blocks for selected folders"
 			},
 			{
 				"command": "spl-extension.createFM",
 				"title": "Create FM"
+			},
+			{
+				"command": "spl-extension.refresh",
+				"title": "Refresh"
 			}
 		],
 		"viewsContainers": {
@@ -65,12 +70,23 @@
 			}
 		],
 		"menus": {
-			
-			
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "spl-extension.adaptCode",
+					"when": "false"	
+				}
+			],
 				"explorer/context": [
 					{
 					  "command": "spl-extension.adaptCode",
-					  "when": "explorerResourceIsFolder && listMultiSelection"
+					  "when": "explorerResourceIsFolder"
 					}
 				  ]
 		},

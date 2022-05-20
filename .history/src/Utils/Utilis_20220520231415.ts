@@ -26,20 +26,19 @@ export class Utils {
                 let variantName = folder.name;
                 let variant = new Variant(variantId, variantName);
                 resullt.push(variant);
+            } else {
+                folderToDelete.push();
             }
         }
         return resullt;
     }
 
     static ifSelected(folderSelected: vscode.Uri, uris: any) {
-        for (let index = 0; index < uris?.length; index++) {
+        for (let index = 0; index < uris.length; index++) {
             const element = uris[index];
             if (element.fsPath === folderSelected.fsPath) {
                 return true;
             }
-        }
-        if (uris === undefined) {
-            return true;
         }
         return false;
     }

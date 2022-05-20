@@ -65,7 +65,13 @@
 			}
 		],
 		"menus": {
-			
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			],
 			
 				"explorer/context": [
 					{

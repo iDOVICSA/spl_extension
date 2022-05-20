@@ -21,11 +21,14 @@ export function activate(context: vscode.ExtensionContext) {
     "spl-extension.adaptCode",
     async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
 
+      console.log(_e);
+      console.log(uris);
+
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
+      let allVariants = Utils.loadVariants(s!);
 
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];

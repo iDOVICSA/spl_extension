@@ -22,7 +22,7 @@
 		"commands": [
 			{
 				"command": "spl-extension.adaptCode",
-				"title": "[Identify Blocks] Identify Blocks for selected folders"
+				"title": "Adapt Code"
 			},
 			{
 				"command": "spl-extension.createFM",
@@ -65,8 +65,19 @@
 			}
 		],
 		"menus": {
-			
-			
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "spl-extension.adaptCode",
+					"when": "explorerResourceIsFolder"	
+				}
+			],
 				"explorer/context": [
 					{
 					  "command": "spl-extension.adaptCode",

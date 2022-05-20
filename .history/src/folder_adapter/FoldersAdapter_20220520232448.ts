@@ -4,7 +4,7 @@ import * as path from "path";
 import { Utils } from "../Utils/Utilis";
 export class FoldersAdapter {
 
-    async adaptFolders(foldersVariants: readonly vscode.WorkspaceFolder[], uris: any): Promise<Map<string, string[]>> {
+    async adaptFolders(foldersVariants: readonly vscode.WorkspaceFolder[]): Promise<Map<string, string[]>> {
         // Map<fileRelativeURL,listOf BaseUrl of Variants it appears on>
         let filesVariantsMap = new Map<string, string[]>();
 

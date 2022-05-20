@@ -17,15 +17,21 @@ import { Constrainte } from "./constraints_discovery/constrainte";
 import { FlatFeatureDiagram } from "./feature_model_synthesis/flat_feature_diagram/FlatFeatureDiagram";
 
 export function activate(context: vscode.ExtensionContext) {
+  function isodd(element: any) {
+    console.log(element);
+    return (element % 2 == 1);
+  }
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
     async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
+      console.log(uris?.includes(s![0].uri));
+      s = s?.filter(e => isodd);
+      let allVariants = Utils.loadVariants(s!);
 
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];

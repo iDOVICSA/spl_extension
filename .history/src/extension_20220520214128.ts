@@ -19,13 +19,13 @@ import { FlatFeatureDiagram } from "./feature_model_synthesis/flat_feature_diagr
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
-    async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
+    async () => {
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
+      let allVariants = Utils.loadVariants(s!);
 
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];
@@ -122,5 +122,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("foldersCompare.compareSelectedFolders", foldersCompareProvider.compareSelectedFolders),
+  );
+
   context.subscriptions.push(disposableCodeAdapt);
 }

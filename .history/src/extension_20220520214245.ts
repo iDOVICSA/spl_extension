@@ -19,13 +19,13 @@ import { FlatFeatureDiagram } from "./feature_model_synthesis/flat_feature_diagr
 export function activate(context: vscode.ExtensionContext) {
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
-    async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
+    async () => {
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
+      let allVariants = Utils.loadVariants(s!);
 
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];
@@ -122,5 +122,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("foldersCompare.compareSelectedFolders", async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
+      if (uris?.length !== 2) {
+        showErrorMessageWithMoreInfo(
+          'Unfortunately, this command can run only by right clicking on 2 folders, no shortcuts here 😕',
+          'https://github.com/microsoft/vscode/issues/3553'
+        );
+        return;
+      }
+      const [{ fsPath: folder1Path }, { fsPath: folder2Path }] = uris;
+      //pathContext.setPaths(folder1Path, folder2Path);
+      //return this.handleDiffResult(await compareFolders());
+    };),
+  );
+
   context.subscriptions.push(disposableCodeAdapt);
 }

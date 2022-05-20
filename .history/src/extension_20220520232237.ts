@@ -22,10 +22,17 @@ export function activate(context: vscode.ExtensionContext) {
     async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
-
+      let allVariants = Utils.loadVariants(s!, uris!);
+      for (const folder of s) {
+        if (Utils.ifSelected(folder.uri, uris)) {
+          let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
+          let variantName = folder.name;
+          let variant = new Variant(variantId, variantName);
+          resullt.push(variant);
+        }
+      }
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];

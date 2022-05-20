@@ -19,7 +19,6 @@ export class Utils {
      */
     static loadVariants(initialFolders: readonly vscode.WorkspaceFolder[], uris: any): Variant[] {
         let resullt: Variant[] = [];
-        let folderToDelete: vscode.Uri[] = [];
         for (const folder of initialFolders) {
             if (Utils.ifSelected(folder.uri, uris)) {
                 let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
@@ -32,14 +31,11 @@ export class Utils {
     }
 
     static ifSelected(folderSelected: vscode.Uri, uris: any) {
-        for (let index = 0; index < uris?.length; index++) {
+        for (let index = 0; index < uris.length; index++) {
             const element = uris[index];
-            if (element.fsPath === folderSelected.fsPath) {
+            if (element === folderSelected) {
                 return true;
             }
-        }
-        if (uris === undefined) {
-            return true;
         }
         return false;
     }

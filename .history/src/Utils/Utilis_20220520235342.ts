@@ -38,9 +38,6 @@ export class Utils {
                 return true;
             }
         }
-        if (uris === undefined) {
-            return true;
-        }
         return false;
     }
 
