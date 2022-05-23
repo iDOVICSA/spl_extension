@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
       excludeFilter: excludeFilter ? excludeFilter.join(',') : undefined;
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris, excludeFilter);
+      let allVariants = Utils.loadVariants(s!, uris);
 
       let m = new FoldersAdapter();
       let filesVariants = await m.adaptFolders(s!, uris, excludeFilter);

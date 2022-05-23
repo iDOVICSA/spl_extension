@@ -119,7 +119,7 @@
 							"prop1": true
 						}
 					},
-					"conf.settingsEditor.excludeFilter": {
+					"compareFolders.excludeFilter": {
 						"type": "array",
 						"description": "Exclude filters",
 						"scope": "resource"

@@ -23,8 +23,10 @@ export function activate(context: vscode.ExtensionContext) {
       const excludeFilter: string[] | undefined = vscode.workspace.getConfiguration().get("conf.settingsEditor.excludeFilter");
       excludeFilter: excludeFilter ? excludeFilter.join(',') : undefined;
 
+      console.log(excludeFilter);
+
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris, excludeFilter);
+      let allVariants = Utils.loadVariants(s!, uris);
 
       let m = new FoldersAdapter();
       let filesVariants = await m.adaptFolders(s!, uris, excludeFilter);

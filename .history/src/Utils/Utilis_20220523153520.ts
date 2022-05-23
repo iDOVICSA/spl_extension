@@ -21,8 +21,8 @@ export class Utils {
         let resullt: Variant[] = [];
         let folderToDelete: vscode.Uri[] = [];
         for (const folder of initialFolders) {
-            let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
-            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(variantId, excludeFilter)) {
+            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(folder.uri.fsPath, excludeFilter)) {
+                let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
                 let variantName = folder.name;
                 let variant = new Variant(variantId, variantName);
                 resullt.push(variant);

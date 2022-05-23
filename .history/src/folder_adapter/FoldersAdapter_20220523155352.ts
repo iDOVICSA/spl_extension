@@ -11,7 +11,7 @@ export class FoldersAdapter {
         for (const folder of foldersVariants) {
             let indexVariant = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
 
-            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(indexVariant, excludeFilter)) {
+            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(folder.uri.fsPath, excludeFilter)) {
 
 
                 let result: string[] = [];

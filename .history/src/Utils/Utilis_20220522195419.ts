@@ -17,12 +17,12 @@ export class Utils {
      * @param initialFolders : Opened Folders in the workspace 
      * @returns List of Variant objects 
      */
-    static loadVariants(initialFolders: readonly vscode.WorkspaceFolder[], uris: any, excludeFilter: string[] | undefined): Variant[] {
+    static loadVariants(initialFolders: readonly vscode.WorkspaceFolder[], uris: any): Variant[] {
         let resullt: Variant[] = [];
         let folderToDelete: vscode.Uri[] = [];
         for (const folder of initialFolders) {
-            let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
-            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(variantId, excludeFilter)) {
+            if (Utils.ifSelected(folder.uri, uris)) {
+                let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
                 let variantName = folder.name;
                 let variant = new Variant(variantId, variantName);
                 resullt.push(variant);
@@ -40,18 +40,6 @@ export class Utils {
         }
         if (uris === undefined) {
             return true;
-        }
-        return false;
-    }
-    static ifExclude(subVariant: string, excludeFilter: string[] | undefined) {
-        if (!excludeFilter) {
-            return false;
-        }
-        for (let index = 0; index < excludeFilter?.length; index++) {
-            const element = excludeFilter[index];
-            if (subVariant.includes(element)) {
-                return true;
-            }
         }
         return false;
     }
