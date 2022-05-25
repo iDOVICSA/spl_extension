@@ -12,9 +12,8 @@
 	"activationEvents": [
 		"onCommand:spl-extension.adaptCode",
 		"onCommand:spl-extension.createFM",
-		"onLanguage:java",
-		"onLanguage:C#",
-		"onCommand:spl-extension.InitLsp"
+		"onCommand:spl-extension.refresh",
+		"onLanguage:java"
 	],
 	"main": "./out/extension.js",
 	"capabilities": {
@@ -24,15 +23,15 @@
 		"commands": [
 			{
 				"command": "spl-extension.adaptCode",
-				"title": "[Identify Blocks] Identify Blocks for selected folders"
+				"title": "Adapt Code"
 			},
 			{
 				"command": "spl-extension.createFM",
 				"title": "Create FM"
 			},
 			{
-				"command": "spl-extension.InitLsp",
-				"title": "Init LSP"
+				"command": "spl-extension.refresh",
+				"title": "Refresh"
 			}
 		],
 		"viewsContainers": {
@@ -52,12 +51,12 @@
 					"icon": "media/dep.svg",
 					"contextualTitle": "Package Explorer"
 				},
-				{	
-					"id": "ignoreFiles",
-					"name": "Ignore file",
-					"icon": "media/dep.svg",
-					"contextualTitle": "Package Explorer"
-				}
+				
+				"id": "blockIdentification",
+				"name": "Block Identification",
+				"icon": "media/dep.svg",
+				"contextualTitle": "Package Explorer"
+			}
 			]
 		},
 		"viewsWelcome": [
@@ -71,14 +70,13 @@
 			}
 		],
 		"menus": {
-			
-			
-				"explorer/context": [
-					{
-					  "command": "spl-extension.adaptCode",
-					  "when": "explorerResourceIsFolder && listMultiSelection"
-					}
-				  ]
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			]
 		},
 		"configuration": [
 			{

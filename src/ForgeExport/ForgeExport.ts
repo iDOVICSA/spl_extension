@@ -11,7 +11,7 @@ import * as fs from 'fs';
 export class ForgeExport {
     static async exportForge(blocks: Block[], variants: Variant[], workspaceFolders: readonly vscode.WorkspaceFolder[]) {
         let divideFunc: any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods");
-        let pathRootsMap: Map<string, boolean> = new Map<string, boolean>();
+        let pathRootsMap: Map<string,Map<string, boolean>> = new Map<string,Map<string, boolean>>(); // <fileName,<pathRoot,boolean true if set>>
         let treatedBlocks: Block[] = [];
         let treatedFiles: string[] = [];
         let resulltPath = workspaceFolders[0].uri.fsPath.split(workspaceFolders![0].uri.fsPath.split(path.sep).pop()!)[0] + "Result";
@@ -22,44 +22,65 @@ export class ForgeExport {
         let pathPropagations: any[] = [];
         let fileSeeds: any[];
         let propagationId = 0;
+        let fileIdx =0; 
         while (treatedBlocks.length < blocks.length) {
 
             let maximal = Utils.getVariantWithMaximalBlocks(variants);
             //blockList - treatedAlreadyBlocks 
             let untreatedBlocks = maximal.blocksList.filter(item => treatedBlocks.indexOf(item) < 0);
             //order blockList :
+
             Utils.sortBlocksBySize(untreatedBlocks);
-            pathRootsMap.set("root", true);
+            
             for (const block of untreatedBlocks) {
+                let blocSourceCodeKeys = Array.from(block.sourceCodeContent.keys());
+
                 while (block.sourceCodeContent.get(maximal.variantId)?.length! > 0) {
                     for (const content of block.sourceCodeContent.get(maximal.variantId)!) {
+                        /*for (let cpt=0;cpt<block.sourceCodeContent.get(maximal.variantId)?.length!;cpt++) {
+                            let content = block.sourceCodeContent.get(blocSourceCodeKeys[0])![cpt] ;
+                            for (let key of blocSourceCodeKeys) {
+                                if (block.sourceCodeContent.get(key)![cpt].elementRange.start.line>content.elementRange.start.line) {
+                                    content = block.sourceCodeContent.get(key)![cpt] ; 
+                                }
+                            }*/
+                        
+
                         let filePath = resulltPath + path.sep + content.element.fileName.fsPath.replace(maximal.variantId, "");
 
                         if (!treatedFiles.includes(filePath)) {
-                            let fileinit: string = "";
+                            fileIdx++ ; 
+                            let v = new Map<string,boolean>() ;
+                            v.set("root",true) ;
+                            pathRootsMap.set(filePath,v );
+                            /*let fileinit: string = "";
                             for (let index = 0; index < 1000; index++) {
                                 fileinit = fileinit + "\n";
                             }
                             fs.appendFile(filePath, fileinit, function (err) {
                                 if (err) { throw err; };
-                            });
+                            });*/
                             mergeResultTree.set(filePath, []);
+                            console.log(filePath) ;
+                            if (filePath==="c:\HiveBackendVariants\Result\Startup.cs") {
+                                debugger ;
+                            }
                             treatedFiles.push(filePath);
                         }
 
-                        if (pathRootsMap.get(content.getParentPathRoot())) {
+                        if (pathRootsMap.get(filePath)?.get(content.getParentPathRoot())) {
                             if (divideFunc.prop1) {
-                                pathRootsMap.set(content.element.pathToRoot, true);
+                                pathRootsMap.get(filePath)!.set(content.element.pathToRoot, true);
 
                             }
                             else {
                                 if ((content.element.getElementKind() !== 5) && (content.element.getElementKind() !== 11)) {
                                     if (content.element.getElementParentInstruction().replace(/\s+/g, '') === content.element.instruction.replace(/\s+/g, '')) {
-                                        pathRootsMap.set(content.element.pathToRoot, true);
+                                        pathRootsMap.get(filePath)!.set(content.element.pathToRoot, true);
                                     }
                                 }
                                 else {
-                                    pathRootsMap.set(content.element.pathToRoot, true);
+                                    pathRootsMap.get(filePath)!.set(content.element.pathToRoot, true);
                                 }
                             }
 
@@ -118,6 +139,7 @@ export class ForgeExport {
         for (let idx = 0; idx < allFiles.length; idx++) {
             
             let s = allFiles[idx];
+            console.log(s) ;
             let resullt: TreeElement[] = [];
             this.getFileContent(mergeResultTree.get(s)!, resullt);
             let pos = 0;
@@ -134,7 +156,8 @@ export class ForgeExport {
             for (let idx = 0; idx < resullt.length; idx++) {
 
                 const element = resullt[idx];
-                str[idx] = element.element.element.instruction;
+                str[idx] = element.element.element.instruction ;
+              
 
                 if (element.element.getParent() !== "root") {
                     if (!element.element.element.symbol) {
@@ -159,7 +182,7 @@ export class ForgeExport {
                                         "startLine": highlightStartLine,
                                         "startColumn": highlightStartCharacter,
                                         "endLine": pos - 1,
-                                        "endColumn": resullt[idx - 1].element.elementRange.end.character,
+                                        "endColumn": resullt[idx - 1].element.element.instruction.length+2,
                                         "isValidated": true,
                                         "analyzer": "Interoperable analyzer",
                                         "isFromMarker": true,
@@ -176,7 +199,7 @@ export class ForgeExport {
                                 "startLine": highlightStartLine,
                                 "startColumn": highlightStartCharacter,
                                 "endLine": pos - 1,
-                                "endColumn": resullt[idx - 1].element.elementRange.end.character,
+                                "endColumn": resullt[idx - 1].element.element.instruction.length+2,
                                 "type": "Deletion",
                                 "isValidated": true,
                             };
@@ -228,7 +251,7 @@ export class ForgeExport {
                                 "startLine": highlightStartLine,
                                 "startColumn": highlightStartCharacter,
                                 "endLine": endLine!,
-                                "endColumn": element.element.elementRange.end.character,
+                                "endColumn": resullt[idx - 1].element.element.instruction.length+2,
                                 "isValidated": true,
                                 "isMapped": false,
                                 "analyzer": "Interoperable analyzer",
@@ -253,7 +276,7 @@ export class ForgeExport {
                         "startLine": highlightStartLine,
                         "startColumn": highlightStartCharacter,
                         "endLine": endLine!,
-                        "endColumn": element.element.elementRange.end.character,
+                        "endColumn": resullt[idx - 1].element.element.instruction.length+2,
                         "type": "Deletion",
                         "isValidated": true,
                         "isMapped": false

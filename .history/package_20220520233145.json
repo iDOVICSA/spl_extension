@@ -12,9 +12,7 @@
 	"activationEvents": [
 		"onCommand:spl-extension.adaptCode",
 		"onCommand:spl-extension.createFM",
-		"onLanguage:java",
-		"onLanguage:C#",
-		"onCommand:spl-extension.InitLsp"
+		"onLanguage:java"
 	],
 	"main": "./out/extension.js",
 	"capabilities": {
@@ -29,10 +27,6 @@
 			{
 				"command": "spl-extension.createFM",
 				"title": "Create FM"
-			},
-			{
-				"command": "spl-extension.InitLsp",
-				"title": "Init LSP"
 			}
 		],
 		"viewsContainers": {
@@ -71,7 +65,13 @@
 			}
 		],
 		"menus": {
-			
+			"editor/title": [
+				{
+					"command": "spl-extension.adaptCode",
+					"alt": "spl-extension.adaptCode",
+					"group": "navigation"
+				}
+			],
 			
 				"explorer/context": [
 					{

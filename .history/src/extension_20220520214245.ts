@@ -17,21 +17,15 @@ import { Constrainte } from "./constraints_discovery/constrainte";
 import { FlatFeatureDiagram } from "./feature_model_synthesis/flat_feature_diagram/FlatFeatureDiagram";
 
 export function activate(context: vscode.ExtensionContext) {
-
-
-
-
-
-
   let disposableCodeAdapt = vscode.commands.registerCommand(
     "spl-extension.adaptCode",
-    async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
+    async () => {
 
       let s = vscode.workspace.workspaceFolders;
-      let allVariants = Utils.loadVariants(s!, uris);
+      let allVariants = Utils.loadVariants(s!);
 
       let m = new FoldersAdapter();
-      let filesVariants = await m.adaptFolders(s!, uris);
+      let filesVariants = await m.adaptFolders(s!);
 
       let blocksIdentification = new BlockIdentification();
       let identifiedBlocks!: Block[];
@@ -39,12 +33,39 @@ export function activate(context: vscode.ExtensionContext) {
       try {
 
 
+        /*vscode.window.withProgress({
+          location: vscode.ProgressLocation.Notification,
+          title: "Blocks identification ",
+          cancellable: false
+        }, async (progress, token) => { 
+    
+          progress.report({ increment: 0 });
+    
+//          identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants);
 
-        let divideFunc : any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods")  ; 
-        divideFunc = divideFunc.prop1 as boolean ; 
-        //identifiedBlocks! = await blocksIdentification.identifyBlocksInit(filesVariants,divideFunc);
-        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants,divideFunc);
+          progress.report({ increment: 40, message: "I am long running! - still going..." });
 
+     //     let featureNaming = new FeatureNamingTfIdf();
+       //   let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!!);
+
+          
+            progress.report({ increment: 45, message: "I am long running! - still going even more..." });
+        
+          setTimeout(() => {
+            progress.report({ increment: 50, message: "I am long running! - almost there..." });
+          }, 3000);
+    
+          const p = new Promise<void>(resolve => {
+            setTimeout(() => {
+              resolve();
+            }, 5000);
+          });
+    
+          return p;
+        });*/
+        let divideFunc: any = vscode.workspace.getConfiguration().get("conf.settingsEditor.divideMethods");
+        divideFunc = divideFunc.prop1 as boolean;
+        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants, divideFunc);
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
@@ -101,12 +122,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("foldersCompare.compareSelectedFolders", async (_e: vscode.Uri, uris?: [vscode.Uri, vscode.Uri]) => {
+      if (uris?.length !== 2) {
+        showErrorMessageWithMoreInfo(
+          'Unfortunately, this command can run only by right clicking on 2 folders, no shortcuts here 😕',
+          'https://github.com/microsoft/vscode/issues/3553'
+        );
+        return;
+      }
+      const [{ fsPath: folder1Path }, { fsPath: folder2Path }] = uris;
+      //pathContext.setPaths(folder1Path, folder2Path);
+      //return this.handleDiffResult(await compareFolders());
+    };),
+  );
 
-  let disposabeInitVariants = vscode.commands.registerCommand("spl-extension.InitLsp",()=>{
-    let s = vscode.workspace.workspaceFolders;
-    
-  });
-
-  context.subscriptions.push(disposabeInitVariants) ;
   context.subscriptions.push(disposableCodeAdapt);
 }
