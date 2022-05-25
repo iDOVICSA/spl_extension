@@ -69,7 +69,6 @@ export function activate(context: vscode.ExtensionContext) {
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
-        Utils.attributePercentageToBlocks(identifiedBlocks!);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks!);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks!);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks!);

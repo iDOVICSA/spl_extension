@@ -69,7 +69,6 @@ export function activate(context: vscode.ExtensionContext) {
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
-        Utils.attributePercentageToBlocks(identifiedBlocks!);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks!);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks!);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks!);
@@ -102,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             if (configurationOptions.configuredViewFmAlgorithm.prop1) {
-              fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configurationOptions.configuredViewFmName);
+              fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configuredViewFmName);
               await Utils.saveFmForgeJson("~AlternativesBeforeHierarchyFMSynthesis.functionalities.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, mapsJson, seedsJson, s!);
             }
 

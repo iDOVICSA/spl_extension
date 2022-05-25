@@ -65,11 +65,10 @@ export function activate(context: vscode.ExtensionContext) {
           return p;
         });*/
         configurationOptions.divideFunc = configurationOptions.divideFunc.prop1 as boolean;
-        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants, configurationOptions.divideFunc);
+        identifiedBlocks! = await blocksIdentification.identifyBlocks(filesVariants, divideFunc);
         let featureNaming = new FeatureNamingTfIdf();
         let resultsFeatureNaming = featureNaming.nameBlocks(identifiedBlocks!);
         Utils.attributeBlocksToVariants(allVariants, identifiedBlocks!);
-        Utils.attributePercentageToBlocks(identifiedBlocks!);
         let reqConstraints = FCAConstraintsDiscovery.getRequireIConstraints(allVariants, identifiedBlocks!);
         let mutexConstraints = FCAConstraintsDiscovery.getMutualExculsionIConstraints(allVariants, identifiedBlocks!);
         let reqConstraintFpGrowth = await FpGrowthConstraintsDiscovery.getRequireConstraints(allVariants, identifiedBlocks!);
@@ -92,17 +91,19 @@ export function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(
           vscode.commands.registerCommand('spl-extension.createFM', async () => {
 
-
+            const configuredViewGlobal = vscode.workspace.getConfiguration();
+            const configuredViewFmAlgorithm: any = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
+            const configuredViewFmName: any = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
             let seedsMaps = await ForgeExport.exportForge(identifiedBlocks!, allVariants, s!);
             let mapsJson = seedsMaps[0];
             let seedsJson = seedsMaps[1];
-            if (configurationOptions.configuredViewFmAlgorithm.prop2) {
-              fmJson = flatFeatureDiagram.createFeatureModel(configurationOptions.configuredViewFmName);
+            if (configuredViewFmAlgorithm.prop2) {
+              fmJson = flatFeatureDiagram.createFeatureModel(configuredViewFmName);
               await Utils.saveFmForgeJson("~FlatFMSynthesis.functionalities.maps.forge", "FlatFMSynthesis.maps.forge", "FlatFMSynthesis.fm.forge", fmJson!, mapsJson, seedsJson, s!);
             }
 
-            if (configurationOptions.configuredViewFmAlgorithm.prop1) {
-              fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configurationOptions.configuredViewFmName);
+            if (configuredViewFmAlgorithm.prop1) {
+              fmJson = alternativesBeforeHierarchyFMSynthesis.createFeatureModel(configuredViewFmName);
               await Utils.saveFmForgeJson("~AlternativesBeforeHierarchyFMSynthesis.functionalities.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.maps.forge", "AlternativesBeforeHierarchyFMSynthesis.fm.forge", fmJson!, mapsJson, seedsJson, s!);
             }
 

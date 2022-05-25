@@ -73,16 +73,12 @@ export class Utils {
     }
 
     static attributePercentageToBlocks(blocks: Block[]) {
-        let cpt = 0;
         for (const block of blocks) {
             let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            cpt = cpt + blockElements.length;
-        }
-        for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            block.percentageOfBlock = blockElements.length * 100 / cpt;
+            for (const variantId of variantsOfBlock) {
+                let variant = variants.filter(item => item.variantId === variantId)[0];
+                variant.blocksList.push(block);
+            }
         }
     }
 

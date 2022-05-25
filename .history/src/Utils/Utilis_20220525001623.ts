@@ -82,7 +82,7 @@ export class Utils {
         for (const block of blocks) {
             let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
             let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            block.percentageOfBlock = blockElements.length * 100 / cpt;
+            cpt = cpt + blockElements.length;
         }
     }
 

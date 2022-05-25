@@ -72,20 +72,6 @@ export class Utils {
         }
     }
 
-    static attributePercentageToBlocks(blocks: Block[]) {
-        let cpt = 0;
-        for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            cpt = cpt + blockElements.length;
-        }
-        for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            block.percentageOfBlock = blockElements.length * 100 / cpt;
-        }
-    }
-
     static exportFMForgeJson(blocks: Block[], requireConstraints: Constrainte[], mutexConstraints: Constrainte[], variantsCount: number) {
         let funcionnalities: any[] = [];
         let constraints: any[] = [];
@@ -887,25 +873,29 @@ export class Utils {
 
     }
 
-    static getOptions(): Options {
-        const configuredViewGlobal = vscode.workspace.getConfiguration();
+    function getOptions(): Options {
+    const configuredViewGlobal = vscode.workspace.getConfiguration();
 
+    const {
+        excludeFilter,
+        divideFunc,
+        configuredViewFmAlgorithm,
+        configuredViewFmName
+    } = configuredViewGlobal.getConfiguration(
+        'conf.settingsEditor.excludeFilter',
+        'conf.settingsEditor.divideMethods',
+        'conf.settingsEditor.fmAlgorithmSetting',
+        'conf.settingsEditor.featureModelNameSetting'
+    );
 
-        const excludeFilter: string[] | undefined = vscode.workspace.getConfiguration().get("conf.settingsEditor.excludeFilter");
-        excludeFilter: excludeFilter ? excludeFilter.join(',') : undefined;
-
-        const divideFunc = configuredViewGlobal.get('conf.settingsEditor.divideMethods');
-        const configuredViewFmAlgorithm = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
-        const configuredViewFmName = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
-
-        const options: Options = {
-            excludeFilter,
-            divideFunc,
-            configuredViewFmAlgorithm,
-            configuredViewFmName
-        };
-        return options;
-    }
+    const options: Options = {
+        excludeFilter: excludeFilter ? excludeFilter.join(',') : undefined,
+        divideFunc,
+        configuredViewFmAlgorithm,
+        configuredViewFmName
+    };
+    return options;
+}
 }
 
 function ifSelected(uri: vscode.Uri, uris: any) {
