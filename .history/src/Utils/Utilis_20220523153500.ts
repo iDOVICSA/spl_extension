@@ -9,7 +9,6 @@ import { Element } from "../extension_core/Element";
 import path = require("path");
 import { checkServerIdentity } from "tls";
 import { ElementRange } from "../extension_core/ElementRange";
-import { Options } from "./Options";
 
 export class Utils {
 
@@ -22,8 +21,8 @@ export class Utils {
         let resullt: Variant[] = [];
         let folderToDelete: vscode.Uri[] = [];
         for (const folder of initialFolders) {
-            let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
-            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(variantId, excludeFilter)) {
+            if (Utils.ifSelected(folder.uri, uris) && Utils.ifExclude(folder.uri.fsPath, excludeFilter)) {
+                let variantId = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
                 let variantName = folder.name;
                 let variant = new Variant(variantId, variantName);
                 resullt.push(variant);
@@ -69,20 +68,6 @@ export class Utils {
                 let variant = variants.filter(item => item.variantId === variantId)[0];
                 variant.blocksList.push(block);
             }
-        }
-    }
-
-    static attributePercentageToBlocks(blocks: Block[]) {
-        let cpt = 0;
-        for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            cpt = cpt + blockElements.length;
-        }
-        for (const block of blocks) {
-            let variantsOfBlock = Array.from(block.sourceCodeContent.keys());
-            let blockElements = block.sourceCodeContent.get(variantsOfBlock[0])!;
-            block.percentageOfBlock = blockElements.length * 100 / cpt;
         }
     }
 
@@ -885,26 +870,6 @@ export class Utils {
         }
         return blocName + variantTitle + txt;
 
-    }
-
-    static getOptions(): Options {
-        const configuredViewGlobal = vscode.workspace.getConfiguration();
-
-
-        const excludeFilter: string[] | undefined = vscode.workspace.getConfiguration().get("conf.settingsEditor.excludeFilter");
-        excludeFilter: excludeFilter ? excludeFilter.join(',') : undefined;
-
-        const divideFunc = configuredViewGlobal.get('conf.settingsEditor.divideMethods');
-        const configuredViewFmAlgorithm = configuredViewGlobal.get('conf.settingsEditor.fmAlgorithmSetting');
-        const configuredViewFmName = configuredViewGlobal.get('conf.settingsEditor.featureModelNameSetting');
-
-        const options: Options = {
-            excludeFilter,
-            divideFunc,
-            configuredViewFmAlgorithm,
-            configuredViewFmName
-        };
-        return options;
     }
 }
 

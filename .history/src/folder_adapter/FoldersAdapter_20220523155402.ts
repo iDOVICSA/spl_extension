@@ -25,7 +25,7 @@ export class FoldersAdapter {
                         if (!Utils.ifExclude(element, excludeFilter)) {
                             filesVariantsMap.set(element, [indexVariant]);
                         } else {
-                            console.log("Exclude Elements", element);
+                            console.log("ana exclude ", element);
                         }
                     }
                 }

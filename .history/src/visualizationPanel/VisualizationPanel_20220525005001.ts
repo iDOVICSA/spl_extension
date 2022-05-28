@@ -260,9 +260,9 @@ export class VisualizationPanel {
 					<label>Change block color</label>
                	    <input type="color" id="favcolor" value="#000000">
 
-					<label id="percentage"></label>
+					   <label>Change block color</label>
 
-
+					   
 					<h2>Word Cloud</h2>
 					<div class="center">
 						<div id="container"></div>

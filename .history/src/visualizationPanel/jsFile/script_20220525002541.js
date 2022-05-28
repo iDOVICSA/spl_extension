@@ -58,7 +58,7 @@ const blocks = [];
                     bloc.setAttribute("class", "bloc "+element);
                     bloc.setAttribute("title", listOfBlocks.get(id).blockName);
                     bloc.setAttribute("id",element);
-                    bloc.style.height = (50 + listOfBlocks.get(id).percentageOfBlock*2) +"px";
+                    bloc.style.height = (70 + listOfBlocks.get(id).percentageOfBlock) +"px";
                     bloc.style.background = listOfBlocks.get(id).colorOfBlock;
                     variant.appendChild(bloc);
                     var nomBloc = document.createElement("div");
@@ -212,15 +212,11 @@ const blocks = [];
 
     var blockNameInput = document.getElementById("blockName");
     var blockName = document.getElementById(clicked_id);
-    var blockPercentage = document.getElementById("percentage");
-
 
     blockNameInput.value = blockName.title;
     blockNameInput.setAttribute("name",clicked_id);
 
     colorOfBlock.value =  listOfBlocks.get(clicked_id).colorOfBlock;
-    blockPercentage.innerText = "Percentage of Block is :"+parseFloat(listOfBlocks.get(clicked_id).percentageOfBlock).toFixed(2)+"%";
-
 
 }
 

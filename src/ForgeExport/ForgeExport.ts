@@ -34,37 +34,34 @@ export class ForgeExport {
             
             for (const block of untreatedBlocks) {
                 let blocSourceCodeKeys = Array.from(block.sourceCodeContent.keys());
+                let contentKey : string; 
+                let contini ; 
 
                 while (block.sourceCodeContent.get(maximal.variantId)?.length! > 0) {
-                    for (const content of block.sourceCodeContent.get(maximal.variantId)!) {
-                        /*for (let cpt=0;cpt<block.sourceCodeContent.get(maximal.variantId)?.length!;cpt++) {
-                            let content = block.sourceCodeContent.get(blocSourceCodeKeys[0])![cpt] ;
-                            for (let key of blocSourceCodeKeys) {
-                                if (block.sourceCodeContent.get(key)![cpt].elementRange.start.line>content.elementRange.start.line) {
-                                    content = block.sourceCodeContent.get(key)![cpt] ; 
-                                }
-                            }*/
+                    for (let content of block.sourceCodeContent.get(maximal.variantId)!) {
+                        let contentKey = maximal.variantId; 
+                        let idxContent = block.sourceCodeContent.get(maximal.variantId)?.indexOf(content);
+                       
+                        for (let key of blocSourceCodeKeys) {
+                            if (block.sourceCodeContent.get(key)![idxContent!].elementRange.start.line>content.elementRange.start.line) {
+                                content = block.sourceCodeContent.get(key)![idxContent!] ; 
+                                contentKey = key ; 
+                            }
+                        }
+                        
+                    
                         
 
-                        let filePath = resulltPath + path.sep + content.element.fileName.fsPath.replace(maximal.variantId, "");
+                        let filePath = resulltPath + path.sep + content.element.fileName.fsPath.replace(contentKey!, "");
 
                         if (!treatedFiles.includes(filePath)) {
                             fileIdx++ ; 
                             let v = new Map<string,boolean>() ;
                             v.set("root",true) ;
                             pathRootsMap.set(filePath,v );
-                            /*let fileinit: string = "";
-                            for (let index = 0; index < 1000; index++) {
-                                fileinit = fileinit + "\n";
-                            }
-                            fs.appendFile(filePath, fileinit, function (err) {
-                                if (err) { throw err; };
-                            });*/
+                   
                             mergeResultTree.set(filePath, []);
-                            console.log(filePath) ;
-                            if (filePath==="c:\HiveBackendVariants\Result\Startup.cs") {
-                                debugger ;
-                            }
+                           
                             treatedFiles.push(filePath);
                         }
 
@@ -113,8 +110,12 @@ export class ForgeExport {
                                 }
                                 arr?.push(treeEm);
                             }
-                            let idxRemove = block.sourceCodeContent.get(maximal.variantId)?.indexOf(content);
-                            block.sourceCodeContent.get(maximal.variantId)?.splice(idxRemove!, 1);
+                            //let idxRemove = block.sourceCodeContent.get(maximal.variantId)?.indexOf(contini);
+                            let idxRemove = block.sourceCodeContent.get(contentKey)?.indexOf(content);
+                            for (let key of blocSourceCodeKeys) {
+                                block.sourceCodeContent.get(key)?.splice(idxRemove!,1) ;
+                            }
+                            //block.sourceCodeContent.get(maximal.variantId)?.splice(idxRemove!, 1);
                         }
                     }
                 }
@@ -149,6 +150,9 @@ export class ForgeExport {
 
             let propagations: any[] = [];
             let file = s.replace(resulltPath + path.sep, "");
+            if (file==="Models\\Quote.cs") {
+                console.log("wait") ;
+            }
             let mandatoryBlockId = this.getMandatoryBlockId(blocks, variantsCount);
             let seeds: any[] = [];
             let str: string[] = [];
@@ -224,8 +228,8 @@ export class ForgeExport {
 
                 }
             }
-            let element = resullt.pop()!;
-            resullt.push(element!);
+            let lastElement = resullt.pop()!;
+            resullt.push(lastElement!);
             if (blockId !== mandatoryBlockId) {
                 let endLine: number;
                 if (divideFunc.prop1) {
@@ -233,8 +237,8 @@ export class ForgeExport {
 
                 }
                 else {
-                    if ((element.element.element.getElementKind() === 5) || (element.element.element.getElementKind() === 11)) {
-                        endLine = pos - (element.element.elementRange.end.line - element.element.elementRange.start.line + 1);
+                    if ((lastElement.element.element.getElementKind() === 5) || (lastElement.element.element.getElementKind() === 11)) {
+                        endLine = pos - (lastElement.element.elementRange.end.line - lastElement.element.elementRange.start.line + 1);
                     }
                     else {
                         endLine = pos - 1;
@@ -251,7 +255,7 @@ export class ForgeExport {
                                 "startLine": highlightStartLine,
                                 "startColumn": highlightStartCharacter,
                                 "endLine": endLine!,
-                                "endColumn": resullt[idx - 1].element.element.instruction.length+2,
+                                "endColumn": lastElement.element.element.instruction.length+2,
                                 "isValidated": true,
                                 "isMapped": false,
                                 "analyzer": "Interoperable analyzer",
@@ -276,7 +280,7 @@ export class ForgeExport {
                         "startLine": highlightStartLine,
                         "startColumn": highlightStartCharacter,
                         "endLine": endLine!,
-                        "endColumn": resullt[idx - 1].element.element.instruction.length+2,
+                        "endColumn": lastElement.element.element.instruction.length+2,
                         "type": "Deletion",
                         "isValidated": true,
                         "isMapped": false

@@ -9,10 +9,9 @@ export class FoldersAdapter {
         let filesVariantsMap = new Map<string, string[]>();
 
         for (const folder of foldersVariants) {
-            let indexVariant = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
+            if (Utils.ifSelected(folder.uri, uris)) {
 
-            if (Utils.ifSelected(folder.uri, uris) && !Utils.ifExclude(indexVariant, excludeFilter)) {
-
+                let indexVariant = folder.uri.fsPath.split(folder.name)[0] + folder.name + path.sep;
 
                 let result: string[] = [];
                 await this.browseFolders(folder.uri, ".", result);
@@ -24,8 +23,6 @@ export class FoldersAdapter {
                     else {
                         if (!Utils.ifExclude(element, excludeFilter)) {
                             filesVariantsMap.set(element, [indexVariant]);
-                        } else {
-                            console.log("Exclude Elements", element);
                         }
                     }
                 }
